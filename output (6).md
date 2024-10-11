@@ -48,8 +48,6 @@ Design of Next instruction panel and Audio announcement depends on lane configur
 
 **Multi-lane roundabout instruction design**
 
-
-
 | **Phase**    | **Visual**                                      | **Audio**                                                                                            | **Notes**                                                                                                                                                                        |
 | ------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Early        | ![8.png](/Users/bogdan.arsic/Documents/8.png)   | _**In one kilometer, at the Roundabout, take the 3rd exit ...**_                                     |                                                                                                                                                                                  |
@@ -78,8 +76,6 @@ Following example illustrates lane guidance at multi-lane roundabout with 2 exit
 
 ![15.png](/Users/bogdan.arsic/Documents/15.png)
 
-
-
 **Instruction modelling for this scenario**
 
 | **Exit No.** | **NIP**                                         | **Audio**                                            | **Notes**                                                                                                                                                                                                                       |
@@ -99,8 +95,6 @@ When Exit instruction is omitted?
 ---------------------------------
 
 There are use cases when exit instruction doesn't have place. Those happen usually due to close proximity of the entry and exit points. They are so close to each other that can be considered as one.
-
-
 
 Roundabouts types
 =================
@@ -129,8 +123,6 @@ Small roundabouts must have less than 30m radius. Angle deviations from 90° sho
 | #1     | ![21.png](/Users/bogdan.arsic/Documents/21.png)     | This is a small (supposedly less than 30m radius) roundabout with clear straight exits.                                                 |
 | #2     | ![123.png](/Users/bogdan.arsic/Documents/123.png)   | Two successive roundabout: one of them is small and another is big. For small one we should use short version and for big one - normal. |
 | #3     | ![1234.png](/Users/bogdan.arsic/Documents/1234.png) | This roundabout while small, **is not straight**, therefore id doesn't meet straight direction conditions.                              |
-
-
 
 **Detection of straight direction.**
 
