@@ -1,5 +1,5 @@
 | **Status**      | <mark>MOVED TO REVIEW</mark>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| --------------- |:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **IXD**         | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | **VD**          | [Georgios Koultouridis](https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | **ENG. OWNER**  | [Agnieszka Sobczyk](https://tomtom.atlassian.net/wiki/people/712020:27737e77-b2fa-4ca4-9fbf-019cbab57789?ref=confluence)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -63,7 +63,7 @@ Multi-lane roundabouts lane recommendation should be gathered from lane connecti
 
 | **Exit number** | **Recommended lane**          | **Notes**                        |
 | --------------- | ----------------------------- | -------------------------------- |
-| 1               | Rightmost                     |                                  |
+| 1               | Rightmost                     | New note                         |
 | 2               | 2nd from the right            |                                  |
 | 3               | 2nd or/and 3rd from the right | 3rd - if third lane is available |
 | 4 - max         | Leftmost                      |                                  |
@@ -107,6 +107,8 @@ Different configurations of roundabouts require different instruction compositio
 
 3. **Multi-lane roundabouts -** the most complex traffic figures that require the most elaborative instruction for the manoeuvre.
 
+4. **New roundabout type** - hello
+
 1\. Small / straight roundabouts
 --------------------------------
 
@@ -114,7 +116,7 @@ Small, straight (both conditions must be present to be classified as such) round
 
 **Small, Straight Roundabouts detection algorithms** <mark>TO BE MOVED TO GITHUB</mark>
 
-This sections should be moved to the GitHub and managed by **engineering owner**.
+This sections should be moved to the GitHub and managed by **engineering owner**. Here are some changes.
 
 Small roundabouts must have less than 30m radius. Angle deviations from 90° should not exceed +-5° (both sides)
 
