@@ -41,19 +41,19 @@ Design of Next instruction panel and Audio announcement depends on lane configur
 
 | **Phase** | **Visual**                                                                              | **Audio**                                                              | **Notes**                                                                                                                                                |
 | --------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Early))   | <img title="" src="images/d63357b0-6961-468a-acf2-5f23f0291fce.png" alt="" width="770"> | _**In one kilometer, at the Roundabout, take the 3rd exit ...**_       |                                                                                                                                                          |
-| Main      | <img title="" src="images/2.png" alt="" width="706">                                    | _**In four hundred meters, at the Roundabout, take the 3rd exit ...**_ |                                                                                                                                                          |
-| Conf      | ![](images/3.png)                                                                       | _**take the 3rd exit**_                                                | At the point of entry the distance counter gets down to 0 and then after entering roundabout, immediately restarts with the distance til the exit point. |
-| Exit      | <img title="" src="file:///Users/bogdan.arsic/Documents/4.png" alt="4.png" width="365"> | _**exit the roundabout**_                                              | Exit instructions don't mention the number of exit since it is not applicable for the current position of the vehicle                                    |
+| Early     | <img title="" src="images/d63357b0-6961-468a-acf2-5f23f0291fce.png" alt="" width="592"> | _**In one kilometer, at the Roundabout, take the 3rd exit ...**_       |                                                                                                                                                          |
+| Main      | <img title="" src="images/2.png" alt="" width="394">                                    | _**In four hundred meters, at the Roundabout, take the 3rd exit ...**_ |                                                                                                                                                          |
+| Conf      | <img title="" src="images/3.png" alt="" width="550">                                    | _**take the 3rd exit**_                                                | At the point of entry the distance counter gets down to 0 and then after entering roundabout, immediately restarts with the distance til the exit point. |
+| Exit      | <img title="" src="images/4.png" alt="" width="578">                                    | _**exit the roundabout**_                                              | Exit instructions don't mention the number of exit since it is not applicable for the current position of the vehicle                                    |
 
 **Multi-lane roundabout instruction design**
 
-| **Phase**    | **Visual**                                      | **Audio**                                                                                            | **Notes**                                                                                                                                                                        |
-| ------------ | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Early        | ![8.png](/Users/bogdan.arsic/Documents/8.png)   | _**In one kilometer, at the Roundabout, take the 3rd exit ...**_                                     |                                                                                                                                                                                  |
-| Main         | ![10.png](/Users/bogdan.arsic/Documents/10.png) | _**In four hundred meters, at the Roundabout, stay in the left two lanes to take the 3rd exit ...**_ | New design of Unified SLG replaces manoeuvre arrow with SLG at main, Confirmation instruction phases. SLG here depicts lane configuration at the entrance to the roundabout.     |
-| Confirmation | ![10.png](/Users/bogdan.arsic/Documents/10.png) | _**take the 3rd exit**_                                                                              | At the point of entry the distance counter gets down to 0 and then after entering roundabout, immediately restarts with the distance til the exit point.                         |
-| Exit8        | ![11.png](/Users/bogdan.arsic/Documents/11.png) | _**exit the roundabout**_                                                                            | New design of Unified SLG replaces manoeuvre arrow with SLG at main, Confirmation instruction phases. SLG here depicts lane configuration at the exit point from the roundabout. |
+| **Phase**    | **Visual**                                            | **Audio**                                                                                            | **Notes**                                                                                                                                                                        |
+| ------------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Early        | <img title="" src="images/9.png" alt="" width="447">  | _**In one kilometer, at the Roundabout, take the 3rd exit ...**_                                     |                                                                                                                                                                                  |
+| Main         | <img title="" src="images/10.png" alt="" width="413"> | _**In four hundred meters, at the Roundabout, stay in the left two lanes to take the 3rd exit ...**_ | New design of Unified SLG replaces manoeuvre arrow with SLG at main, Confirmation instruction phases. SLG here depicts lane configuration at the entrance to the roundabout.     |
+| Confirmation | <img title="" src="images/11.png" alt="" width="522"> | _**take the 3rd exit**_                                                                              | At the point of entry the distance counter gets down to 0 and then after entering roundabout, immediately restarts with the distance til the exit point.                         |
+| Exit         | ![](images/11.png)                                    | _**exit the roundabout**_                                                                            | New design of Unified SLG replaces manoeuvre arrow with SLG at main, Confirmation instruction phases. SLG here depicts lane configuration at the exit point from the roundabout. |
 
 ### SLG logic for multi-lane roundabouts
 
@@ -74,22 +74,22 @@ NOTE: this table is defined for standard driving road side (not UK, Japan). For 
 
 Following example illustrates lane guidance at multi-lane roundabout with 2 exits. Roundabout itself consists of 2 lanes that are not marked on the circle but assumed to be there because ther are 2 lanes at the entrance of the roundabout.
 
-![15.png](/Users/bogdan.arsic/Documents/15.png)
+<img title="" src="images/15.png" alt="" width="736" data-align="left">
 
 **Instruction modelling for this scenario**
 
-| **Exit No.** | **NIP**                                         | **Audio**                                            | **Notes**                                                                                                                                                                                                                       |
-| ------------ | ----------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1            | ![20.svg](/Users/bogdan.arsic/Documents/20.svg) | Stay in the middle lane to take the first exit…      | Even though, it possible to change lanes while driving along the circle - it is not optimal. Therefore using our MPO (manoeuvre path optimisation) method we recommend the most optimal lane that doesn't require lane changes. |
-| 2            | ![21.svg](/Users/bogdan.arsic/Documents/21.svg) | Stay in the left two lanes to take the second exit…. | Both left lanes are equally optimised for the second exit, therefore both are recommended                                                                                                                                       |
+| **Exit No.** | **NIP**            | **Audio**                                            | **Notes**                                                                                                                                                                                                                       |
+| ------------ | ------------------ | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1            | ![](images/20.svg) | Stay in the middle lane to take the first exit…      | Even though, it possible to change lanes while driving along the circle - it is not optimal. Therefore using our MPO (manoeuvre path optimisation) method we recommend the most optimal lane that doesn't require lane changes. |
+| 2            | ![](images/21.svg) | Stay in the left two lanes to take the second exit…. | Both left lanes are equally optimised for the second exit, therefore both are recommended                                                                                                                                       |
 
 ### Roundabout manoeuvre arrow
 
 Visual Instruction represents Roundabout schematically.
 
-| **First exit**                                  | **Third exit**                                  | **cross, second exit**                          | **take fifths exit**                            | **exit roundabout**                                                                       |
-| ----------------------------------------------- | ----------------------------------------------- | ----------------------------------------------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| ![24.png](/Users/bogdan.arsic/Documents/24.png) | ![25.png](/Users/bogdan.arsic/Documents/25.png) | ![26.png](/Users/bogdan.arsic/Documents/26.png) | ![27.png](/Users/bogdan.arsic/Documents/27.png) | <img src="file:///Users/bogdan.arsic/Documents/28.png" title="" alt="28.png" width="187"> |
+| **First exit**     | **Third exit**     | **cross, second exit** | **take fifths exit** | **exit roundabout** |
+| ------------------ | ------------------ | ---------------------- | -------------------- | ------------------- |
+| ![](images/24.png) | ![](images/25.png) | ![](images/26.png)     | ![](images/27.png)   | ![](images/28.png)  |
 
 When Exit instruction is omitted?
 ---------------------------------
@@ -120,11 +120,11 @@ This sections should be moved to the GitHub and managed by **engineering owner**
 
 Small roundabouts must have less than 30m radius. Angle deviations from 90° should not exceed +-5° (both sides)
 
-| **ID** | **Road Network**                                    | **Description**                                                                                                                         |
-| ------ | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| #1     | ![21.png](/Users/bogdan.arsic/Documents/21.png)     | This is a small (supposedly less than 30m radius) roundabout with clear straight exits.                                                 |
-| #2     | ![123.png](/Users/bogdan.arsic/Documents/123.png)   | Two successive roundabout: one of them is small and another is big. For small one we should use short version and for big one - normal. |
-| #3     | ![1234.png](/Users/bogdan.arsic/Documents/1234.png) | This roundabout while small, **is not straight**, therefore id doesn't meet straight direction conditions.                              |
+| **ID** | **Road Network**                                        | **Description**                                                                                                                         |
+| ------ | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| #1     | <img title="" src="images/21.png" alt="" width="333">   | This is a small (supposedly less than 30m radius) roundabout with clear straight exits.                                                 |
+| #2     | <img title="" src="images/123.png" alt="" width="333">  | Two successive roundabout: one of them is small and another is big. For small one we should use short version and for big one - normal. |
+| #3     | <img title="" src="images/1234.png" alt="" width="361"> | This roundabout while small, **is not straight**, therefore id doesn't meet straight direction conditions.                              |
 
 **Detection of straight direction.**
 
