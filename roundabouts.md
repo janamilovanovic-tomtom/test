@@ -54,7 +54,7 @@ Design of Next instruction panel and Audio announcement depends on lane configur
 
 ### SLG logic for multi-lane roundabouts
 
-Multi-lane roundabouts lane recommendation should be gathered from lane connectivity data. Typically, the rightmost lane is connected with the first exit. Second and third to the second exit. Leftmost lane to the 3rd and further exits. This principle, however, could be broken and lane connectivity In those cases the only way to know which lane should be recommended is to read lane markings which are usually drawn on the surface of the road. Generally, when lane connectivity is in place it should be used for gathering recommended lane. And only when all lanes are connected to the target exit equally, we should apply generic lane logic.
+Multi-lane roundabouts lane recommendation should be gathered from lane connectivity data. Typically, the rightmost lane is connected with the first exit. Second and third to the second exit. Leftmost lane to the 3rd and further exits. This principle, however, could be broken and lane connectivity In those cases the only way to know which lane should be recommended is to read lane markings which are usually drawn on the surface of the road. Generally, when lane connectivity is in place it should be used for gathering recommended lane. And only when all lanes are connected to the target exit equally, we should apply generic lane logic. !!! The roundabouts are our greatest feature !!!
 
 **Generic Lane Logic**
 
@@ -114,6 +114,7 @@ Small, straight (both conditions must be present to be classified as such) round
 **Small, Straight Roundabouts detection algorithms** <mark>TO BE MOVED TO GITHUB</mark>
 
 This sections should be moved to the GitHub and managed by **engineering owner**. Here are some changes.
+Some other text.
 
 Small roundabouts must have less than 30m radius. Angle deviations from 90° should not exceed +-5° (both sides)
 
@@ -132,5 +133,9 @@ Straight direction for small roundabouts is identified from looking at the follo
 | Multilane roundabouts       | Yes / No  | Multilane roundabouts are not qualified for having straight direction, as it is hard to keep sense of initial direction when travelling along big circle. |
 | Amount of exits             | 2-8       | Only roundabouts  **with 2, 3 and 4 exits**  can be qualified for for having _Straight direction_.                                                        |
 | deviation of crossing angle | \+\- 5°   | Only roundabouts with branches crossing at 90° or 180° angle can be qualified for for having _Straight direction_.                                        |
+
+| Atribute | Value |
+| -------- | ----- |
+| length   | 10m   |
 
 ...
