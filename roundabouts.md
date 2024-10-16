@@ -130,11 +130,13 @@ Straight direction for small roundabouts is identified from looking at the follo
 | **Attribute**               | **Value** | **Description**                                                                                                                                           |
 | --------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Multilane roundabouts       | Yes / No  | Multilane roundabouts are not qualified for having straight direction, as it is hard to keep sense of initial direction when travelling along big circle. |
-| Amount of exits             | 2-8       | Only roundabouts  **with 2, 3 and 4 exits**  can be qualified for for having _Straight direction_.                                                        |
+| Amount of exits             | 2-8       | Only roundabouts  **with 2, 3 and 4 exits**  can be qualified for for having _Straight direction_. New comment here.                                      |
 | deviation of crossing angle | \+\- 5°   | Only roundabouts with branches crossing at 90° or 180° angle can be qualified for for having _Straight direction_.                                        |
 
 | Atribute | Value |
 | -------- | ----- |
 | length   | 10m   |
+
+<img src="images/burger_roundabout_image.png" title="" alt="" width="578">
 
 ...
