@@ -16,14 +16,14 @@ Introduction
 | Lane guidance is misleading on a big roundabouts                                                                     | Provide SLG design for multi-lane roundabouts |
 | Exit Roundabout instruction is not clear.                                                                            | Clarify exit instruction                      |
 
-Roundabouts are complicated intersection type that require special instruction for handling. Typically driving through roundabouts poses following challenges: It is not easy to identify correct exit, especially if there are many and directions are not straight. The challenge is amplified by the fact that decision should be made very fast. To address this we must prepare the driver upfront and provide him necessary information that could be applied instantly. Typical method of guidance trough roundabouts is mentioning the **number of exit** (counted from the entry point) that has to be taken. It is relatively easy to count exits for the driver, however this could be complicated if exits are mixed up with entries. It is not always easy to distinguish entries from exits especially when it needs to be done very fast during counting.
+Roundabouts are complicated intersection type that require special instruction for handling. Typically driving through roundabouts poses following challenges: It is not easy to identify correct exit, especially if there are many and directions are not straight. The challenge is amplified by the fact that decision should be made very fast. To address this we must prepare the driver upfront and provide him necessary information that could be applied instantly. Typical method of guidance trough roundabouts is mentioning the **number of exit** (counted from the entry point) that has to be taken. It is relatively easy to count exits for the driver, however this could be complicated if exits are mixed up with entries. It is not always easy to distinguish entries from exits especially when it needs to be done very fast during counting. Add new line.
 
 Unlike, general instruction template, roundabout manoeuvre doesn't take place at one point but has a stretch of the road with two key points: entry and exit. To reflect this, the instruction has different architecture and consists of two parts:
 
 **Entry Roundabout instruction** \- Given for the entry as a manoeuvre point. Instructs how to perform whole Roundabout manoeuvre from entry to exit.   
 **Exit roundabout instruction** \- Given for the exit as manoeuvre point. Only instructs how to perform the exit roundabout manoeuvre, while being already on the roundabout.
 
-![](images/5.svg)
+<img src="images/5.svg" title="" alt="" width="965">
 
 **Roundabout Instruction schematic diagram.**  
 Technically, Roundabout manoeuvre is a sequence of two independent manoeuvres: **Roundabout entry** and **Roundabout Exit**  reference point for the entry is entry point and for the exit - exit. Those two manoeuvres have associated with them instructions which are depicted in corresponding Blue and Green colors on the diagram above.
@@ -37,7 +37,7 @@ Design of Next instruction panel and Audio announcement depends on lane configur
 
 | **Phase** | **Visual**                                                                              | **Audio**                                                              | **Notes**                                                                                                                                                |
 | --------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Early     | <img title="" src="images/d63357b0-6961-468a-acf2-5f23f0291fce.png" alt="" width="592"> | _**In one kilometer, at the Roundabout, take the 3rd exit ...**_       |                                                                                                                                                          |
+| Early     | <img title="" src="images/d63357b0-6961-468a-acf2-5f23f0291fce.png" alt="" width="310"> | _**In one kilometer, at the Roundabout, take the 3rd exit ...**_       |                                                                                                                                                          |
 | Main      | <img title="" src="images/2.png" alt="" width="394">                                    | _**In four hundred meters, at the Roundabout, take the 3rd exit ...**_ |                                                                                                                                                          |
 | Conf      | <img title="" src="images/3.png" alt="" width="550">                                    | _**take the 3rd exit**_                                                | At the point of entry the distance counter gets down to 0 and then after entering roundabout, immediately restarts with the distance til the exit point. |
 | Exit      | <img title="" src="images/4.png" alt="" width="578">                                    | _**exit the roundabout**_                                              | Exit instructions don't mention the number of exit since it is not applicable for the current position of the vehicle                                    |
@@ -136,5 +136,7 @@ Straight direction for small roundabouts is identified from looking at the follo
 | Atribute | Value |
 | -------- | ----- |
 | length   | 10m   |
+
+<img src="images/burger-roundabout.png" title="" alt="" width="692">
 
 ...
