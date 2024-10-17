@@ -17,25 +17,20 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin texlive pandoc zip
-
       - name: List current directory contents
         run: |
           echo "Current directory:"
           ls -la
-
       - name: List images directory
         run: |
           echo "Files in images directory:"
           ls -la images/
-
       - name: Convert Markdown to PDF
         run: |
           OUTPUT_DIR="pdf_output"
           mkdir -p "$OUTPUT_DIR"
-
           echo "Current working directory:"
           pwd
-
           for INPUT_FILE in *.md; do
               if [ -f "$INPUT_FILE" ]; then
                   echo "Processing file: $INPUT_FILE"
@@ -46,12 +41,10 @@ jobs:
                   echo "No .md files to convert."
               fi
           done
-
           # Create a ZIP archive of the PDF files
           ZIP_FILE="pdf_output.zip"
           zip -r "$ZIP_FILE" "$OUTPUT_DIR"
           echo "Created ZIP archive: $ZIP_FILE"
-
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v3
         with:
