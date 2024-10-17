@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up environment
         run: |
@@ -46,7 +46,7 @@ jobs:
           zip -r "$ZIP_FILE" "$OUTPUT_DIR"
           echo "Created ZIP archive: $ZIP_FILE"
       - name: Upload PDF ZIP
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pdf_output
           path: pdf_output.zip
