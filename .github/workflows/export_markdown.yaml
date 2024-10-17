@@ -16,7 +16,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin texlive pandoc zip  # Install texlive instead of pdflatex
+          sudo apt-get install -y librsvg2-bin texlive pandoc zip
 
       - name: List current directory contents
         run: |
@@ -46,6 +46,11 @@ jobs:
                   echo "No .md files to convert."
               fi
           done
+
+          # Create a ZIP archive of the PDF files
+          ZIP_FILE="pdf_output.zip"
+          zip -r "$ZIP_FILE" "$OUTPUT_DIR"
+          echo "Created ZIP archive: $ZIP_FILE"
 
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v3
