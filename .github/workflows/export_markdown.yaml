@@ -18,6 +18,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin wkhtmltopdf pandoc zip
 
+      - name: List directory structure
+        run: |
+          echo "Current directory structure:"
+          ls -R
+
       - name: Convert Markdown to PDF
         run: |
           # Create a new folder for PDF files
