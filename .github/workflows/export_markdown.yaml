@@ -1,7 +1,7 @@
 name: Convert Markdown to PDF
 
 on:
-  workflow_dispatch:  # Allows manual triggering
+  workflow_dispatch:
   push:
   pull_request:
 
@@ -18,10 +18,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y librsvg2-bin wkhtmltopdf pandoc zip
 
-      - name: List directory structure
+      - name: List current directory contents
         run: |
-          echo "Current directory structure:"
-          ls -R
+          echo "Current directory:"
+          ls -la
 
       - name: List images directory
         run: |
@@ -30,13 +30,15 @@ jobs:
 
       - name: Convert Markdown to PDF
         run: |
-          # Create a new folder for PDF files
           OUTPUT_DIR="pdf_output"
           mkdir -p "$OUTPUT_DIR"
 
-          # Convert all .md files to PDF
+          echo "Current working directory:"
+          pwd
+
           for INPUT_FILE in *.md; do
               if [ -f "$INPUT_FILE" ]; then
+                  echo "Processing file: $INPUT_FILE"
                   OUTPUT_FILE="$OUTPUT_DIR/${INPUT_FILE%.md}.pdf"
                   pandoc "$INPUT_FILE" -o "$OUTPUT_FILE" --pdf-engine=wkhtmltopdf --metadata title="Your Document Title" --standalone --resource-path=images
                   echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
@@ -46,7 +48,7 @@ jobs:
           done
 
       - name: Upload PDF ZIP
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: pdf_output
           path: pdf_output.zip
