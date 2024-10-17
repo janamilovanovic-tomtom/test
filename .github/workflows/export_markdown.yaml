@@ -38,7 +38,7 @@ jobs:
           for INPUT_FILE in *.md; do
               if [ -f "$INPUT_FILE" ]; then
                   OUTPUT_FILE="$OUTPUT_DIR/${INPUT_FILE%.md}.pdf"
-                  pandoc "$INPUT_FILE" -o "$OUTPUT_FILE" --pdf-engine=wkhtmltopdf --metadata title="Your Document Title"
+                  pandoc "$INPUT_FILE" -o "$OUTPUT_FILE" --pdf-engine=wkhtmltopdf --metadata title="Your Document Title" --standalone --resource-path=images
                   echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
               else
                   echo "No .md files to convert."
