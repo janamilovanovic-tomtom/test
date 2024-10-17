@@ -1,0 +1,30 @@
+name: Convert Markdown to PDF
+
+on:
+  workflow_dispatch:  # Allows manual triggering
+  push:
+  pull_request:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y librsvg2-bin wkhtmltopdf pandoc zip
+
+      - name: Run conversion script
+        run: |
+          chmod +x ./script.sh
+          ./script.sh
+
+      - name: Upload PDF ZIP
+        uses: actions/upload-artifact@v2
+        with:
+          name: pdf_output
+          path: pdf_output.zip
