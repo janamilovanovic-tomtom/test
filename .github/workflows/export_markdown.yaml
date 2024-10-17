@@ -16,7 +16,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin wkhtmltopdf pandoc zip
+          sudo apt-get install -y librsvg2-bin pdflatex pandoc zip
 
       - name: List current directory contents
         run: |
