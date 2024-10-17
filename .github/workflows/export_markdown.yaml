@@ -23,6 +23,11 @@ jobs:
           echo "Current directory structure:"
           ls -R
 
+      - name: List images directory
+        run: |
+          echo "Files in images directory:"
+          ls -la images/
+
       - name: Convert Markdown to PDF
         run: |
           # Create a new folder for PDF files
