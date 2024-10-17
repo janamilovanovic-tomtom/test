@@ -23,4 +23,5 @@ Unlike, general instruction template, roundabout manoeuvre doesn't take place at
 **Entry Roundabout instruction** \- Given for the entry as a manoeuvre point. Instructs how to perform whole Roundabout manoeuvre from entry to exit.   
 **Exit roundabout instruction** \- Given for the exit as manoeuvre point. Only instructs how to perform the exit roundabout manoeuvre, while being already on the roundabout.
 
+![](images/5.svg)
 <img src="images/5.svg" title="" alt="" width="965">

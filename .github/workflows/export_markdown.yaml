@@ -16,15 +16,23 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin texlive pandoc zip
+          sudo apt-get install -y librsvg2-bin texlive zip
+          # Install Node.js
+          curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          # Install mdpdf
+          npm install -g mdpdf
+
       - name: List current directory contents
         run: |
           echo "Current directory:"
           ls -la
+
       - name: List images directory
         run: |
           echo "Files in images directory:"
           ls -la images/
+
       - name: Convert Markdown to PDF
         run: |
           OUTPUT_DIR="pdf_output"
@@ -35,16 +43,18 @@ jobs:
               if [ -f "$INPUT_FILE" ]; then
                   echo "Processing file: $INPUT_FILE"
                   OUTPUT_FILE="$OUTPUT_DIR/${INPUT_FILE%.md}.pdf"
-                  pandoc "$INPUT_FILE" -o "$OUTPUT_FILE" --pdf-engine=pdflatex --metadata title="Your Document Title"
+                  mdpdf "$INPUT_FILE" -o "$OUTPUT_FILE"  # Use mdpdf for conversion
                   echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
               else
                   echo "No .md files to convert."
               fi
           done
+
           # Create a ZIP archive of the PDF files
           ZIP_FILE="pdf_output.zip"
           zip -r "$ZIP_FILE" "$OUTPUT_DIR"
           echo "Created ZIP archive: $ZIP_FILE"
+
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v4
         with:
