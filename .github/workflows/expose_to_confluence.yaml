@@ -1,0 +1,11 @@
+name: Upload Main To Confluence
+
+on:
+  workflow_dispatch:
+
+jobs:
+  print_message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print a message
+        run: echo "Hello, this is a manually triggered workflow!"
