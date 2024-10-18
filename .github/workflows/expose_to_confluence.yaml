@@ -18,7 +18,7 @@ jobs:
 
       - name: Convert Markdown to HTML
         run: |
-          pandoc ../../roundabouts.md -f markdown -t html -o output.html
+          pandoc roundabouts.md -f markdown -t html -o output.html
 
       - name: Upload to Confluence
         env:
