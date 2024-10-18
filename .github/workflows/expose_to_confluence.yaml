@@ -31,7 +31,7 @@ jobs:
           CURRENT_VERSION=$(curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X GET "$CONFLUENCE_URL/$PAGE_ID" | jq -r .version.number)
 
           # Read the HTML content from the converted file
-          HTML_CONTENT=$(cat output.html)
+          HTML_CONTENT=$(cat output.html | jq -Rsa .)
 
           # Debugging: Output the HTML content for inspection
           echo "HTML Content: $HTML_CONTENT"
@@ -47,7 +47,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "'"$HTML_CONTENT"'",
+                    "value": '"$HTML_CONTENT"',
                     "representation": "storage"
                   }
                 }
