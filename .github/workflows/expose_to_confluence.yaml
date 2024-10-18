@@ -1,11 +1,33 @@
-name: Upload Main To Confluence
+name: Upload Simple Text to Confluence
 
 on:
   workflow_dispatch:
 
 jobs:
-  print_message:
+  upload_to_confluence:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Print a message
-        run: echo "Hello, this is a manually triggered workflow!"
+      - name: Upload to Confluence
+        env:
+          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
+          PAGE_ID: '367269077'
+          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
+        run: |
+          # Update the page content with simple text
+          curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X PUT "$CONFLUENCE_URL/$PAGE_ID" \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "version": {
+                  "number": 1
+                },
+                "title": "Hello",
+                "type": "page",
+                "body": {
+                  "storage": {
+                    "value": "<p>This is a simple text update to the Confluence page!</p>",
+                    "representation": "storage"
+                  }
+                }
+              }'
