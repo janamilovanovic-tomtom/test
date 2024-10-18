@@ -30,6 +30,12 @@ jobs:
           # Get the current version number
           CURRENT_VERSION=$(curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X GET "$CONFLUENCE_URL/$PAGE_ID" | jq -r .version.number)
 
+          # Read the HTML content from the converted file
+          HTML_CONTENT=$(cat output.html)
+
+          # Debugging: Output the HTML content for inspection
+          echo "HTML Content: $HTML_CONTENT"
+
           # Update the page content
           curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X PUT "$CONFLUENCE_URL/$PAGE_ID" \
               -H 'Content-Type: application/json' \
@@ -41,7 +47,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "'"$(cat output.html | jq -Rsa .)"'",
+                    "value": "'"$HTML_CONTENT"'",
                     "representation": "storage"
                   }
                 }
