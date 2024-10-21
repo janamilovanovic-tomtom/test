@@ -46,8 +46,8 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": '"$(HTML_CONTENT)\n"',
-                    "representation": "storage"
+                    "value": '"$(HTML_CONTENT)"',
+                    "representation": "wiki"
                   }
                 }
               }'
