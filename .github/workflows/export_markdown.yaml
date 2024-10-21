@@ -23,28 +23,17 @@ jobs:
 
       - name: Convert Markdown to PDF
         run: |
-          OUTPUT_DIR="nie_ux_spec"
-          mkdir -p "$OUTPUT_DIR"
-          
-          for INPUT_FILE in $(find . -name "*.md"); do
-              if [ -f "$INPUT_FILE" ]; then
-                  echo "Processing file: $INPUT_FILE"
-                  OUTPUT_FILE="${INPUT_FILE%.md}.pdf"
-                  mdpdf "$INPUT_FILE"
-                  mv "$OUTPUT_FILE" "$OUTPUT_DIR/"
-                  if [ $? -ne 0 ]; then  
-                      echo "Conversion failed for $INPUT_FILE"
-                      exit 1  
-                  fi
-                  echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
-              else
-                  echo "No .md files to convert."
-              fi
-          done
-          
-          # Create a ZIP archive of the PDF files
-          ZIP_FILE="nie_ux_spec.zip"
-          zip -r "$ZIP_FILE" "$OUTPUT_DIR"
+             OUTPUT_DIR="nie_ux_spec"
+             mkdir -p "$OUTPUT_DIR"
+              
+             for INPUT_FILE in $(find . -name "*.md" ! -name "README.md"); do
+                echo "Processing file: $INPUT_FILE"
+                OUTPUT_FILE="${INPUT_FILE%.md}.pdf"
+                mdpdf "$INPUT_FILE" && mv "$OUTPUT_FILE" "$OUTPUT_DIR/"
+                echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
+             done
+              
+              zip -r "nie_ux_spec.zip" "$OUTPUT_DIR"
 
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v4
