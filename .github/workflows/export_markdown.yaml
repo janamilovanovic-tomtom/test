@@ -21,16 +21,6 @@ jobs:
           # Install mdpdf
           npm install -g mdpdf
 
-      - name: List current directory contents
-        run: |
-          echo "Current directory:"
-          ls -la
-
-      - name: List images directory
-        run: |
-          echo "Files in images directory:"
-          ls -la images/
-
       - name: Convert Markdown to PDF
         run: |
           OUTPUT_DIR="pdf_output"
