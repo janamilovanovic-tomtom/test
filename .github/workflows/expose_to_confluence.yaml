@@ -15,6 +15,9 @@ jobs:
           PAGE_ID: '367269077'
           CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
         run: |
+          # Get the current version number
+          CURRENT_VERSION=$(curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X GET "$CONFLUENCE_URL/$PAGE_ID" | jq -r .version.number)
+          
           # Update the page content with simple text
           curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X PUT "$CONFLUENCE_URL/$PAGE_ID" \
               -H 'Content-Type: application/json' \
