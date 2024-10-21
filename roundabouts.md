@@ -1,5 +1,3 @@
 Visual Instruction represents Roundabout schematically.
 
-Hello there
-
-Hi
+| **First exit**     | **Third exit**     | **cross, second exit** | **take fifths exit** | **exit roundabout** |
