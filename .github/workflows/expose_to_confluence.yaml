@@ -46,7 +46,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "'"$(cat roundabouts.md)"'",
+                    "value": "'"$(cat test.md)"'",
                     "representation": "wiki"
                   }
                 }
