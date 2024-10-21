@@ -48,7 +48,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "$HTML_CONTENT1",
+                    "value": '$HTML_CONTENT',
                     "representation": "storage"
                   }
                 }
