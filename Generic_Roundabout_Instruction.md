@@ -17,7 +17,7 @@ Unlike, general instruction template, roundabout manoeuvre doesn't take place at
 **Entry Roundabout instruction** - Given for the entry as a manoeuvre point. Instructs how to perform whole Roundabout manoeuvre from entry to exit. 
 **Exit roundabout instruction** - Given for the exit as manoeuvre point. Only instructs how to perform the exit roundabout manoeuvre, while being already on the roundabout.
 
-![Big Roundabouts Instruction.svg](attachments/157717706/306088039.svg?width=1496)
+<img src="attachments/157717706/306088039.svg" width="1496">
 
 **Roundabout Instruction schematic diagram.**
 Technically, Roundabout manoeuvre is a sequence of two independent manoeuvres: **Roundabout entry** and **Roundabout Exit**  reference point for the entry is entry point and for the exit - exit. Those two manoeuvres have associated with them instructions which are depicted in corresponding Blue and Green colors on the diagram above.
