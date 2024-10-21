@@ -16,7 +16,7 @@ jobs:
           # Read the HTML content from the converted file
           # HTML_CONTENT=$(cat output.html)
           echo "Content to be uploaded to Confluence:"
-          echo $(cat roundabouts.md | tr '\n' '\\n')
+          echo $(cat roundabouts.md | sed ':a;N;$!ba;s/\n/\\n/g')
 
       - name: Upload to Confluence
         env:
@@ -37,7 +37,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "'"$(cat roundabouts.md | tr '\n' '\\n')"'",
+                    "value": "'"$(cat roundabouts.md | sed ':a;N;$!ba;s/\n/\\n/g')"'",
                     "representation": "wiki"
                   }
                 }
