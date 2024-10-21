@@ -54,7 +54,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "$HTML_CONTENT",
+                    "value": "<p>This is a simple text update to the Confluence page!</p>",
                     "representation": "storage"
                   }
                 }
