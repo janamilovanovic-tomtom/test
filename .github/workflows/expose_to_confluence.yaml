@@ -1,4 +1,4 @@
-name: Upload Markdown to Confluence
+name: Upload Simple Text to Confluence
 
 on:
   workflow_dispatch:
@@ -8,53 +8,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Install Pandoc
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc
-
-      - name: Convert Markdown to HTML
-        run: |
-          pandoc test.md -f markdown -t html -o output.html
-
-      - name: Read and Print HTML Content
-        run: |
-          # Read the HTML content from the converted file
-          HTML_CONTENT=$(cat output.html)
-          echo "HTML Content to be uploaded to Confluence:"
-          echo "$HTML_CONTENT"
-
       - name: Upload to Confluence
         env:
           CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
-          PAGE_ID: '367269077' # Replace with your target page ID
-          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content'
+          PAGE_ID: '367269077'
+          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
         run: |
-          # Get the current version number
-          CURRENT_VERSION=$(curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X GET "$CONFLUENCE_URL/$PAGE_ID" | jq -r .version.number)
-
-          # Read the HTML content from the converted file
-          HTML_CONTENT=$(cat output.html | jq -Rsa .)
-
-          # Debugging: Output the HTML content for inspection
-          echo "HTML Content: $HTML_CONTENT"
-
-          # Update the page content
+          # Update the page content with simple text
           curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X PUT "$CONFLUENCE_URL/$PAGE_ID" \
               -H 'Content-Type: application/json' \
               -d '{
                 "version": {
                   "number": '"$((CURRENT_VERSION + 1))"'
                 },
-                "title": "Your Page Title",  # Set the title as needed
+                "title": "Hello1",
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "<p>This is a simple text update to the Confluence page!</p>",
+                    "value": "<p>This is BOFAFGAF!</p>",
                     "representation": "storage"
                   }
                 }
