@@ -46,7 +46,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "'"$(cat test.md)"'",
+                    "value": "'"$(cat isolated_turn.md)"'",
                     "representation": "wiki"
                   }
                 }
