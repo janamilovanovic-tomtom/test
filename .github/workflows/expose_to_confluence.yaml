@@ -11,21 +11,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install Pandoc
-        run: |
-         sudo apt-get update
-         sudo apt-get install -y pandoc
-
-      - name: Convert Markdown to HTML
-        run: |
-          pandoc test.md -f markdown -t html -o output.html
-
       - name: Read and Print HTML Content
         run: |
           # Read the HTML content from the converted file
-          HTML_CONTENT=$(cat output.html)
-          echo "HTML Content to be uploaded to Confluence:"
-          echo $HTML_CONTENT
+          # HTML_CONTENT=$(cat output.html)
+          echo "Content to be uploaded to Confluence:"
+          echo $(cat roundabouts.md)
 
       - name: Upload to Confluence
         env:
@@ -46,7 +37,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "'"$(cat isolated_turn.md)"'",
+                    "value": "'"$(cat roundabouts.md)"'",
                     "representation": "wiki"
                   }
                 }
