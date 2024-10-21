@@ -25,7 +25,7 @@ jobs:
           # Read the HTML content from the converted file
           HTML_CONTENT=$(cat output.html)
           echo "HTML Content to be uploaded to Confluence:"
-          echo '"$(HTML_CONTENT)"'
+          echo "$(HTML_CONTENT)"
 
       - name: Upload to Confluence
         env:
