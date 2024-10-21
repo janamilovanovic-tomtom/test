@@ -46,7 +46,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "<p>This is my simple markdown file</p>",
+                    "value": "$(cat test.md)",
                     "representation": "wiki"
                   }
                 }
