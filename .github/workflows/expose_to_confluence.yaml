@@ -25,7 +25,7 @@ jobs:
           # Read the HTML content from the converted file
           HTML_CONTENT=$(cat output.html)
           echo "HTML Content to be uploaded to Confluence:"
-          echo $(cat roundabouts.md | tr '\n' '\\n')
+          echo $(cat roundabouts.md)
 
       - name: Upload to Confluence
         env:
