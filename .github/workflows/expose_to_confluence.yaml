@@ -25,7 +25,7 @@ jobs:
           # Read the HTML content from the converted file
           HTML_CONTENT=$(cat output.html)
           echo "HTML Content to be uploaded to Confluence:"
-          echo $(cat roundabouts.md)
+          echo $HTML_CONTENT
 
       - name: Upload to Confluence
         env:
@@ -46,7 +46,7 @@ jobs:
                 "type": "page",
                 "body": {
                   "storage": {
-                    "value": "'"$(cat roundabouts.md)"'",
+                    "value": "'"$(HTML_CONTENT)"'",
                     "representation": "wiki"
                   }
                 }
