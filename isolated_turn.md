@@ -52,7 +52,7 @@ Take a look at a real scenario **[here](https://www.google.de/maps/dir/52.49952
 
 **No Intermediate turn**
 
-* Here is my fix
+* My new comment
 * There are no other turns in between you and the turn
 
 ![](images/157696059.png)
