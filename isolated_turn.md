@@ -34,7 +34,7 @@ It can be conceptualise as an 'obvious turn' and this why audio announcement c
 **Conditions for Isolated turn**
 --------------------------------
 
-* this applies to all road types except for controlled access roads
+* this applies to all road types except for controlled access roads. I added something.
 
 * there are not intermediate turns between the driver and the target manoeuvre
 
