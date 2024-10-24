@@ -63,3 +63,5 @@ Take a look at a real scenario **[here](https://www.google.de/maps/dir/52.49952
 * there are intermediate turns but the distance between the first turn and the target turn is >= 100m
 
 ![](images/157696062.png)
+
+This is a new turn.
