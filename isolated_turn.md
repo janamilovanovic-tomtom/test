@@ -52,7 +52,7 @@ Take a look at a real scenario **[here](https://www.google.de/maps/dir/52.49952
 
 **No Intermediate turn**
 
-* You are driving on a long-straight road and you need to turn right
+* Here is my fix
 * There are no other turns in between you and the turn
 
 ![](images/157696059.png)
