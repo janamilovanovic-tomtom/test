@@ -29,7 +29,7 @@ jobs:
           find . -name "*.md" ! -name "README.md" ! -name "pull_request_template.md" | while IFS= read -r INPUT_FILE; do
             BASENAME=$(basename "$INPUT_FILE" .md)
             OUTPUT_FILE="${BASENAME}.pdf"
-            mdfpdf "$INPUT_FILE" -o "$OUTPUT_FILE" && mv "$OUTPUT_FILE" "$OUTPUT_DIR/"
+            mdpdf "$INPUT_FILE" && mv "$OUTPUT_FILE" "$OUTPUT_DIR/"
             echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
           done
           
