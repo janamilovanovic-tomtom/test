@@ -5,7 +5,7 @@ on:
 
 jobs:
   convert:
-    runs-on: az-weu-ubuntu-20.04-amd64-05cpu
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
