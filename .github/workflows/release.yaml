@@ -21,10 +21,10 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    if: needs.release.outputs.released-version != ''
+    if: '1.0.0' != ''
     uses: ./.github/workflows/asciidoc-to-gh-pages.yaml
     with:
-      package_version: ${{ needs.release.outputs.released-version }}
+      package_version: '1.0.0'
       src_dir: documentation
       # Make sure this is outside of the src_dir
       build_dir: doc_build
