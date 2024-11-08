@@ -20,3 +20,5 @@ xref:implementation/landmarks/landmarks.adoc[Landmarks]
 == Architecture Decision Records (ADRs).
 
 xref:architecture/adr.adoc[Architecture Decision Records]
+
+== Test
