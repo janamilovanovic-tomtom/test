@@ -36,7 +36,7 @@ permissions:
 jobs:
   deploy:
     name: Deploy AsciiDoc to GitHub Pages
-    runs-on: az-weu-ubuntu-20.04-amd64-2cpu
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
