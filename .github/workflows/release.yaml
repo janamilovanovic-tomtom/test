@@ -21,7 +21,6 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    if: '1.0.0' != ''
     uses: ./.github/workflows/asciidoc-to-gh-pages.yaml
     with:
       package_version: '1.0.0'
