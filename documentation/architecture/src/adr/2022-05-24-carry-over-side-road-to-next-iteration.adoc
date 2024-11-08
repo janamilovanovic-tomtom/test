@@ -1,0 +1,322 @@
+// Copyright (C) 2022 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Carry over side roads to next iteration
+
+== Status
+Proposed
+
+== Context
+Currently side roads are collected on lines in each _InstructionEngine::Generate()_, and applied to the instructions
+generated in the same run of _InstructionEngine::Generate()_.
+
+However, if _InstructionEngine::Generate()_ consumes additional junctions after the last generated instruction during one run,
+side roads of those junctions would be lost, as there is no next instruction during that run and next run won't
+come back to them.
+
+Please see the figure
+
+[source]
+----
+                    The start line passed to InstructionEngine::Generate()
+                    which generates the Turn.
+                    /
+    Waypoint       /           Turn
+     /            /             /
+-----*------>----------------> *
+            |
+            | This side road is processed when generating the waypoint instruction,
+            | however it should be applied to the Turn instruction in the next
+            | InstructionEngine::Generate().
+            |
+            v
+
+----
+
+== Problem
+In current implementation, side roads after a waypoint instruction (or other line-bound instructions) will be lost, because
+the side roads are processed while generating the waypoint instruction, and next _InstructionEngine::Generate()_ run will
+not come back for them.
+
+
+== Alternatives
+=== Alternative 1
+Keep the carried over side roads in a buffer declared in _InstructionProvider_ and use it later in next run.
+
+The implementation includes:
+
+* Add a _side roads buffer_ parameter in _InstructionEngine::Generate()_, for carried over side roads.
+
+[source]
+----
+
+/**
+ * @param side_road_buffer Carried over side roads from previous run,
+ *                         and will update to side roads which are
+*                          beyond the current instructions.
+ */
+InstructionEngine::Generate(....., SideRoads& side_road_buffer);
+
+class InstructionProvider {
+ private:
+  void GenerateInstructions() {
+    ...
+    Instructions next_instructions = instruction_engine_->Generate(..., side_roads_buffer_);
+    ...
+  }
+
+  SideRoads side_roads_buffer_;
+}
+----
+
+*Cons*:
+
+* _InstructionEngine_ needs to be aware of carried over side roads.
+
+=== Alternative 2
+_SideRoadsContainer_ keeps carried over side roads inside it's internal buffer.
+
+_SideRoadsContainer_ is passed into _InstructionEngine_ constructor and _InstructionEngine_ still uses it
+to collect side roads and apply to instructions.
+
+The implementation includes:
+
+* _SideRoadsContainer_ keeps carried over side roads in buffer and use later in next run.
+
+* Construct _SideRoadsContainer_ in _CreateInstructionProviderCommon()_, and pass it in to _InstructionEngine_
+
+[source]
+----
+class SideRoadsContainer {
+ public:
+  /**
+   * Iterates the junctions from start line to end line and store the side roads in buffer.
+   */
+  void CollectSideRoads(const LineOnRouteIterator& start_line,
+                        const LineOnRouteIterator& end_line);
+
+  /**
+   * Update the side road list for each instruction from instructions with
+   * side roads stored in the buffer.
+   * Side roads successfully applied to instructions will be removed from buffer,
+   * and those beyond the instructions will be kept in buffer.
+   *
+   * @param instructions The instruction list to add side roads
+   */
+  void UpdateSideRoadsInInstructions(InstructionsOnRoute& instructions);
+
+ private:
+  SideRoads side_roads_buffer_;
+};
+
+std::unique_ptr<InstructionProvider> CreateInstructionProviderCommon(...) {
+  auto side_roads_container = std::make_shared<SideRoadsContainer>();
+
+  return std::make_unique<InstructionProvider>(
+    ...
+    std::make_unique<InstructionEngine>(..., std::move(side_roads_container)),
+    ...);
+}
+
+class InstructionEngine {
+ private:
+  std::shared_ptr<SideRoadsContainer> side_roads_container_;
+}
+----
+
+*Pros*:
+
+* The buffer keeping carried over side roads is inside _SideRoadsContainer_.
+
+*Cons*:
+
+* _InstructionEngine_ is still responsible to pass correct lines into _SideRoadsContainer_, which means it is
+still involved in collecting side roads.
+
+=== Alternative 3
+Introduce _SideRoadsProvider_ which takes a _LineOnRouteProvider_ in constructor as it's own data source,
+and is able to freely traverse lines on the entire route.
+It provides side roads for any input route offset range, if the range was visited before, extracting side roads from its internal cache,
+otherwise collecting side road from further lines lazily.
+
+End offset of last instruction is passed from _InstructionProvider_ to _InstructionEngine::Generate()_, and used
+to request _SideRoadsProvider_
+with `[max(last_instruction_end_offset, current_instruction.offset - 1km), current_instruction.offset]`.
+
+Supposedly instruction end offset can be retrieved via `instruction.route_path.back().offset`. However, route path is
+calculated with `lineOnRoute.Length()` and it has little deviation from `lineOnRoute.EndOffset()`.
+Comparing length and offset could cause unexpected result.
+To solve it, it is required to make route path calculated by offset as a prerequisite.
+
+The implementation includes:
+
+* Make route path calculated by offset.
+
+* Introduce class _SideRoadsProvider_
+
+* Construct _SideRoadProvider_ in _CreateInstructionProviderCommon()_ and pass it into _InstructionEngine_
+
+* _InstructionProvider_ pass end offset of last instruction to _InstructionEngine::Generate()_, and it is used
+to request _SideRoadsProvider_.
+
+[source]
+----
+class SideRoadsProvider {
+ public:
+  SideRoadsProvider(std::shared_ptr<LineOnRouteProviderInterface> line_provider);
+
+  /**
+   * Return side roads between the given route offset
+   */
+  SideRoads GetSideRoads(Centimeters start_offset, Centimeters end_offset) {
+    while (line_iter_ != line_provider_->end()) {
+      const auto& line = *line_iter_;
+      if (line.EndOffset() >= end_offset) {
+        break;
+      }
+
+      // Code to calculate side road from line and push into cache_ if valid
+
+      line_iter_++;
+    }
+
+    SideRoads result;
+    copy_if(buffer_.begin(), buffer_.end(), back_inserter(result),
+        [&](SideRoad side_road) {
+            return side_road.offset > start_offset && side_road.offset < end_offset;
+        });
+    return result;
+  }
+
+ private:
+  std::shared_ptr<LineOnRouteProviderInterface> line_provider_;
+  LineOnRouteIterator line_iter_;
+  SideRoads cache_;
+};
+
+std::unique_ptr<InstructionProvider> CreateInstructionProviderCommon(...) {
+  auto line_provider = MakeSharedLineProvider();
+  auto side_roads_provider = std::make_shared<SideRoadsProvider>(line_provider);
+
+  return std::make_unique<InstructionProvider>(
+    ...
+    std::make_unique<InstructionEngine>(..., std::move(side_road_provider)),
+    ...);
+}
+
+class InstructionProvider {
+ private:
+  void GenerateInstructions(...) {
+    auto last_instruction_end_offset = Centimeters(0);
+    while(...) {
+       next_instructions = instruction_engine_->Generate(..., last_instruction_end_offset);
+       last_instruction_end_offset =
+           next_instructions_until_offset.back().route_path.back().offset;
+      }
+    }
+  }
+  shared_ptr<SideRoadsProvider> side_roads_provider_;
+}
+
+class InstructionEngine {
+  /**
+   * param @last_instruction_end_offset End offset of the last instruction, generated in the previous runs.
+   */
+  Instructions InstructionEngine::Generate(...,
+                                           Centimeters last_instruction_end_offset) const {
+    for (Instruction& instruction : instructions) {
+      auto start_offset = max(last_instruction_end_offset, instruction.offset - 1km);
+      auto end_offset = instruction.offset;
+      instruction.side_roads = side_roads_provider_->GetSideRoads(start_offset, end_offset);
+      last_instruction_end_offset = instruction.route_path.back().offset;
+    }
+  }
+ private:
+  std::shared_ptr<SideRoadsProvider> side_roads_provider_;
+}
+----
+
+*Pros*:
+
+* _SideRoadsProvider_ is independent, it is able to freely traverse lines and provides side roads for any offset range.
+
+* Utilize end offset of last instruction instead of carrying over side roads
+
+*Cons*:
+
+* Need to make route path calculated by offset as a prerequisite.
+
+* _InstructionProvider_ passes one more parameter - end offset of last instruction to _InstructionEngine::Generate()_
+
+=== Alternative 4
+Introduce _SideRoadsProvider_, same as alternative 3, but it is requested by _InstructionProvider_.
+
+_InstructionProvider_ keeps end offset of last instruction, and request _SideRoadsProvider_
+with `[max(last_instruction_end_offset, current_instruction.offset - 1km), current_instruction.offset]`
+
+Same as alternative 3, it is required to make route path calculated by offset as a prerequisite, for a proper
+`instruction.route_path.back().offset`.
+
+The implementation includes:
+
+* Make route path calculated by offset.
+
+* Introduce class _SideRoadsProvider_
+
+* Construct _SideRoadProvider_ in _CreateInstructionProviderCommon()_ and pass it into _InstructionProvider_
+
+* _InstructionProvider_ needs to maintain end offset of last instruction, and use it to request _SideRoadsProvider_.
+
+[source]
+----
+class SideRoadsProvider {
+ // same as alternative 3
+};
+
+std::unique_ptr<InstructionProvider> CreateInstructionProviderCommon(...) {
+  auto line_provider = MakeSharedLineProvider();
+  auto side_roads_provider = std::make_shared<SideRoadsProvider>(line_provider);
+
+  return std::make_unique<InstructionProvider>(..., side_roads_provider);
+}
+
+
+class InstructionProvider {
+ private:
+  void GenerateInstructions(...) {
+    auto last_instruction_end_offset = Centimeters(0);
+    while(...) {
+      ...
+      for (Instruction& instruction : next_instructions_until_offset) {
+       auto start_offset = std::max(last_instruction_end_offset, instruction.offset - 1km);
+       auto end_offset = instruction.offset;
+       instruction.side_roads = side_roads_provider_->GetSideRoads(start_offset, end_offset);
+       last_instruction_end_offset = instruction.route_path.back().offset;
+      }
+    }
+  }
+  shared_ptr<SideRoadsProvider> side_roads_provider_;
+}
+----
+
+*Pros*:
+
+* _SideRoadsProvider_ is independent, it is able to freely traverse lines and provides side roads for any offset range.
+
+* Utilize end offset of last instruction instead of carrying over side roads
+
+*Cons*:
+
+* Need to make route path calculated by offset as a prerequisite.
+
+* Side roads are applied to instruction outside _InstructionEngine_
+
+
+== Proposal
+Prefer alternative 3.

@@ -1,0 +1,52 @@
+// Copyright (C) 2017 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+[[section-architecture-constraints]]
+== Architecture constraints
+
+.Technical constraints
+[options="header",cols="1,2"]
+|===
+| Constraint | Explanation
+
+| NDS map format
+| NDS specification defines an upper bound on the features that can be delivered for map based
+  navigation features. The fundamentals of the format cannot be changed without NDS consortium approval,
+  however in NK2 tile data can be augumented since we control the protobuf format used for transfering tiles.
+
+| Map quality
+| There will be limited attempt to fix map quality issues in the instruction engine because such
+issues should be fixed at map compilation time. The other alternative is to maintain a stack of
+workarounds that need constant maintenance due to map compiler improvements.
+The consequence is that instruction quality is not only determined by the map
+renderer, but also by the map compilation process and the source data.
+
+| NavKit2 client library interface
+| NavKit2 client library interfaces already deliver guidance in format that is close to NKW instructions.
+  This may be too restrictive for future turn by turn navigation system. After NK2 is delivered it can
+  be expected that there will be limitations to changes allowed in the existing interfaces.
+  A solution for maintaining compatibility with NK2 SDK may be needed for breaking changes as long
+  as HCP3 project is loosely tracking mainline instruction engine.
+
+| General NavKit2 architectural constraints
+| NavKit2 non-functional requirements and other constraints such as code portability
+  apply to the product as a whole.
+
+|===
+
+.Organisational constraints
+[options="header",cols="1,2"]
+|===
+| Constraint | Explanation
+
+| NavKit2 development processes
+| All of the NavKit2 development and quality control processes are in place for
+instruction engine component.
+
+|===

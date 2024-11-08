@@ -1,0 +1,32 @@
+// Copyright (C) 2017 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Junction Model Detailed Architecture
+:toc: Table of Contents
+
+// numbering from here on
+:numbered:
+
+IMPORTANT: NIE version: *{revision}*
+
+<<<<
+// 1. Introduction and Goals
+include::01_introduction_and_goals.adoc[]
+
+<<<<
+// 2. Relation to Map
+include::02_relation_to_map.adoc[]
+
+<<<<
+// 3. PublicAPI
+include::03_public_api.adoc[]
+
+<<<<
+// 4. Implementation
+include::04_implementation.adoc[]

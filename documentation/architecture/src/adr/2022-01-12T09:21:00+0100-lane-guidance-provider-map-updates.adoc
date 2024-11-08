@@ -1,0 +1,95 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= LaneGuidanceProvider map updates
+== Status
+
+Proposed
+
+== Context
+
+This proposal describes behaviour of ``LaneGuidanceProvider`` when a map update happens.
+This work is direct result of the spike NAV-62961.
+
+== Problem Description
+
+``LaneGuidanceProvider`` uses map data as input parameter and exposes parts of map data as output.
+Since map data can change when we pass any references to the map between the components we need to make sure these references are valid.
+In addition to that we need to make sure that the map update experience is seamless.
+
+== Current behaviour of the system during map updates
+
+How current system handles map updates:
+
+- when map is updated routing engine is notified about the updates
+- when map update happens routing starts reassesment of the route
+- when route reassesment finishes ``OnboardTripGuidanceManager`` is notified via OnDataChanged signal about the changes in route data
+- ``IterableArcBuffer`` (trip onboard service) checks if the new route data contains arc keys that are different then the ones that have been provided before, if no new arc keys are found we ignore the update of the route
+- otherwise if the arc keys of the route were modified ``OnboardTripGuidanceManager`` restarts ``InstructionProvider`` and the instruction computation begins anew
+- when computing instructions ``InstructionProvider`` thread locks the map and the lock is held in ``JunctionAndLineFactory`` for the entire duration of instruction computation
+- the ``InstructionProvider`` map lock is only released either when the instruction computation finishes or if it gets destroyed either due to destruction of the route or a map release request from map management
+- After this lock is obtained for every ``Line`` that is created ``JunctionAndLineFactory`` checks if the ``update region version ID`` of the arc for which we create the ``Line`` is the same as the ``update region version ID`` of that arc as it was seen by the routing engine
+- If the versions are different the ``JunctionAndLineFactory`` returns an empty ``Line`` and this causes the InstructionEngine to stop
+- when a position update arrives the triggering engine computes the next combined instruction and ``LaneGuidanceProvider`` is notified about new position
+- triggering engine computes combined instruction flag and notifies ``LaneGuidanceAdapter``
+- when ``LaneGuidanceAdapter`` receives the combined instruction, and if the position update is close to the scenario, it takes the current route and retrieves all arcs that should be included in the scenario for the combined instructions
+- triggering engine computes an announcment phase and notifies the ``LaneGuidanceAdapter``
+- the scenario is displayed as long as the car position has not reached the end of the scenario or route has not changed
+- vehicle horizon is notified about every change of the ``LaneGuidanceScenario`` data via a C++ API in ``LaneGuidanceAdapter``
+- client is notified about every change of the ``LaneGuidanceScenario`` data via trip clientlib
+
+== Problems with update region version changes
+
+- (A) map update has happened after routing delivered the route but before instruction engine created instructions
+- (B) map update has happened after instruction engine delivered a combined instruction but before the ``LaneGuidanceProvider`` has created the ``LaneGuidanceScenario``
+- (C) map update has happened during lane guidance scenario computation
+- (D) map update has happend while ``LaneGuidanceProvider`` is tracking the ``LaneGuidanceScenario``
+
+=== [SAFE] (A) map update has happened after routing delivered the route but before instruction engine created instructions.
+
+The ``IterableArcBuffer`` contains a list of route arc keys with associated update regions and the versions of these update regions.
+Before instruction computation starts, the map is locked by the ``InstructionProvider`` thread.
+When a new ``Line`` is created by the ``JunctionAndLineFactory`` it checks if the arc key found on the locked map is the same as the one in the ``IterableArcBuffer``.
+If it is not an empty ``Line`` is returned and the ``InstructionProvider`` will finish computing instructions.
+The result will be empty or incomplete list of instructions. The instruction recomputation will start after the routing finishes reassesing the route and then
+``IterableArcBuffer`` contents will be replaced and new instruction computation will start.
+In the mean time before the new instructions are available the ``OnboardTripGuidanceManager`` will keep track of the old instructions.
+
+=== [POTENTIAL CRASH] (B) map update has happened after instruction engine delivered a combined instruction but before the ``LaneGuidanceProvider`` has created the ``LaneGuidanceScenario``
+
+In this case ``LaneGuidanceProvider`` will start building lane guidance using the arc keys from the route and these route arc keys most likely cannot be decoded on the new version of the map.
+In order to mitigate this situation we need to verify in the ``LaneGuidanceProvider`` that the arc keys reference the same map version. This can be done in similar way to how we do it in the
+``InstructionProvider``.
+
+If a mismatch is detected the only solution is not to deliver a ``LaneGuidanceScenario``.
+
+=== [SAFE] (C) map update has happened during lane guidance scenario computation
+
+In this case OnboardTripGuidanceManager will receive a map release signal.
+It could be argued that LaneGuidanceProvider should abort any computation and release the map when such signal arrives.
+This is not necessary due to the fact that LaneFTX building block is pre-warmed by instruction computation
+and the lane guidance computation takes relatively short amount of time (less then 100ms) so we may just as well delay the update
+a little by doing nothing.
+
+=== [POTENTIAL CRASH] (D) map update has happend while ``LaneGuidanceProvider`` is tracking the ``LaneGuidanceScenario``
+
+In this case the scenario tracking can still work because we only rely on route offsets to do it.
+However the map references in the lane segments and the lane segments themselfs can be stale.
+Right now this can lead to a crash in vehicle horizon that uses C++ API of the ``LaneGuidanceAdapter`` which does not expose update region versions.
+The client library already exposes lane segment versions so our external clients should be safe.
+In case of the mismatch the HCP3 can decide not to display the "Prepare View" or the "Exit View".
+
+Limitations:
+
+- stale lane guidance data is provided in the scenario until we finish tracking it
+
+== Consequences
+
+- ``LaneGuidanceProvider`` needs to be extended to check if arcs provided by ``IterableArcBuffer`` are valid and have the same ``update region version ID``s as the current map https://jira.tomtomgroup.com/browse/NAV-48229[NAV-48229]
+- vehicle horizon API needs to be extended to provide update region versions of lane segments to prevent a crash https://jira.tomtomgroup.com/browse/NAV-70003[NAV-70003]

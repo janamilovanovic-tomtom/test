@@ -1,0 +1,128 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Integration of HOV situation handler
+
+== Status
+
+Accepted
+
+== Context
+
+The HOV situation handler (for enter and exit HOV instructions) has some peculiarities in
+comparision to the existing handlers, which causes some challenges to integrate it into the current
+instruction engine / instruction provider schema:
+
+* It consumes several lines ahead (e.g. for the enter HOV instruction it needs to check 1 mile
+before and 2 miles after the potential HOV instruction) and thus generates instructions several
+lines ahead.
+
+* These lines might be needed for other situation handlers, thus the handler cannot be put into the
+handler group of the existing handlers (ranged handler group).
+
+* If the handler is called again on some already consumed line, it may create another instruction
+for the same maneuver point, **but** it is guaranteed that this instruction is the same as the one
+created beforehands.
+
+== Common Challenges
+
+* HOV instructions at an offset that has not yet been reached by the other handler group(s) have to
+be kept back until that offset is reached. This is required to ensure that the instructions we
+expose are always the next ones and are not suddenly replaced by other instructions that have a
+smaller offset but are created later.
+
+Example: During one call to Generate, the HOV handler creates an instruction Z at offset z, whereas
+the ranged handler group has just processed the lines up to x (x << z). If we allow Z to be exposed
+to the client and in the next Generate, the ranged handlers would create an instruction Y at offset
+y (x < y < z), Y would replace instruction Z as next instruction on the client side. The right thing
+to do in this case is to wait until all handler groups have processed lines up to at least offset z,
+before exposing Z to the client.
+
+* Each handler overlapping with the HOV handler has to have the chance to process all lines. So if
+the HOV handler jumps over several lines, the other handlers need to keep on processing from their
+individual last processed line onwards.
+
+== Implementation Alternatives
+
+=== 1. Create a new handler group for the HOV handler
+
+==== Pros
+
+* Provides framework for adding further handler groups and thus more complex scenarios may be
+covered.
+
+* No duplicate instructions.
+
+* No lines are processed more than once by the same handler group.
+
+==== Cons
+
+* We need an extra handler group.
+
+* It is advisable to save offsets in order to not have lines processed more than once per handler
+group (if chosen against, then 2. is the better alternative). But saving offsets makes the NIE more
+stateful than before (SideRoadOffsets, and we would like to get rid of these as well) and the code
+gets very complex. Examples:
+
+** Because of recent waypoint inside roundabouts implementation, the waypoints must be filled up to
+the last pocessed line of the ranged handler group, which makes them special again compared to the
+HOV handler group.
+
+** Introduce yet another nested for loop for the handler groups.
+
+** Handling of offsets needs to distinguish many cases:
+
+*** Empty handler groups
+
+*** Both handler groups can take over one another
+
+*** Not all handler groups might create an instruction
+
+=== 2. Add HOV handler to point handler group
+
+==== Pros
+
+* Code is much simpler because offsets do not need to be tracked.
+
+* No extra handler group needed.
+
+==== Cons
+
+* More computational expensive, because HOV handler processes lines more than once.
+
+* Duplicate instructions need to be filtered out by instruction provider.
+
+== Decision
+
+Go for option 2, mainly because it is unacceptable to introduce state for the NIE. Option 2
+explained in more detail:
+
+* Add HOV handler to the point handler group, which currently only contains the waypoint handler.
+
+* The ranged handlers determine completely how many lines are processed, point handlers consume
+lines up to that point, one by one like before.
+
+* If the HOV handler consumes more than one line it will forward up to that point without consuming
+already consumed lines again.
+
+* Only during the next call to Generate, it will potentially process already consumed lines again,
+because we do not save offsets. In this case, it might create instructions again.
+
+* Instructions that have an offset bigger than the offset of the ranged handler group will not be
+exposed to the client, but will be stored separately in the instruction provider, and uniquely
+merged with instructions generated during the next cycle in the `InstructionProvider` main loop.
+
+* Duplicate instructions are filtered out by the instruction provider before being exposed to the
+client.
+
+== Consequences
+
+* HOV handler will process lines twice, which is suboptimal from a performance point of view.
+
+* Introduction of an additional instruction buffer in `InstructionProvider`.

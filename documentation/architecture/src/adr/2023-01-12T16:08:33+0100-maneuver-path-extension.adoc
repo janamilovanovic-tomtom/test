@@ -1,0 +1,89 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Maneuver Path Extension
+
+== Status
+
+Implemented
+
+== Context
+
+We have https://jira.tomtomgroup.com/browse/NAV-72613[drive test
+reports] that maneuvers are being announced slightly too early.
+
+The issue appears to be that the map codes a vector model of the road
+network in which junctions are zero-sized points.  If the car crosses
+that junction by whatever fraction, the triggering engine considers
+the car to have moved to the following link.  Therefore any following
+announcement can be made.  In reality, junctions are large squares of
+asphalt, with the junction point encoded by the map probably in the
+very centre of that square.
+
+Especially in the case of dual carriageways modelled as single links,
+a car turning against the traffic is likely to be stopped in the
+centre of the junction for some time waiting for a gap in oncoming
+traffic.  It is quite possible that the resolved GPS position at that
+point is past the modelled junction point.  Therefore, a driver
+waiting in a junction to complete a left turn may already be prompted
+to make a following maneuver.  This is confusing for drivers.
+
+== Decision
+
+We will extend the maneuver path of turn instructions by ten meters.
+This uses a feature of our API, the maneuver path, that already
+exists.  It was always intended that the maneuver path represents more
+than just a single point, and so this change is in line with our API
+design.  As a result, the triggering engine should produce correct
+behaviour without any further modification, and this behaviour will
+also be reflected in the next instruction panel.
+
+Maneuver paths are exposed to clients via the API.  The extended
+maneuver paths may also provide value to clients.  If maneuver paths
+are drawn on a map, they will provide a more realistic impression of
+the complete maneuver.  If the client uses their own triggering
+engine, the benefits of the delay will automatically flow to that
+component.
+
+== Rejected Options
+
+=== Delay by a period of time
+
+We could modify the triggering engine so that messages for a following
+instruction cannot be triggered until some number of seconds after the
+previous maneuver was announced.
+
+One problem with this approach is that it only affects voice messages.
+The next instruction panel would already change while the car is
+waiting in the junction.
+
+Another problem is that there is no definite maximum time a car might
+wait in the middle of a junction.  Conceivably the car might be
+waiting several minutes, far too long to delay a following message.
+
+=== Delay by a distance
+
+We could also modify the triggering engine so that it monitors the
+progress on route and does not trigger until a distance after the
+previous maneuver.
+
+This shares the same disadvantage as delaying by a period of time,
+that the next instruction panel would be out of sync with the voice
+messages.
+
+This also is a much more invasive change in the triggering engine.
+
+== Consequences
+
+* If two maneuver paths overlap, it may lead to instructions being
+  announced out of order or not all.  This is particularly a problem
+  for the arrival instruction, which is not produced by a situation
+  handler and is frequently at an intersection shortly after a turn.
+  Therefore we will need to add a post-processing step to ensure that
+  maneuver paths do not overlap.

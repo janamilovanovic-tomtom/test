@@ -1,0 +1,32 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Splitting generation of routes and generation of instructions
+
+== Status
+
+Proposed
+
+== Context
+
+We have a story to produce a https://jira.tomtomgroup.com/browse/NAV-18163[maneuver coverage report].  The main tool will be a C++ utility to generate instructions for a route.
+
+== Alternatives
+
+* Define route as an OD pair and generate the route via a C++ call to NKW
+* Define route as a polyline in a KML file
+
+== Decision
+
+Define route as a polyline in a KML file
+
+== Consequences
+
+* We will have a more complicated input format
+* We will be dependent on far less NK2 infrastructure, including online services.

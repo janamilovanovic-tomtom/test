@@ -1,0 +1,181 @@
+// Copyright (C) 2023 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Country and state code
+
+== Status
+
+Accepted
+
+== Context
+
+When displaying a maneuver, a road shield is shown. It contains a road icon with a corresponding road number.
+The road icon depends on the specific country (and state, if relevant) and is visualized differently.
+Hence, country code and state code should be provided for this purpose.
+
+We already provide country and state code as part of the ``RoadShield`` structure when a road shield is available.
+
+Current implementation where road_number_shields is optional:
+``Instruction`` -> incoming_road_information and outgoing_road_information (``RoadInformation``) -> road_number_shields(``std::vector<RoadShield>``) -> state_code/country_code;
+
+[source,cpp]
+----
+struct Instruction final {
+   ...
+
+  /**
+   * Information about the road the driver will be on immediately before starting the maneuver
+   */
+  RoadInformation incoming_road_information;
+
+  /**
+   * Information about the road the driver will be on immediately after completing the maneuver
+   */
+  RoadInformation outgoing_road_information;
+
+  ...
+}
+
+        struct RoadInformation {
+            ...
+
+
+            /**
+            * The road numbers, contain detailed information about road shields
+            */
+            std::vector<RoadShield> road_number_shields;
+
+            ...
+        }
+
+
+            struct RoadShield {
+                ...
+
+                /**
+                 * The state code of the state the shield is in (second part of an ISO 3166-2 identifier).
+                 */
+                std::string state_code{};
+
+                /**
+                 * The country code (ISO 3166-1 alpha-3) of the country the shield is in.
+                 */
+                std::string country_code{};
+
+                ...
+            }
+
+----
+
+Note:
+With the current implementation, both fields are taken directly from the map data per arc
+``TRoutingData::GetCountryCode(TArc)`` and ``TRoutingData::GetSubCountryCode(TArc)``
+
+== Problem
+
+There is another type of icon that describes Exits. They have the same strategy as road shields: country code and state code needed to render them correctly.
+But sometimes, for such maneuvers, there are no road shields. Therefore, no country codes or state codes are provided at all.
+Based on the above, there is a need for a mandatory field to provide this information.
+
+== Proposal
+
+Proposed implementation with mandatory fields.
+``Instruction`` -> incoming_road_information and outgoing_road_information (``RoadInformation``) -> state_code/country_code;
+
+[source,cpp]
+----
+struct Instruction final {
+    ...
+
+    /**
+     * Information about the road the driver will be on immediately before starting the maneuver
+     */
+    RoadInformation incoming_road_information;
+
+    /**
+     * Information about the road the driver will be on immediately after completing the maneuver
+     */
+    RoadInformation outgoing_road_information;
+
+    ...
+}
+
+        struct RoadInformation {
+            ...
+
+
+            /**
+             * The state code of the state the shield is in (second part of an ISO 3166-2 identifier).
+             */
+            std::string state_code{};
+
+            /**
+             * The country code (ISO 3166-1 alpha-3) of the country the shield is in.
+             */
+            std::string country_code{};
+
+            ...
+        }
+
+----
+
+In general, the approach is to add these fields in mandatory ``RoadInformation`` structure.
+Therefore, two country code values are provided: one for incoming road information and one for outgoing road information.
+
+Providing two values will correspond to how the data is represented on the real map
+and, more importantly, two distinct values are supported, which allows representing the border crossing instruction more correctly.
+This solution is also the most future-proof and covers cases beyond what is needed for current issues.
+
+It requires changes to the following components:
+
+. Instruction Engine public interface
+
+. NK2 Trip (TripModel and TripCL, incl. TripCL Android)
+
+. GO SDK, relevant SDKs (Routing SDK and Navigation SDK)
+
+. Routing API
+
+Note: After extending the API ``RoadShield`` structure will also contain country and state code values.
+
+== Alternatives Considered
+
+=== Alternative #1 - Provide in Instruction structure
+
+Provide the country code and state code directly in ``Instruction`` structure
+In this case, one value is provided per instruction. But in the case of border crossing, there is no possibility of providing two values.
+
+[source,cpp]
+----
+struct Instruction final {
+    ...
+
+    /**
+     * The state code of the state the shield is in (second part of an ISO 3166-2 identifier).
+     */
+    std::string state_code{};
+
+    /**
+     * The country code (ISO 3166-1 alpha-3) of the country the shield is in.
+     */
+     std::string country_code{};
+
+    ...
+}
+----
+
+=== Alternative #2 - Provide in Signpost.
+
+``Signpost`` structure contains all information about exits: exit name and exit number.
+This is a minimal approach to providing these values inside it to fix only the current issue
+But it has major limitations:
+
+. Will not provide a country/state for instruction without a signpost.
+. For ``BorderCrossing`` it is not possible to pass two values.
+. Still, If there is a need to provide country/state codes for other purposes, an additional API extension will be required.

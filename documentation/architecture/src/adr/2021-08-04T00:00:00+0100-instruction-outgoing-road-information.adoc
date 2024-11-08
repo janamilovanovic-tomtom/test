@@ -1,0 +1,63 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= How we fill out Instruction::RoadInformation for the outgoing road
+
+== Status
+
+Implemented and last changed due to NAV-53966.
+
+== Context
+
+During the implementation of the support for signpost data in instructions, we started
+to fill out the data member _outgoing_road_information_ in forks and switches using data
+exclusively from the signpost.
+
+However, the regression tests revealed in a route in San Francisco, that some signposts
+in the urban perimeter have only a single name that might be toward-info. In these cases,
+if we rely solely in the signpost data, these turn instructions inside the city end up with
+_outgoing_road_information_ being an empty RoadInformation object. That is an issue, because
+in this situation, if you look at the corner, you can see the next street name, but the
+issued instruction is missing it.
+
+In order to avoid this problem that we saw in San Francisco, we started to fill out the
+_outgoing_road_information_ with data from the signpost and complete it with road data read
+from the outgoing line attributes.
+
+After a while, we found out that this new approach causes an issue in motorways, that is
+fully described by the bug ticket https://jira.tomtomgroup.com/browse/NAV-53966. In short,
+instructions for motorways need to show in the NIP the same data that the driver sees in
+the signpost. If, for example, the signpost does not contain directional road numbers,
+then we must not complete _outgoing_road_information_ with road names or numbers read from
+the outgoing line attributes. Otherwise, we end up exposing road numbers in the NIP, that
+sometimes cannot be found in the signpost, leading to confusion.
+
+== Decision
+
+For motorway instructions that require the presence of a signpost, fill out the
+_outgoing_road_information_ exclusively with data from the signpost. (This is
+implemented by _internal::GetOutgoingRoadInformationFromSignpost_.)
+
+For the remaining instructions (inside the city), continue to use data from
+both the signpost and the outgoing line. (This is implemented by
+_internal::GetOutgoingRoadInformation_.)
+
+Exceptional case:
+Merging into the motorway not always contain a signpost. When the signpost
+is present, then use its data exclusively. When not available, fall back to
+the outgoing line attributes.
+
+This approach is capable of avoiding both the problem in San Francisco and
+the one from NAV-53966.
+
+== Consequences
+
+Instructions such as forks and switches might be shown without road numbers
+in the NIP. (Also when the signpost contains a "towards" road number, which
+does not count, because it is not part of the directional information.)

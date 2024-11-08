@@ -1,0 +1,132 @@
+// Copyright (C) 2017 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+[[section-deployment-view]]
+== Deployment view
+
+[plantuml, instruction-engine-deployment-view, alt="Instruction Engine Deployment View"]
+
+----
+
+@startuml
+
+skinparam padding 10
+
+package MobilePhone {
+    artifact "NavSDK Customer App" as NavSDKCustomerApp {
+        component NavSDK as NavSDKCustomerAppNavSDK {
+            component "Instruction Engine" as NavSDKCustomerAppInstructionEngine #Green
+        }
+    }
+    artifact "NavSDK Navigation Example App" {
+        component NavSDK as ExampleAppNavSDK {
+            component "Instruction Engine" as ExampleAppInstructioEngine #Green
+        }
+    }
+    artifact "Amigo" as Amigo {
+        component NavSDK as AmigoNavSDK {
+            component "Instruction Engine" as AmigoInstructionEngine #Green
+        }
+    }
+}
+
+package "Linux Desktop" as Desktop {
+    artifact "DevApp" as DevApp {
+        component "NavKit 2 SDK" as DevAppNK2 {
+            component "Instruction Engine" as DevAppInstructioEngine #Green
+        }
+    }
+}
+
+package CarHeadunit {
+        component "NavKit 2 SDK" as AudiNK2SDK{
+            component "Instruction Engine" as AudiInstructionEngine #Green
+        }
+
+        component NavUI/NavKit1 as FCANavKit1 {
+          component "Legacy Instruction Engine" as FCALegacyInstructionEngine #Red
+        }
+}
+
+cloud Azure {
+    node "TomTom Online Routing API" as OnlineRouting {
+        component "Legacy Instruction Engine" as OnlineInstructionEngine #Red
+    }
+    node "TomTom Online Routing API v2" as OnlineRoutingV2 {
+        component "InstructionEngine" as OnlineRoutingV2InstructionEngine #Green
+    }
+}
+
+AmigoNavSDK --left-> OnlineRoutingV2 : uses
+ExampleAppNavSDK ---left-> OnlineRoutingV2 : can use
+NavSDKCustomerAppNavSDK --left-> OnlineRoutingV2 : can use
+
+' layout hack
+Desktop -[hidden]-> Azure
+CarHeadunit -[hidden]-> MobilePhone
+
+@enduml
+
+----
+
+Both NavKit2 SDK and NavSDK have the ability to use onboard routing with the _Navigation Instruction Engine_ when used with an onboard map.
+Additionally, when NavSDK is using online or hybrid route planners, the _Navigation Instruction Engine_ is used as part of the _Online Routing API v2_ service.
+
+=== Map data flow
+
+The _Navigation Instruction Engine_ makes heavy use of map data to generate instructions. The primary sources of map data are NDS.Classic maps that are either deployed online in the _Online Routing API_, or onboard a navigation device. Alternatively, the _Navigation Instruction Engine_ may use streamed map data in form of NDS.Live tiles (soon).
+
+[plantuml, instruction-engine-map-data-flow, alt="Instruction Engine Map Data Flow"]
+----
+
+@startuml
+
+skinparam padding 5
+
+cloud "Online Routing API" as OnlineRoutingAPI {
+  [Navigation Instruction Engine] as OnlineNIE
+
+  database "NDS.Classic (Orbis)" as OnlineOrbisMap
+  database "NDS.Classic (Genesis)" as OnlineGenesisMap
+
+  OnlineOrbisMap --> OnlineNIE : uses
+  OnlineGenesisMap --> OnlineNIE : uses
+}
+
+cloud "NDS.Live service" as NDSLiveService{
+  database "NDS.Classic (Orbis)" as OnlineOrbisMapTiles
+}
+
+package Device {
+  [Navigation Instruction Engine (onboard)] as OnboardNIE
+  database "NDS.Classic onboard" as OnboardMap
+
+  database "NDS.Live cache" as OnboardMapTiles
+
+  OnboardMap --> OnboardNIE : uses
+  OnboardMapTiles --> OnboardNIE : uses
+}
+
+together {
+  database Orbis
+  database Genesis
+}
+
+
+Orbis --> OnlineOrbisMap : via Orbis2NDS
+Orbis --> OnlineOrbisMapTiles
+Genesis --> OnlineGenesisMap
+Genesis --> OnboardMap : provides
+
+NDSLiveService --> OnboardMapTiles : serves
+OnlineRoutingAPI --> Device
+
+@enduml
+
+----

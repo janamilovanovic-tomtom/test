@@ -1,0 +1,47 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Separate detection of the instruction type and filling of common attributes
+
+== Status
+
+Proposal
+
+== Context
+Currently each situation handler fills all common instruction attributes, like incoming/outgoing road,
+ coordinates, route path and so on.
+
+This increases complexity of situation handlers and their unit tests. Also it leads to code duplication and
+ reduces possibility to parallelize work on different attributes.
+
+Another problem is that Signpost Name selection for the current instruction should take into account selected
+ names for other instructions, thus it is not local to a particular maneuver and situation handler and should keep
+  state along the route.
+
+== Proposal
+The proposed approach is to separate detection of the maneuver type and filling of common attributes:
+
+Situation Handlers detect a maneuver type and fill attributes specific for this maneuver (one of the nested
+ structures like Instruction::Turn, Instruction::Exit and so on)
+
+Set of new Attribute Providers is applied on top of it. They take maneuver type, start and end points on the route
+ and fill common attributes of the Instruction. Each concrete attribute has a dedicated AttributeProvider
+  responsible for it.
+
+To allow Attribute Providers to locate instruction on the Junction Model, a Situation Handler should return not
+ only list of maneuvers but also their positions on the Junction Model.
+
+== Consequences
+Pros: Separation of concerns simplifies Situation Handlers and their unit tests. Filling of a particular attribute
+ is separated to a dedicated class, thus it eases testing/modification/extension/support.
+ Code duplication is reduced.
+
+Cons: Format of SituationHandler::Result becomes more complex, as it has to return start/end points of detected maneuvers.
+
+Quite some work required to achieve this proposal as there are already many Situation Handlers and unit tests for them.

@@ -1,0 +1,72 @@
+// Copyright (C) 2017 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Lane Guidance Detailed Architecture
+:toc: Table of Contents
+
+// numbering from here on
+:numbered:
+
+IMPORTANT: NIE version: *{revision}*
+
+<<<<
+// 1. About This Document
+include::01_about_this_document.adoc[]
+
+<<<<
+// 2. UX Requirements
+include::02_ux_requirements.adoc[]
+
+<<<<
+// 3. API Concepts
+include::03_api_concepts.adoc[]
+
+<<<<
+// 4. Clients
+include::04_clients.adoc[]
+
+<<<<
+// 5. Map Concepts
+include::05_map_concepts.adoc[]
+
+<<<<
+// 6. Internal Architecture
+include::06_overall_architecture.adoc[]
+
+<<<<
+// 7. Individual Components
+include::07_individual_components.adoc[]
+
+<<<<
+// 8. Map Updates
+include::08_map_updates.adoc[]
+
+<<<<
+// 9. Arrow Synthesis
+include::09_arrow_synthesis.adoc[]
+
+<<<<
+// 10. Arrow Quantization
+include::10_arrow_quantization.adoc[]
+
+<<<<
+// 11. Arrow Propagation
+include::11_arrow_propagation.adoc[]
+
+<<<<
+// 12. Lane Level Router
+include::12_lane_level_router.adoc[]
+
+<<<<
+// 13. Hov Recommendation PostProcessing
+include::13_hov_recommendation_postprocessing.adoc[]
+
+<<<<
+// 14. Lane Connectivity Processing
+include::14_lane_connectivity_processing.adoc[]

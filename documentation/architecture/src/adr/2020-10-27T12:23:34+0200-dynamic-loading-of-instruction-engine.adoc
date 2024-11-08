@@ -1,0 +1,120 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Dynamic loading of Instruction Engine
+
+== Status
+
+Proposed
+
+== Context
+
+Recently the instruction engine has been introduced a static dependency on the NDS map access library (mapaccess-ndsmap).
+Due to Google Store limitations and user complaint, it's a contraindication to make unnecessary increases in AmiGo distribution footprint size.
+Having the mapaccess-ndsmap dependency propagated to AmiGo would give such increase, while it's not required since onboard map access or onboard instruction engine are not featured in AmiGo.
+
+Dynamic loading of the instruction engine in runtime would allow decoupling of this dependency, in addition removing the instruction engine code from the AmiGo footprint.
+Therefore on 20.10.2020 it was decided by @levin and @muraleev to convert instruction engine into a shared library.
+The shared library will be dynamically loaded in TripService.
+Its absence will lead to default behavior of using online guidance.
+
+== Instruction Engine interface
+
+The API of Instruction Engine consists of factories for interfaces used to pass and obtain information.
+The factories are used to create:
+
+* InstructionProvider
+* TriggeringEngine
+* InstructionTextGenerator
+
+The structures used to pass information to instruction engine are:
+
+* RouteWindow
+* RouteAttributes
+
+The structures used to obtain information from the instruction engine are:
+
+* Instruction
+
+== Proposal
+
+At first, all the factories should be exposed through the shared libraries interface.
+When opening the instruction engine shared library using dlopen() API call, the factories should be callable.
+For this the proposal is to:
+
+* Add additional proxy class named Factory, that will expose the factory functions that previously were standalone
+* Extract API definitions into a new navigation-instruction-engine-interface static library, linked by navigation-trip-onboardservice.
+See below a section about this new Conan package.
+
+The need in having an additional proxy class stems from the will to preserve current interface semantics, where C++ STL smart pointers are used to capture object lifetime.
+When exposing functions from a shared library that will be loaded in runtime using dlopen(), those functions need to be declared as "extern C" to avoid name mangling.
+Therefore exposing factory functions directly would prevent us from keeping using std::unique_ptr as arguments or return values for those factories.
+
+== Separation to interface and implementation libraries
+
+The instruction engine exposes an interface used by TripService.
+This interface does not depend on specific map data implementation, but does depend on some map graph types (RouteWindow specifies the route stretch as a set of arc keys).
+The instruction engine implementation library is loaded dynamically in runtime.
+however the interfaces should be available for the client code at the compile time regardless of presence of the instruction engine shared library in the final package.
+Therefore there is a need to introduce an additional Conan package for the interface, basically making navigation-instruction-engine a 2-package repository:
+
+* navigation-instruction-engine - contains the implementation
+* navigation-instruction-engine-interface - contains definitions of the factories and the data structures used to pass and retrieve data to the instruction engine.
+
+The navigation-instruction-engine builds into a shared library and depends on mapaccess-ndsmap library.
+The navigation-instruction-engine-interface builds into a static library and depends on mapaccess-common.
+
+Since both Conan packages reside in the same repository, a few design proposals are made:
+
+* An additional directory in repository root, named navigation-instruction-engine-interface.
+All interface and interface data type definitions will go there.
+For interface data types, underlying implementation should also be included side by side.
+This is relevant for Instruction class, for example.
+* Both repositories will share the same version.txt, which resides in the repository root.
+This implies that we won't be able to freely modify version for interface only, for example.
+Given that interface changes of a package result in updating the minor anyway, CI builds of navigation-instruction-engine-interface will publish a version based on version.txt, but will always have a patch number of 0 (for example, 0.51.0, 0.52.0, etc.).
+navigation-instruction-engine will also always depend on a navigation-instruction-engine-interface version similar to the one in version.txt, with a patch number of 0. For example, navigation-instruction-engine 0.51.4 will always depend on navigation-instruction-engine-interface 0.51.0. The Jenkinsfile residing in the repository root will be updated accordingly.
+
+== Package management and dependencies
+
+On the package level, instruction engine will be wrapped in an Android library similar to routing-service-android.
+This library will be functionless, and will serve only as a container which directly links to navigation-instruction-engine.
+Building this library or depending on it from another component will lead to bringing in the navigation-instruction-engine shared library binary file, functionally enabling onboard guidance.
+
+For example, a configuration of NK2UI that will require the onboard guidance will add this library as a dependency.
+Same goes for SDK releases that provide onboard guidance.
+
+At the moment this library is available only for Android, making onboard guidance support unavailable for AmiGo on iOS platform, for example.
+This should not be a concern however, since AmiGo does not consume onboard guidance.
+
+== Onboard map vs. tile cache
+
+The instruction engine can work with both onboard and tile cache map data sources.
+However there is only a single distribution of the instruction engine, which is statically linked to mapaccess-ndsmap.
+That implies that configurations requiring the onboard instruction engine will also get NDS map access footprint, even when the desired map data source is tile cache.
+At the moment this is considered acceptable, since for configurations requiring onboard guidance the final package footprint size is not a concern.
+However, if necessary the instruction-engine library can be split later into 'nds map'/'tile cache' parts.
+
+== Componentization of non instruction generation functionality
+
+navigation-instruction-engine implements additional mechanisms which lie outside of onboard instruction generation scope.
+Specifically those are the triggering engine and instruction text message generation.
+A requirement exists to have features provided by these mechanisms also in AmiGo, which on the other hand does not require onboard instruction generation.
+Therefore to enable them and not having to bring NDS map access dependency in when not necessary, further splitting of components has to occur.
+That means that the triggering engine and the instruction text generator will live as separate components, independent of map access and statically linked in to TripService.
+NAV-26402 captures some of this work.
+
+== Consequences
+
+* Instruction engine will become a shared library.
+* Additional Conan package for the interface.
+* Additional repository for Android wrapper library.
+* Further split of triggering engine and instruction text generator away from instruction engine.
+* Additional indirection for accessing instruction engine factory functions by using the proxy Factory class.
+* Using onboard guidance brings in dependency on NDS map access library even when only the tile cache is used

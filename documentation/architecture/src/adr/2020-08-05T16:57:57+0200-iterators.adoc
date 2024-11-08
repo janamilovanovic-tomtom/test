@@ -1,0 +1,53 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Iterators through NIE
+
+== Status
+
+Proposed
+
+== Context
+
+Links:
+
+* https://jira.tomtomgroup.com/browse/NAV-18053[NAV-18053 Refactoring: do not use a route window]
+* https://jira.tomtomgroup.com/browse/NAV-18465[NAV-18465 Use a factory to produce Junctions and JunctionOnRoutes]
+* https://tasks.office.com/TomTomInternational.onmicrosoft.com/Home/Task/uvks1aCqDECMeFx6UCD2g5YAIKSU?Type=TaskLink&Channel=Link&CreatedTime=637322366191390000[Design discussion]
+
+As described in [[2020-07-17T10:09:33+0200-iterators]], we have quite
+a number of sequences of objects along a route.  We need access to a
+number of the objects at any time.  However we don't need the entire
+route.  Rather we have a sliding window of interest.
+
+We currently pass these around as vectors of objects.  Now that we
+have an abstract Iterator template, we can instead pass iterators.
+This abstracts away the container type.
+
+In fact the natural way to describe many of these sequences is as a
+queue, or deque.  As the car drives along the route, areas that have
+already been passed become irrelevant and can be dropped from the
+window.  At the same time areas come into the window of relevance to
+the driver.  So it's likely that we will want to switch out vectors
+and replace them with deques or abstract factories at some point.
+
+Should we begin replacing our APIs now, or wait until we need it,
+e.g. for lazy evaluation?
+
+== Decision
+
+For now we are too busy with Audi commitments to spend any time on
+unnecessary refactoring.  When adding new APIs or refactoring existing
+ones, we should consider switching to iterator arguments.  But we
+should not make this switch just for the sake of it.
+
+== Consequences
+
+* Some APIs might get "locked in" to a vector argument
+* Opportunities for improving efficiency will be limited

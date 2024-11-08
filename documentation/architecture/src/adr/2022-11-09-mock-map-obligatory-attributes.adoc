@@ -1,0 +1,73 @@
+// Copyright (C) 2022 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Mock map obligatory attributes for arcs
+
+== Status
+
+Under implementation:
+GXL files that do not conform to the guidelines must be made compliant as we find them.
+
+== Context
+
+There was a discussion within Velos team about the attributes that must be set in arcs
+defined in a mock map. Some developers were advocate of having only the attributes that
+they judged to "relevant" for testing a specific feature or fix.
+
+== Decision
+
+A discussion during the weekly tech alignment arrived to the conclusion that there are at least two types of tests that make use of mock maps:
+
+  * *Unit tests that assemble the mock map during test setup on run-time:*
+    ** *Definition:*
+    They make use of the mock map infrastructure to programatically create arcs during run time.
+    ** *Objective:* They are employed, for example, for testing the implementation of the lines in the junction model.
+    ** *Recommendation:* These tests are only required to specify the arc attributes that are actually relevant for the code that they intend to test.
+  * *Collaboration tests that load mock maps from GXL files and verify guidance regressions:*
+    ** *Definition:* Testing new features and fixes on instruction generation usually requires the setup of scenarios that are non-trivial road networks. For that we resort to GXL files, which describe such road networks using XML content. They are "collaboration tests" because they use the real implementation of several classes (instead of mocks): instruction engine, situation handlers, detectors etc.
+    ** *Objective:* They verify the instructions produced in scenarios reported by bugs that have already been fixed, guarding the implementation against regressions. In this regard, they test a scenario rather than a specific piece of code. (The code introduced by a feature or fix is covered first and foremost by unit tests.)
+    ** *Recommendation:* These tests use a mock map instead of a real one, because real maps need to be upgraded regularly, what leads to undesired changes in the data representation of the scenarios under test. In other words, mock maps guarantee that the map data for a given scenario will never change. For this reason, a mock map is supposed to be the best possible representation of the scenario under test. While some simplifications of the geometry are allowed, there is a set of arc attributes that must be specified (*):
+    . traveldir
+    . startAngle
+    . endAngle
+    . length
+    . streetName (when available)
+    . roadNumber (when available)
+    . linkType  (when other than "no_special")
+    . adminClass (API mapping)
+        - MOST_IMPORTANT_ADMIN_ROAD_CLASS: 0
+        - SECOND_IMPORTANT_ADMIN_ROAD_CLASS: 1
+        - ...
+        - SIXTH_IMPORTANT_ADMIN_ROAD_CLASS: 5
+        - LEAST_IMPORTANT_ADMIN_ROAD_CLASS: 6
+    . roadClass
+    . isMotorway (if true)
+    . isControlledAccess (if true)
+    . inComplexIntersection (if true)
+    . inPluralJunction (if true)
+    . inUrbanArea (if true)
+    . isRightHandDriving (if false)
+    . speedLimit (when available)
+    . multiDigitized (if true)
+    . multiDigitizedLinkRef (if multi digitized)
+
+Also worth mentioning:
+
+  * Tags for #boolean values set to false are not required to be explicitly defined#.
+  * The above listed attributes correspond in most part to the set of fixed attributes.
+  * The #_speedLimit_ is specially relevant for roads with controlled access#, because our detectors may consider it a motorway depending on its speed limit.
+  * We are not able to define #signposts# in GXL format, which is why they #must be injected programatically upon test setup#. The presence of a signpost will also impact the logic of our detectors.
+
+== Consequences
+
+These guidelines need to be enforced during the code review process. The vast majority of mock maps defined in GXL files are already compliant to them. Should a not compliant one be spotted, it must be handled as a tech debt.
+
+== References
+
+NDS mock map format https://github.com/tomtom-internal/nav-sdk-mapdataaccess/blob/ed2af2cec6d831fa06f864d0687ccdffafeb6b4c/ndsmap/DataAccess/Standalone/NDSMap/NDSMock/Documentation/MockMapFileFormat.md[link].

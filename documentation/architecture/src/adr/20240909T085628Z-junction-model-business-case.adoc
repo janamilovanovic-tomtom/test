@@ -1,0 +1,223 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+
+= Junction Model Proposal
+
+== Technical Summary
+
+The business logic for instruction generation currently uses a map
+abstraction layer called the Junction Model.  This is part of the same
+component as the Instruction Engine.  It is designed to provide the
+APIs required by Guidance, and only those APIs, and so is much simpler
+than general-purpose map APIs.  It also uses an access model that is
+more natural for Guidance development: instead of retrieving road
+information by road ID, requiring cross-references, roads are accessed
+sequentially.
+
+Lane Guidance, however, accesses the map API directly.  This suffers
+from the disadvantages the Junction Model is designed to avoid.  It
+also leaves the Lane Guidance business logic exposed to changes in map
+APIs.  When the map API changes, this can require changes potentially
+anywhere in the Lane Guidance component.  The switch to the NDA API
+has sharply highlighted the problems of this approach.  Adaptation of
+the instruction engine was quite straightforward, but adaptation of
+lane guidance has greatly increased the complexity and maintenance
+cost of the lane guidance code.
+
+The solution is natural: refactor the Lane Guidance component to use
+the Junction Model, just like the Instruction Situation Handlers do.
+
+== Code Architecture
+
+The Instruction Engine was always designed to accomodate multiple map
+APIs.  This was originally because NavKit2 was intended to use both
+onboard maps and a map tile cache.  Today NavKit2 only uses onboard
+maps, but including automated tests that still leaves three map APIs:
+
+1. NDS maps stored on disk.
+2. Mock Maps (actually fakes, i.e. a cut-down version of the real map
+API).  These use much of the same code, but do not support the
+Junction View Images API, causing complications.
+3. GMock Maps, where there is no underlying implementation, and tests
+must hand-craft the response to each API call.
+
+To accomodate these differences, we used the C++ traits pattern.  Each
+style of access is defined by a set of C++ classes, and a high-level
+traits class encapsulates that definition.  This traits class is used
+as a template parameter to other classes, which can then be written in
+a map-agnostic way.  This allows map type to be defined at
+compile-time on a customer basis, avoiding the need to build binaries
+that include every possible map implementation.
+
+A further complication is the need to lock NDS maps to protect against
+map updates during instruction computation.  To support this, we have
+a `MapContainer` interface, which itself is a template with the map
+access traits as template parameter.  This is an abstract class, with
+different implementations able to manage their map's lifetime as
+necessary.
+
+=== Current Lane Guidance NDA Architecture
+
+The current Lane Guidance code works directly with MapContainer and
+MapAccessTraits.  The code is a mixture of templated classes, where a
+dependency on map types is unavoidable, and non-templated classes,
+where map-agnostic data types can be used.  For example, if a class
+uses an ArcKey, a map-dependent data type, then that class must be a
+template.  If a class instead uses ArcIntKey, a map-agnostic data
+type, then that class does not need to be a template.
+
+In comparison to Instruction Engine business logic, Lane Guidance uses
+relatively few map API calls.  Arc lengths, angles, road types, and
+arc connectivity, are all important.  Most of the lane data is
+encapsulated in the LaneGroup class.  We have consciously tried to
+minimise dependencies on the map, with the result that today LaneGroup
+is only used directly in a couple of classes.
+
+Unfortunately, we have made very little attempt to use dependency
+injection in Lane Guidance.  As a result, the core orchestrator,
+`LaneGuidanceBuilder`, must depend on the map, and cannot be tested
+independently of its dependencies.  It has grown into quite a large
+class.
+
+In order to quickly deliver NDA, it was considered impractical to
+chase up all the required changes in every class.  Instead, we made
+two architectural decisions:
+
+1. We would re-use the `LaneGroup` class from NDSnew when using NDA.
+We would convert the native NDA data structures to the equivalent
+NDSnew before further processing.
+2. We would define new templated implementations `MapAccessTraits` and
+`MapContainer`, which wrap an existing map access method, but are
+capable of making the NDA API look exactly like the NDSnew API.
+
+In this way we were able to treat the vast bulk of the Lane Guidance
+code as a black box.  We delivered a working NDA implementation
+without having to even assess the potential impact on every lane
+guidance class.
+
+It was always understood that we were taking on a large technical debt
+with this approach.  Currently, lane guidance code floats on a very
+complicated stratum of interlocking templates.  This can best be
+illustrated by a short code snippet:
+
+    template <typename MapAccessTraits> class
+    MapAccessWrapperContainer final : public
+    MapContainer<MapAccessWrapperTraits<MapAccessTraits>> {
+
+This declaration... lacks clarity.  But it is critical to understand
+what this code is trying to achieve, and how it achieves it, in order
+to extend NDA functionality.  I have had the experience of trying to
+explain the function of this code to a team-mate, to unblock him from
+implementing a feature.  That requires a great deal of patience.  A
+developer attempting to work in this code without hand-holding from
+the original implementer would have far more difficulty, despite our
+attempts to document our design decisions.
+
+== Business Value
+
+Although we anticipate this rearchitecting taking a significant amount
+of development resources, we believe it will lead to significant
+direct value to the business.
+
+=== NDA Development
+
+The primary purpose of this rearchitecting is to smooth the
+development and maintenance of further NDA development.  This API is
+still being extended and modified.  With the current architecture, we
+can expect that absorbing these changes will occupy a great deal of
+development time, for little business value.
+
+This will become more pressing as new developers join, without the
+background that led to the current architecture.
+
+=== Testing and Reliability
+
+The current architecture of `LaneGuidanceBuilder` is very difficult to
+test.  In effect it can only be tested using a "real" NDS map.  That
+limits test coverage to situations in a small set of test maps which
+model real-world roads in relatively developed locations.  If an
+engineer thinks of an edge case that ought to be tested, it is often
+not possible to build a test for this.
+
+`LaneGuidanceBuilder` is the most obvious case of this, but other
+classes suffer from similar problems.
+
+The fact that tests use an entire stack, including many libraries
+developed outside PU Directions, means that the tests are often
+unstable.  Flaky tests are particularly disruptive, since they often
+only surface right at the last minute during SDK delivery, and the
+engineers that discover these problems cannot immediately know which
+team can fix them.  This has regularly led to failure to deliver
+features, even after upstream developers have labelled their user
+stories as "done".
+
+=== New Joiner Onboarding
+
+Onboarding of new joiners has been problematic recently.  Apart from
+the stress of settling in, setting up a working development
+environment, and learning about the new organisation, new joiners must
+learn a great deal of architecture.  In general it is several weeks
+before a new joiner is able to deliver customer value, and then only
+on a small scale.
+
+The fact that the Instruction Engine and Lane Guidance have such
+divergent architectures limits the ability of engineers in different
+scrum teams to assist new joiners.  That in turn leads to bad habits
+of "siloing".  We have encountered cases recently of engineers working
+in the Instruction Engine making changes that negatively affected Lane
+Guidance, or vice versa.  For example, work on improving performance
+has been delayed due to this effect.  This can be considered a symptom
+of Lane Guidance working very differently to the rest of the
+Instruction Engine.
+
+=== Compilation Time
+
+Due to our architecture, we are forced to make many of our classes
+templates.  These often require a very large amount of code to be
+compiled into a single translation unit, a known source of slow and
+resource-intensive compilation.
+
+In addition, many of our unit tests must be integrated unit tests,
+running on an entire stack of many components.  These are necessarily
+slow.  This additional testing time affects not only Guidance
+developers, but all downstream developers as well as associated CI
+processes.
+
+== Unlocked Potential
+
+There are features that have been discussed but not yet planned, which
+would be assisted by this changed architecture.
+
+=== Telemetry
+
+We would like to make more use of telemetry in Guidance, which means
+detecting and reporting problems automatically.  Some of these
+problems are ideally detected at the map level.  For example, a
+`LaneGroup` that has no incoming or outgoing connections makes no
+sense.  It can be complicated to diagnose this problem from the
+results of the business logic.  It is much more straightforward to
+perform such checks inside the map abstraction layer.
+
+=== Guidance Replay
+
+Currently when we receive a bug report, we try to reproduce the
+situation by choosing the correct map.  This generally involves
+downloading many gigabytes of data.  This can be somewhat improved by
+running the reproduction as a github action, but downloading the map
+still takes of the order of an hour.
+
+This will be made more complicated in future when more and more bug
+reports come from Guidance generated from NDS.Live endpoints.  The
+underlying data can change at any time.
+
+One potential solution to both of these problems, at least for drive
+test situations, is to run Guidance in a data collection mode.  In
+this mode all Guidance data that is actually used would be stored as a
+file on disk.  That data could then be "replayed" on a developer
+machine.  The amount of data would amount to only a few megabytes, and
+could be attached to JIRA tickets.  This would greatly speed up
+diagnosis of the problem, as well as giving greater confidence that
+any fix actually works.
+
+This could only be practically achieved if the Junction Model layer
+forms a hermetic seal on the map data, with no additional dependencies
+that would also need to be mocked up.

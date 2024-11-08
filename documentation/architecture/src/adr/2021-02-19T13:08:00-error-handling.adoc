@@ -1,0 +1,248 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Error Handling
+
+== Status
+Proposed
+
+== Context
+
+Guidance repositories employ different strategies for handling errors.
+
+Errors can have several sources:
+
+- an error code is reported by a component or library that guidance code uses
+- an exception is thrown by a component or library that guidance code uses
+- inconsistent map data is encountered
+- the client provides incorrect configuration
+- an unforseen or unhandled situation happens in guidance code
+
+This ADR tries to set minimal guidelines on how to handle the situations above.
+
+== Requirements
+
+The proposed approach should satisfy the following qualitative
+criteria:
+
+==== Supportability (Inspectability)
+
+The solution should allow developers to understand where, how, and why the problem has
+happened. At least the line number and the source file name should be printed
+when available.
+
+In case of an error happening outside of guidance code the error should be caught
+as soon as possible in guidance code and appropriate context information (line
+number, file name) should be provided.
+
+Ideally a decoded stack trace or (mini) crash dump for the problematic location
+with the decoded parameter values should be available.
+
+==== Durability
+When an error happens all logs need to be commited by underlying
+logging system before the process dies.
+
+
+=== Synchronicity
+Errors happen synchronously at a specific program statement whereas asynchronous
+exceptions can be raised practically anywhere. Asynchronous errors are outlawed.
+
+=== Reliability & Robustness
+The system should be able to recover from any error
+gracefully. No exception should cross the service boundary.
+
+
+== Current situation
+
+[#exception_handling]
+===  Exception Handling
+
+The current codebase uses exceptions to handle many error situation. This is
+mostly due to the throwable iterator concept that, while providing a more
+elegant way to implement guidance logic by removing all the end-of-route checks,
+makes exceptions a very real possibility that the instruction engine has to
+guard against. The current structure of exception handling is as follows:
+
+* Whenever a set of handlers (Range, Point, PointRange) is executed each single
+call to the handler->Process() method is wrapped in try-catch block that catches
+`InstructionEngineError` exceptions only. If an exception is caught, the handler
+will log the exception and return an empty instruction list, and next handler
+will be called. This is potentially problematic in case the handler that failed
+was the one that would have generated an instruction and consumed the junction.
+In this case in fact, the next handler might succeed and deliver an instruction
+for the same junction. This behavior is by design, and may be desirable from
+some point of view, but it has one potentially worrying drawback:
+
+** In presence of an exception inside a handler, we might deliver a sub-optimal
+or plain wrong instruction, in extreme cases even causing safety concerns. This
+is because when the "intended" handler (in the sense of the above paragraph)
+fails, another handler in the chain might decide that it can indeed handle the
+junction, deliver an instruction and consume the junction. While it may be
+argued that being resilient to code failures is a desirable property, we
+currently lack any form of testing/verification that insures us that the
+fallback instruction will be safe. This is a concern that should be addressed,
+and if we cannot guarantee that the fallback instruction will be safe and
+enforce policies for maintaining the proper order of situation handlers, we
+could consider fail eagerly instead of exhibiting undefined behavior. Moreover
+(see below), since currently some handlers will catch and consume their own
+exceptions and some will not, this behavior is also not uniform.
+
+* The instruction engine also catches all exceptions in the Generate method, at
+a higher level than for handlers. If an exception is caught there, the
+instruction engine will log the exception and return an empty instruction list.
+This complies with the requirement of not letting exceptions cross the service
+boundary. However, there is some initial code (iterator validation and
+instruction creation for departure, arrival and waypoint ) that is not
+completely covered by the outer try-catch block (instruction creation functions
+also catch exceptions in their implementations some set up code does not).
+This seems contradictory with the requirement of casting as wide a net as
+possible to catch exceptions. It also forces the code that is not covered to
+have its own try-catch block.
+
+
+* Some handlers have additional try-catch blocks wrapping most of their
+processing. Searching for try-catch blocks in the handlers code yields 17
+handlers with such blocks, out of 52 handlers in total. Since all that these
+blocks do is return no instruction, it would seem that these try-catch block are
+superfluous and the instruction engine should be responsible for handling those
+exceptions. The only advantage of these try-catch blocks is that they can log
+the handler type, but this could be obtained by logging the handler name in the
+instruction engine code.
+
+=== Logging
+
+Logging is currently performed using the orodoro logger. We log at different levels, but in bug reports we typically see logs of level INFO or higher. These levels should be used to flag significant events.
+We typically handle customer bugs by attempting to reproduce the issue, and logging at INFO is very helpful in this case.
+
+==== Logging in the online Routing API
+To keep down  storage space costs, the online Routing API discards all the instruction engine logs. For particularly important errors that should never happen in practice, we can use 'kOnlineLogId' as the log id. These errors will be noticed by on-call engineers and raised as incidents.
+
+=== Other issues
+
+==== Memory violations
+At the moment, we are not handling errors that generate signals like SIGILL,
+SIGSEGV etc. In POSIX systems, it is not generally feasible to convert a signal
+into an exception. It may be possible to do so for some signals (SIGILL,
+SIGTRAP, SIGBUS, SIGFPE, SIGSEGV, SIGSTKFLT) and to convert those errors in
+exceptions. This would allow us to handle those errors and do so in a more
+uniform way.
+
+There may be little advantage in doing so, once a memory violation has happened
+the safest way would be to restart the component since we could give no
+guarantee that the system is in a consistent state. This is especially true for
+dependencies, see discussion below.
+
+
+=== Memory violations in dependencies
+
+The Instruction Engine depends on map access libraries and they can crash with
+signals like SIGSEV if there is an inconsistency in map data. There is common
+agreement that we should not try to catch those signals and that the safest
+behavior is to crash as well and rely on some external restart mechanism. Note
+that these crashes should in theory only happen on invalid map data, and such
+invalid map data is supposed to be caught by automated validity checks before
+these maps are released. While we cannot of course exclude pointer errors in the
+instruction engine itself, the occurrence is unlikely. It is also possible,
+depending on the environment, that other components running in our same process
+context could corrupt our memory.
+
+== Proposals
+Here we list some proposals to improve the current situation.
+
+=== Proposal 1: Remove all try-catch blocks from the handlers
+
+As discussed above, the try-catch blocks in the handlers are superfluous and
+should go away. Optionally we could modify the catch statement to log the
+handler name. If this caused some exception classes to become useless we could
+remove them as well. Try-catch blocks in the situation handlers, are OK, but
+they should be there because they provide context for the exception, so they not
+be surrounding the Process() method, but in deeper stack frames where they can
+have more context. Here they should log the contextual information and then
+rethrow the exception to ensure uniform behavior.
+
+=== Proposal 2: Generate method should catch all exceptions
+
+Currently, the Generate methods is such that current or future code could
+presumably throw an uncaught exception. We should wrap the entire method in a
+try-catch block. This can easily be accomplished by extending the existing
+try-catch so that it covers the entire method.
+
+=== Proposal 3: Investigate stack trace libraries
+
+Among the initial requirements we wanted to have a decoded stack trace or (mini)
+crash dump for the problematic location and that is not currently available.
+This seems difficult at the moment, and it would have to be a unified solution
+throughout the codebase.
+
+=== Proposal 4: Discriminate between ArcIterationAborted and other exceptions
+
+The ArcIterationAborted exception is is thrown when iteration reaches the end of
+the current available arcs. This is a normal situation that can occur often and
+should not be logged as an error. Resuming in this case is the correct behavior.
+Yet the code currently never checks for this exception and treats it like the other,
+more serious ones. We should think of the ArcIterationAborted as implementing a
+special control flow.
+
+=== Proposal 5 instruction generation should fail eagerly
+
+Right now, if an handler throws an exception, the next handler is called and we
+give all remaining handlers a chance to generate an instruction. It is not clear
+if this is the best behavior, and a brief analysis follows.
+
+If an handler throws an exception, the next handler is called, so in case of an
+exception we can have two different cases: the "intended" or "unintended" handler throws
+the exception.  In this sense the "intended" handler is the one we would ideally wish
+to generate the instruction, while the "unintended" handler is an earlier handler that
+would not generate the instruction anyway.
+
+==== The ''intended'' handler throws
+
+In this case control will move to the remaining handlers, one of which could
+decide to return an instruction. This is the current behavior, and can result in
+either no instruction being generated or in a sub-optimal or wrong instruction
+being generated.
+
+==== The ''unintended'' handler throws
+
+In this case we will still generate the correct instruction, but there will be
+no visible sign of an exception having been thrown.
+
+Due to the following concerns, it could be preferable to fail eagerly: when a
+non-iterator-related exception is thrown in a handler, we will exit the
+instruction generation loop and restart from the next junction.
+
+=== Discussion
+As discussed in the above analysis, in presence of an exception we may have a skipped instruction, a missing
+instruction or a correct instruction. The non-determinism of this behavior is
+undesirable, and delivering sub-optimal instructions can be a safety concern.
+
+On the other hand, missing instructions can be a safety concern as well, but at
+least do not mislead the driver so that drivers would be more likely to
+focus on the maneuver instead of blindly following the navigation system along.
+From a business perspective, a missing instruction also has less potential for
+damaging results.
+
+As for the quality of the fallback instruction, if we imagine a random failure
+in one handler, the probability of the "intended" handler to be the one that throws
+seems relatively low, and if we do emit an instruction despite the failure it
+likely will not be a very bad one. This is because we would need a handler that
+somehow matches the situation, which would make it somewhat competent to
+generate a ''reasonable'' instruction. On the other hand, we do rely on handler
+order to generate an instruction, and it may happen that a single handler
+failure could trigger a handler that is not competent to generate a reasonable
+instruction.
+
+Weighing the pros and cons, the decision is not clear cut. It would seem that
+safety concerns and integrity of the system would be better served by failing
+eagerly, but this would need to be confirmed by a more thorough analysis.
+
+== Actions
+
+We will implement proposal 1 and 2 in link:https://www.jira.com/NAV-129006[NAV-129006].
+We will investigate proposal 4 and 5, where no consensus has been reached yet.

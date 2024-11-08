@@ -1,0 +1,102 @@
+// Copyright (C) 2020 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+[[section-about-this-document]]
+
+== About This Document
+
+The Lane Guidance system provides information to the driver about
+upcoming lane configuration, and guidance as to which lanes
+the driver should take to safely proceed along their route.  This
+document provides a starting point for those who wish to understand
+exactly what guidance it provides and how this is implemented
+internally.
+
+=== What This Document Is For
+
+This document is useful in the following situations:
+
+* Stakeholders such as Product Owners and Managers need to understand
+  what value the Lane Guidance system provides for customers, what
+  limitations it has, and how it fits into our strategic road map.
+* Engineers and Architects participating in product design and feature
+  refinement need background regarding the structure of the Lane
+  Guidance system, in order to identify how to implement improvements.
+* Engineers fixing bugs need to identify the component responsible for
+  incorrect behaviour, and have enough understanding of overall
+  operation to assess how their changes will affect the rest of the
+  sytem.
+* New joiners need an introduction to the overall context of the Lane
+  Guidance system, and a roadmap for separating technical areas that
+  can be understood in depth on their own.
+
+=== Who Should Read This Document
+
+Chapters 1-4 are intended for Stakeholders and anyone else needing
+context about what Lane Guidance is for and what value it adds.  These
+chapters are written without assuming any in-depth technical
+background.
+
+The remaining chapters are intended for Engineers who need enough
+understanding to start modifying the code.  They assume a C++
+background as well as other basic Engineering concepts.
+
+=== Structure Of The Document
+
+Chapter 2 starts with a description of the role of the Lane Guidance
+system in providing UX to drivers.  It does not provide a full UX
+specification, since that has
+https://confluence.tomtomgroup.com/display/FlaminGO/Driving[a
+dedicated area in confluence].  Rather it provides a quick overview of
+the parts supported by the Lane Guidance system.
+
+Chapter 3 explains the direct output of the Lane Guidance system as an
+API, along with an explanation of how these support the above UX
+goals.  It does not provide a detailed API reference, since there is a
+dedicated developer resource for that.
+
+Chapter 4 summarises the current and planned clients that access the
+Lane Guidance system as part of larger systems.  It explains which
+APIs are used by each.
+
+Chapter 5 describes the important data structures supplied by the map,
+in particular the NDS Lane FTX Block.  It does not provide a detailed
+specification, see
+https://nds.tomtomgroup.com/documentation/view/211/[the original spec]
+for that.  Instead it explains which fields the Lane Guidance system
+uses, and any special interpretations or constraints we have
+implemented.
+
+Chapter 6 provides a high-level view of the internal components of the
+Lane Guidance system and explains how they interact.
+
+Chapter 7 then
+provides details of the implementation and behaviour of specific
+components.
+
+Chapter 8 goes into more detail on the particular topic
+of how map updates are handled.
+
+=== How This Document Is Updated
+
+This document is stored in
+https://github.com/tomtom-internal/navigation-instruction-engine/tree/main/documentation/architecture/src/lane_guidance[the
+instruction engine git repository].  All updates should be made as
+pull requests to that repository.
+
+The later chapters of this document go into quite some detail about
+implementation specifics, and these details are continually being
+changed.  Whenever a change in the structure of the lane guidance
+implementation is made, that change should include all necessary
+updates to this document.
+
+Frequently, very detailed design changes are documented in
+Architecture Decision Records, "ADRs".  It will often be enough to add
+one sentence in the relevant part of this document that links back to
+the relevant ADR.

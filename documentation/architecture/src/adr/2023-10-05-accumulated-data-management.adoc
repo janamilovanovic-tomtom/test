@@ -1,0 +1,141 @@
+// Copyright (C) 2023 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Accumulated data management
+
+== Status
+
+Accepted
+
+== Context
+
+Navigation Instruction Engine was initially designed to look only forward while determining the behavior of situation handlers.
+It turned out that the generation of some instructions needed information about data before the maneuver point. In some
+cases, workarounds were introduced (HOV, Sideroads). In other cases, a simplified approach that does not give the best quality
+(landmarks, signposts, follow the road, merge instructions). Recently, there has been reported a bug with missing merge
+instructions on motorways for Orbis maps (https://jira.tomtomgroup.com/browse/NAV-116321[Bug link]). In order to provide proper merge
+instructions for Orbis maps, there is a need to skip over ramps and check whether the first non-ramp segment we
+encountered was controlled access. The missing merge instructions bug restarted the discussion about a unified approach for
+accessing data before the maneuver point.
+
+
+This ADR is based on
+https://confluence.tomtomgroup.com/display/NAV/%5BNIE%5D+20230908+Accumulated+data+management[Design Decision Page]
+which contains more details and in-depth information.
+
+== Current Implementation
+
+Currently, in the navigation instruction engine, the problem with accessing data before the maneuver point is approached
+in a few different ways. Intermediate traffic lights and merge instructions use a simplified approach that finds incoming,
+drivable lines to the current line on the route and stops whenever there is more than one possibility of going backward,
+for example, due to a fork on a route. HOV generates multiple instructions that are filtered out in a post-processing
+phase. Signposts and follow-the-road instructions currently do not use data before the maneuver point, even though they
+could benefit from that.
+
+== Problem
+
+There is a need for a stable solution for accessing data before the maneuver point, preferably a solution that addresses all
+needs of different situation handlers. The look-back window for each situation handler is different and varies from kilometer
+to hundreds of kilometers. For some situation handlers, accessing data between the current car position and the maneuver point
+is enough. For others, data before the current car position is also important. A summary can be found in the table below.
+
+[options="header"]
+|===================
+|Scenario                       |Required data  |Type   |Distance   |Required before current car position
+|HOV instruction                |Previously-generated HOV instructions or previous road/lane types (Whether it's HOV or not) | Instructions or Map data | 50km | Yes
+|N-th landmark guidance         |Previous landmarks along the route |Map data |1km |No
+|Signpost toward name selection |Previous instruction toward name or previous signposts along the route | Instructions or Map data | 8 arcs | Yes
+|Highway merge instruction      |Previous road types (motorway and ramps) along the route | Map data | Ramp length | Yes
+|Side roads                     |Previous roads connected to the route | Map data | 1km | No
+|Follow instruction             |Road names, numbers, classes | Map data | tens, up to hundreds of kilometers | No
+|===================
+
+The chosen solution has to work properly when route or map updates are happening, and route history can be erased.
+The behavior of route and map updates is described on the
+https://confluence.tomtomgroup.com/display/NAV/%5BNIE%5D+20230908+Accumulated+data+management[Design Decision Page].
+
+== Alternative solutions
+
+=== Alternative #1 - Accumulate data in the instruction engine
+
+The accumulated data is kept in the instruction engine. Both generated instructions and attributes of previous arcs can be kept.
+
+Risks:
+
+* The instruction engine will become stateful. Many mechanisms, such as cache invalidation, need to be implemented.
+* When the map is updated, stored arc keys can be invalid. Thus, we can't store attributes by arc keys.
+* When the route is changed, stored offsets can be invalid. We need to transform the stored offsets into new offsets.
+
+=== Alternative #2 - Store accumulated data in the instruction engine client
+
+The accumulated data is stored in the client of the instruction engine. Both generated instructions and attributes of previous arcs can be kept.
+
+* Generated instructions
+** GO SDK: https://github.com/tomtom-internal/go-sdk-android/blob/master/routing/model/src/commonMain/kotlin/com/tomtom/sdk/routing/options/guidance/RouteIncrementOptions.kt[RouteIncrementOptions]
+already contains instructions generated in past rounds.
+** NK2: A new data structure in OnboardTripGuidanceManager needs to be created. When creating an instruction provider, the
+reference of the data structure needs to be provided to the new instruction provider. When the instruction provider
+generates instructions, it needs to pass accumulated data to the instruction increment generator. When the instruction
+increment generator generates instructions, it needs to pass accumulated data to the instruction engine.
+** Routing API and KMLDumper: generate all instructions at once and do not need to store accumulated data.
+* Attributes of previous arcs
+** GO SDK: In order to prevent complex map data conversion between Kotlin/Swift and C++, we can store a C++ object on
+the heap and pass its address.
+** NK2: We can store the same serialized binary data in OnboardTripGuidanceManager.
+** Routing API and KMLDumper: generate all instruction at once do not need to store accumulated data.
+
+Risks:
+
+* When the map is updated, stored arc keys can be invalid. Thus, we can't store attributes by arc keys. We need to store
+the data in map-independent way.
+* When the route is changed, stored offsets can be invalid. We need to transform the stored offsets to new offsets.
+
+=== Alternative #3 - Bi-directional iterator
+
+The proposition is to introduce a bidirectional iterator that will allow us to iterate over the lines on the route
+backward as well as forward. It can be done by extending LineOnRouteIterator with the possibility of going backward on
+the lines on the route. The iterator will allow us to move backward till the end of the known route history, up to the
+beginning of the offset on the route.
+
+Risks:
+
+* HOV and Follow-the-road instructions require looking backward for up to tens/hundreds of kilometers. It can cross
+many tiles. It can cause problems for the online streaming map cache. When a functional enabler hits the end of the cache,
+there is no active fetching of missing tiles. A separate pre-fetcher / cache management component determines the current
+coverage of the cache.
+
+=== Alternative #4 - Combination of lightweight alternative #2 and alternative #3
+
+As different scenarios have different characteristics, they may need different solutions. Alternative #4 is a combination
+of a lightweight version of solution #2 and solution #3. In this approach, only instructions would be stored on the
+client side. For accessing map data, a bidirectional iterator would be used.
+
+Risks:
+
+
+* Follow the road and HOV instructions need access to map data for a significant distance before the maneuver point,
+bidirectional iterator won't have access to map data for such a long distance. Information about previously generated
+instructions can replace accumulated map data for HOV, and it cannot be done for follow-the-road instructions.
+
+== Proposal
+
+Our proposition is to use alternative #2 as a solution for accumulating data forward. Solution #1 is against design
+principles, saying that the navigation instruction engine should be stateless. Solutions #3 and #4 won't address all
+needs. Solution #3 won't support HOV and follow the road, and solution #4 won't support follow the road.
+
+== Consequences
+
+After introducing alternative #2, we would have a unified approach for solving problems that need information about
+data before the maneuver point. The missing merge instruction bug could be fixed, and we would be able to refactor other
+mentioned situation handlers to give better quality / be simplified.
+
+Downsides:
+
+* The complexity of both the instruction engine and its client will become larger. The client needs to help the engine
+keep the state.

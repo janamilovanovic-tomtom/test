@@ -1,0 +1,55 @@
+// Copyright (C) 2024 TomTom NV. All rights reserved.
+
+= Situation Handlers
+
+== Definition
+
+Situation Handler:: A code component of the NIE that is responsible for handling a particular
+situation. See xref:./../../architecture/src/12_glossary.adoc[definition in glossary]
+
+This document maintains an *ordered* list of situation handlers available in NIE.
+
+== Long Ranged Situation Handlers
+
+Long Ranged Handlers are an overlap of point and range handlers. They are computing situations
+along a (usually long) range WITHOUT preventing further instructions in the same range. To make
+sure that the next call to `generate` DOES NOT produce the same instruction again, the ranged
+situation handlers are called on the whole stretch analyzed by the long ranged situation handlers
+in the very same `generate` call.
+
+* xref:./hov_handler.adoc[HOV Lane Handler]
+
+== Ranged Situation Handlers
+
+Ranged Situation Handlers consume lines on which they generate instructions. This prohibits further
+instructions being generated on the same lines. Exception: Any point instructions, they are never
+prohibited.
+
+* Roundabout Handler
+* Standalone Roundabout Exit Handler
+* xref:./drive_past_merge_handler.adoc[Drive Past Merge Handler]
+* Merge Handler
+* xref:./hov_handler.adoc[Complete Hov Road Entrance Handler]
+* xref:./hov_handler.adoc[Complete Hov Road Exit Handler]
+* Controlled Access Switch Handler
+* Controlled Access Exit Handler
+* Motorway Fork Handler
+* xref:./split_of_ramps_fork_handler.adoc[Split Of Ramps Fork Handler]
+* Fork Handler
+* xref:./street_join_handler.adoc[Street Join Handler]
+* Cross Complex Situation Handler
+* Turn At Complex Situation Handler
+* Auto Transport Handler
+* Straighter Road Taken Than Natural Continuation Handler
+* xref:./cross_simple_intersection_handler.adoc[Cross Simple Intersection Handler]
+* xref:./cross_simple_three_way_junction_handler.adoc[Cross Simple Three-way Junction Handler]
+* xref:./simple_turn_handler.adoc[Simple Turn Handler]
+* End Of Road UTurn Handler
+
+== Point Situation Handlers
+
+Point Situation Handlers generate instructions on lines WITHOUT consuming them.
+
+* Border Crossing Handler
+* Waypoint Handler
+* Tollgate Handler

@@ -1,0 +1,88 @@
+# Copyright (C) 2022 TomTom NV. All rights reserved.
+
+---
+
+name: Deploy AsciiDoc to GitHub Pages
+# Publishes to: http://username.github.io/repository.
+# Docs: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-with-a-custom-github-actions-workflow
+# To enable gh-pages: https://pages.github.com/
+#   goto:
+#    - repo settings
+#    - Pages
+#    - Build and deployment -> Source: select GitHub Actions
+
+on:
+  workflow_call:
+    inputs:
+      package_version:
+        description: The version of the conan package to generate the documentation for
+        required: true
+        type: string
+      src_dir:
+        description: root of path of AsciiDoc files to recursively build HTML from
+        required: true
+        type: string
+      build_dir:
+        description: root of path to recursively publish static HTML from
+        required: true
+        type: string
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy AsciiDoc to GitHub Pages
+    runs-on: az-weu-ubuntu-20.04-amd64-2cpu
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Update ADR index file
+        run: python3 .github/workflow_scripts/update-adr-listing.py --adr_dir="${{ inputs.src_dir }}/architecture"
+
+      - name: Generate HTML from AsciiDoc
+        id: asciidoctor
+        uses: docker://asciidoctor/docker-asciidoctor:latest
+        with:
+          entrypoint: asciidoctor
+          args: >
+            --backend html
+            --doctype book
+            --require asciidoctor-diagram
+            -R "${{ inputs.src_dir }}"
+            -D "${{ inputs.build_dir }}"
+            -a revision="${{ inputs.package_version }}"
+            "${{ inputs.src_dir }}/**/*.adoc"
+
+      - name: Fix ownership of HTML files
+        run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
+
+      - name: Copy assets
+        # Copy all non asciidoc files to the destination folder
+        # -k to treat symlinks to shared/ as if they were actual folders
+        run: rsync -akv --exclude='.*' --exclude='**/*.adoc' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
+
+      # from example: https://github.com/actions/starter-workflows/blob/main/pages/static.yml
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "${{ inputs.build_dir }}"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

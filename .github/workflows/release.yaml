@@ -1,0 +1,30 @@
+# Copyright (C) 2023 TomTom NV. All rights reserved.
+
+---
+
+name: Release
+
+on:
+  push:
+    branches:
+      - try_deploy_ex_spec_to_GH_pages
+  workflow_dispatch:
+
+concurrency: ${{ github.ref }}
+
+jobs:
+
+  asciidoc:
+    name: Deploy architecture documentation to GitHub Pages
+    secrets: inherit
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    if: needs.release.outputs.released-version != ''
+    uses: ./.github/workflows/asciidoc-to-gh-pages.yaml
+    with:
+      package_version: ${{ needs.release.outputs.released-version }}
+      src_dir: documentation
+      # Make sure this is outside of the src_dir
+      build_dir: doc_build

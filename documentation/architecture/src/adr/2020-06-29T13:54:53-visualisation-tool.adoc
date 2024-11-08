@@ -1,0 +1,27 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Visualisation tool
+
+== Status
+
+Proposed
+
+== Context
+
+We have decided to use KML as our major debugging and analysis file format.  We need a tool to visualise these KMLs.  Currently we use Google Earth, but it isn't very well tuned to our needs.  In particular it doesn't provide any link to the underlying NDS data.
+
+== Decision
+
+We will just keep using Google Earth for the moment.  We will hope that any future tools will either support KML, or support a format we can easily convert to from KML.
+
+== Consequences
+
+* We are dependent on a tool from a direct competitor
+* Our tooling doesn't allow for easy comparison to NDS map data

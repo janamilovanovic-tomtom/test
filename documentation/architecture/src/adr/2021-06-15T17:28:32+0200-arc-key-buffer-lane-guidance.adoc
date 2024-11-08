@@ -1,0 +1,68 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= ArcKeyBuffer and LaneGuidanceBuilder
+
+== Status
+
+Accepted
+
+== Context
+
+=== Pull-based Instruction Generation
+
+The input to instruction generation is a map-matched route, represented as a sequence of ArcKeys.  These are abstracted by a junction model (JunctionOnRouteProvider) and then converted into Instructions by the InstructionEngine.  The event that triggers the generation of a new batch of instructions is a new batch of ArcKeys being available from the map matcher of the Route.
+
+For some time we have implemented a pull-based model for incremental instruction generation.  Instead of the new ArcKeys being pushed to the JunctionOnRouteProvider, and the JunctionOnRouteProvider pushing to the InstructionEngine, the InstructionEngine runs in a background thread and requests JunctionOnRoutes and the JunctionOnRouteProvider requests ArcKeys from an ArcKeyBuffer.  The ArcKeyBuffer blocks until ArcKeys are pushed into it.
+
+This was done because the InstructionEngine has a complicated client contract to fulfill as to how many instructions should be generated.  There is a variable maximum number of instructions requested by the client.  The pull model allows us to implement this business logic close to the public API, rather than at the other end of the pipeline.
+
+=== Lane Guidance
+
+We are now implementing the LaneGuidanceProvider, which provides a similar function to the instruction engine.  It takes a sequence of arcs, reads rich data from the map, applies a large amount of business logic, and produces guidance for the driver.
+
+However there are important differences:
+
+* Time to first Instruction is an important metric for the InstructionEngine - performance of subsequent instructions is not so important.
+* Lane guidance has to be very dynamic, constantly adapting to the latest information.
+* Instructions must often be pre-computed a very long distance down the road.
+* Lane guidance is not desirable beyond a very short horizon.
+
+=== Alternatives
+
+==== LaneGuidanceProvider runs in thread
+
+The LaneGuidanceProvider does share a lot of properties with the InstructionProvider.  If it makes sense to run the InstructionProvider in a background thread, it makes sense to run LaneGuidanceProvider that way too.
+
+Apart from sharing more code in the ArcKeyBuffer, this would also reduce the cognitive load of supporting the instruction engine generally, since multiple components work the same way.
+
+A disadvantage is that there would be more threads running, making it harder to reason about the state of the system, and making it harder to debug issues concerning the ArcKeyBuffer.
+
+==== InstructionProvider switches to push model
+
+We spent some time debating whether to use a pull model or a push model.  One result is that we deliberately engineered the InstructionProvider to make it relatively easy to change our minds later.  For example we pass abstract iterators to arc keys instead of containers, so public APIs can remain the same.
+
+Nevertheless we had convincing reasons to use a pull model: it puts the business logic for choosing when to generate instructions closer to the client that controls that business logic.
+
+==== LaneGuidanceProvider does not use ArcKeyBuffer
+
+If the LaneGuidanceProvider has requirements different enough from those of the InstructionProvider, that can justify using a completely different mechanism to feed arcs to the LaneGuidanceProvider.  This would read arcs from the Route.
+
+The new mechanism would not need to invest so much effort in dealing with new map-matched segments.  Lane guidance can simply be restarted whenever the state of the route changes.
+
+== Decision
+
+Lane Guidance does not need to use a pull-based generation model.  It should not use a background thread.  It should not use the blocking API of ArcKeyBuffer.  Instead it will use a new class, ArcKeyVector, which provides an API that is simpler to understand.
+
+== Consequences
+
+* We need to be careful about the performance of LaneGuidanceBuilder
+* There is a confusing overlap between the functionality of ArcKeyBuffer and ArcKeyVector
+* LaneGuidanceBuilder will continue to use iterators of ArcKeyWithOffset, so no API change is required
+* ArcKeyVector needs its own way of dealing with updates from the route, both OnDataChanged and OnPathChanged

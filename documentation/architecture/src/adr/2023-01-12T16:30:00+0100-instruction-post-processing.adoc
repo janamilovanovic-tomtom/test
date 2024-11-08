@@ -1,0 +1,123 @@
+// Copyright (C) 2023 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Instruction Post-processing
+
+== Status
+
+Implemented.
+
+== Context
+During implementation of the maneuver path extension for turns (xref:2023-01-12T16:08:33+0100-maneuver-path-extension.adoc[Maneuver Path Extension]), we made the maneuver path for turns
+longer by 10 meters, to make the maneuver stay on the NIP longer and to prevent the next
+maneuver to be announced too early.
+
+Unfortunately, instructions are arranged by end offset for announcement purposes, and the
+change resulted in swapping the order of instructions where e.g., a turn was really
+close to an itinerary point. These occurrences may seem quite rare, but are in fact
+relatively common since the entrance to a building can be close to the corner of a block.
+The user experience in this case would be to hear "turn" pronounced after "arrival", which
+is clearly undesirable.
+
+The current instruction delivery mechanism is currently layered, and here is a summary
+description of the pre-existing architecture and of the flow of instruction computation,
+excluding threading and cancellation:
+
+* `InstructionEngine` generates one instruction at a time (plus point-like instructions
+that happen during that instruction )
+
+* `InstructionIncrementGenerator` wraps `InstructionEngine` and calls it repeatedly to
+generate a set of combinable instructions at a time. These are instructions that are no
+more than 3km away. This value is set to be larger than the greatest possible main trigger
+distance in any possible configuration, so we always deliver instructions whose announcement should be combined in a single batch. In specific engine configurations we might be able to
+trim this value down to improve performance.
+
+* Two callbacks are passed as parameters to `InstructionIncrementGenerator`: one to receive the resulting instructions and one for flow control.
+Different callbacks will be used for NK2
+and GoSDK, which required different instruction delivery behavior.
+
+The `InstructionIncrementGenerator` calls the result-receiving callback for each new instruction it has available.
+Clients can choose to provide a callback that propagates instructions to upper layer *as
+soon as it became available*, which is what NK2 does, or to provide a callback that
+*stores the full increment and then delivers it in one batch*, and this is what GoSDK code
+implements.
+
+The upper layers then take charge and deliver the instructions to the ultimate client
+through our API.
+
+== Decision
+
+To clamp the maneuver path of instruction~k~ we need knowledge about instruction~k+1~, so
+we introduced a post-processing step by:
+
+* modifying `InstructionIncrementGenerator` to always return sets of combinable
+instructions, never a single instruction. (See <<consequences>>)
+
+*  wrapping the callback the `InstructionIncrementGenerator` uses to deliver instructions.
+At that stage a set of potentially combinable instructions are available, and they can be
+examined and mutated with knowledge of the next instruction available.
+
+* having the callback wrapper invoke a series of `InstructionPostProcessor` instances in
+sequence. Each post-processor has a chance to examine and modify the full instruction
+increment before it is delivered to the upper layers. This is intended to form the
+skeleton of a plug-in system where different post-processing needs can be catered to.
+
+* clamping over-extending maneuver paths by implementing (and adding to the post-processor
+chain) the `OverlappingManeuverPathInstructionPostProcessor`, an
+`InstructionPostProcessor` that trivially cuts the maneuver path of instruction~k~ so that
+it doesn't extend over instruction~k+1~.
+
+
+== Rejected Options
+
+=== Modifying the Instruction Buffer
+
+This option would have worked only for NK2 and it would have led
+to instructions being modified after they had been already delivered.
+
+=== Using the PostHandler Chain
+The PostHandler chain allows reordering, removal and addition of instructions, and it was
+introduced to allow proper handling (reordering and deletions) of point-like and
+range-like instructions, e.g. when there's an itinerary point inside a roundabout
+maneuver. It uses handlers that receive a mutable vector of instructions. It also allows
+for emplacing new instructions or removing existing ones. For this reason, the PostHandler
+chain was the prime candidate for curbing path extensions. Unfortunately the
+implementation failed since at the PostHandler stage two instructions like turn and
+arrival are never presented in the same batch.
+
+=== Modifying `InstructionIncrementGenerator` to return two instructions
+This has been
+tried, but the current behavior of the `InstructionEngine` made it complicated due to
+the instruction engine potentially consuming a large number of arcs before returning.
+ It may still be a viable approach to resort to if the performance score
+drops too much due to this change.
+
+
+[[consequences]]
+== Consequences
+
+* `InstructionIncrementGenerator` 's logic had to be modified to always return a full
+instruction increment instead of one instruction at a time. This is a somewhat significant
+departure for NK2 which expects batches of one (a performance request from the HCP3
+project) and will instead get a full instruction increment. Path extension came as a means
+to also improve some HCP3 issues and we regard the performance impact as minor, we'll be
+monitoring it actively. There should be no impact on GoSDK or other scenarios, and
+we have defined several extra performance benchmarks to monitor the worst case, which
+happens when the second or third instruction are in different tiles and force a tile load.
+
+* We now have three different places where the code reasons about the relationship between
+instructions and we would rather have a more unified view to simplify the code and deduplicate:
+
+** `PostHandler` s in the `InstructionEngine`
+
+** `InstructionPostProcessor` s in the
+`InstructionIncrementGenerator`
+
+** When side roads are applied in `InstructionEngine`
+(discovered after this implementation had concluded).

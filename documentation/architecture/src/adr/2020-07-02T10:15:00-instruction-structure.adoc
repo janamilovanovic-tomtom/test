@@ -1,0 +1,177 @@
+// Copyright (C) 2020 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Data structure and interface of Instruction
+:Date:      2020-07-02
+:Revision:  0.1-Proposed
+
+== Status
+
+Proposed
+
+
+== Context
+
+The instruction data structure should contain all necessary information
+to generate spoken audio and Next Instruction Panel (NIP) content.
+This data structure is therefore central to the interface of the instruction engine.
+It is important that the internal instruction engine implementation details
+don't leak through this interface.
+
+From the
+<<../01_introduction_and_goals#requirements, Introduction>>
+we can obtain examples of requirements for instructions. +
+We have to support the following instruction types,
+and the list is possible to be extended in the future:
+
+* Turn instructions
+* Highway bifurcations and trifurcations
+* Roundabouts
+* Intersections
+* Arrivals and way-points
+* Decision points
+* Follow lane instructions
+
+The instruction attributes can be separated into 2 groups:
+
+* Type-specific attributes
+* Complementary attributes
+
+Type-specific attributes vary depending on the instruction type,
+and there's no meaningful way to reuse them between different instruction types.
+For example, for turn instruction a turn direction is specified,
+whereas for roundabout instruction the exit direction and number are specified.
+
+In addition to type-specific attributes, the instruction is complemented with attributes
+which are type-independent, and are valid as long as the data exists:
+
+* Plain text representation of the instruction
+* Names (street, city, country, intersection)
+* Signposts
+* Side roads
+* Landmarks
+* Prerecorded audio clips
+
+These attributes are locale-dependent, i.e. the generator of their content must be aware
+of the locale settings.
+
+The proposal needs to address the requirements for:
+
+. Convenient and efficient access for fetching instruction type, attributes and data
+. Ability to build the instruction step-by-step by iteratively requesting/
+adding more complementary data to compose a single instruction.
+
+
+== Alternatives
+
+. Plain data struct - based on boost::variant
+* Tagged union / variant with struct of instruction type-specific attributes
+* Complementary attributes as standalone members, grouped by context when possible.
+* Type is specified as either enum, or the variant is queried for specific type and result is compared to null.
+* NK1 started with this approach -> switched to optionals(mocking was easier)
++
+*Pros*: no extra unused fields, initializer list construction possible, compile time check for variant coverage +
+*Cons*: ugly syntax when accessing variant data, additional level of indirection
+
+. Plain attributes struct - based on boost::optional (similar to trip-onboardservice Instruction)
+* Optionals with instruction type-specific data
+* Complementary attributes as standalone members, grouped by context when possible
+* Type is specified as either enum, or the type is deduced by looking at which optional member is initialized.
+* strives to compartmentalize everything and minimize dependencies among components.
+* NK1 started with variants -> switched to optionals(mocking was easier)
+
+* *Pros*: cleaner code
+
+* *Cons*: unused extra fields (which are not relevant for given instruction type),
+** additional level of indirection
+** need constructor per instruction type
+** extra work to ensure the invariants: for example: Unused fields must stay unused
+** extra work for handle and allowing uman error.
+
+
+. Inheritance-based classes +
+For example: +
+Instruction -> TurnInstruction -> RoundaboutInstruction -> SmallRoundaboutInstruction/HamburgerRoundaboutInstruction/...
+* Base class holds complementary attributes which would be common for all instruction types
+* Type is specified as either enum, or the type is deduced by runtime class type information.
+* Instead the "type" is intrinsically captured by the class system.
+* We avoids polluting a single class with every "optional" struct we will ever come up with.
+* we can support dynamic  messages such as "Take the <N>th right" based on current position, with a getter such as "GetTurnCount(int offset)"
+* should make our code more readable and less error-prone (no forgotten cases in switches)
+
+* *Pros*: cleaner access (when casted to the right type), no need for many constructors +
+
+* *Cons*: casting, vtable overhead, run-time type deduction
+
+. Options 1-3, but some complementary data (names, side roads, phonetics, signposts) is *not*
+part of the instruction data structure but rather a separate access layer which can cache
+some data and allows lazy retrieval of bigger data chunks.
+
+* *Pros*: thinner instruction interface, almost no data needs to be shared between types,
+locale settings need not to be propagated +
+
+* *Cons*: context information needs to be passed beyond the instruction engine boundary,
+also more interfacing by the client to obtain the data needed for guidance
+
+. (boost) property trees
+* avoids the need for any central class that knows about all of the fields.
+* It's a closer fit to what we actually want to deliver: probably protobuf, but ultimately also JSON.
+
+
+== Multi-step instruction building
+
+The instruction engine interface provides a complete data structure containing all the attributes
+(both type-specific and locale). However the process of building this instruction will internally
+be separated to instruction engine sub-components.
+
+Therefore the instruction data structure will have constructors (per type) which will initialize
+the essential attributes at the first step, while the other (complementary) attributes
+will be incrementally populated by attribute providers (which are also locale aware,
+and have internal state if needed).
+
+=== Direction fields
+
+At the moment directions contain instructive verbs inside this names.
+This is done inconsistently, for example: *turn* left vs sharp left.
+
+Options:
+
+. kSharpRight -> kTurnSharpLeft
+. kTurnRight -> kRight, kBearRight -> kSlightRight
+
+This should also be aligned for U-turns,
+like kBack, kMakeUTurn, kTurnAround, +
+depending on the naming convention of choice.
+
+== Decision
+* Instructions should stay plain data structs
+* structs should reflect distinguishable behaviors and nor 'real world' classification of things
+* Separate type-specific attributes into separate structures +
+and use boost::optional member per type +
+(similar to trip-onboardservice Instruction) (option 2).
+* Additional field for instruction type (no implicit deduction)
+* Construct type-specific basic Instruction using constructor relevant for the specific type of the instruction
+* Additional attributes are standalone and are populated manually by assigning values
+
+* Direction naming convention: replace verbs with adjectives (option 2).
+
+
+== Consequences
+
+* Attribute providers and situation handlers don't depend on the instruction interface and on each other and can be compiled and tested independently
+* We don't drag instructions around needlessly and we recompile less files.
+* It's completely clear and transparent what each attribute provider contributes to the instruction +
+and this construction logic is in one place and one only.
+
+* Lazy evaluation of fields does not happen inside the instruction but through external decorators or builders
+
+* Need for helper methods to compare instructions in tests +
+(in many cases for example we are only interested in verifying instruction type, direction, etc. without messages and phonetics)
+
+* refactoring / clean-up of current instructions

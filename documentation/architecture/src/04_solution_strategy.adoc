@@ -1,0 +1,295 @@
+// Copyright (C) 2022 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+[[section-solution-strategy]]
+== Solution strategy
+
+=== Reducing time to first guidance
+
+==== What is time to first guidance?
+
+_Time to first guidance_ is a KPI that measures how much time passes from the moment the user
+inputs the route parameters to the first complete turn-by-turn guidance information being delivered.
+
+_Time to first guidance_ includes:
+
+- NK2: the first group of potentially combinable instructions
+- GoSDK: the first group of potentially combinable instructions and the corresponding lane guidance
+
+==== Historical context
+
+The time it takes to compute a single guidance instruction is mostly I/O-bound and, in many cases,
+it is outside the sphere of control of the _PT Guidance_ team. Practical limitations are also enforced by:
+
+- hardware specification of the target platform;
+- the NDS standard limitations, such as the way how tile data is encoded;
+- the particular map compiler and resulting map tile size that affects deserialization speed;
+
+A similar situation exists with lane guidance. However, lane guidance computation is much more expensive.
+
+The simplest strategy to lower the _time to first guidance_ is to deliver instructions one by one and without lane guidance.
+This method was initially employed in NK2 SDK and it comes with the following complications for the application developer:
+
+- the client needs to be able to handle dynamically changing instruction lists,
+- the client needs to wait for N + 1 instruction if they want to understand if the N'th instruction is combined with the next,
+- the client needs to wait for all combined instructions to understand which instructions are part of the lane guidance scenario.
+
+This API design was considered too complicated for GoSDK. Instead, an _instruction increment_ based approach was proposed.
+In this design, the system tries to deliver all potentially combinable instructions together.
+
+This solution was subsequently adopted by NK2 to unify the architecture of both systems.
+
+==== Potentially combinable instruction
+
+A potentially combinable instruction is defined as one that the client may decide to present together with the following instruction.
+An example of this may be an audio instruction: "Turn left and then turn right," or a graphical representation of the instruction panel
+that displays the next 2 consecutive maneuvers.
+
+Since the instruction engine does not control what instructions will be presented together, there was a need to establish
+criteria for considering the instructions as potentially combinable by the client. Currently, this criterion is as follows:
+
+If two instructions are within 1 km, they are potentially combinable.
+
+The 1 km distance was chosen empirically as the largest combinable distance the customer may potentially use in the configuration
+of the triggering engine. Beware that the nk2-navigation-triggering-engine, gosdk-android and gosdk-ios
+can currently accept even larger instruction combination distances in their respective configurations,
+and the customer may implement their own triggering logic that can break the 1 km assumption.
+
+[%always]
+<<<
+
+[[section_instruction_increments]]
+==== Instruction increments
+
+
+An _instruction increment_ is a set of _instruction islands_. An _instruction island_ is a list of instructions that
+follow one another in which all instructions apart from the last one are combinable with the following instruction.
+
+A combinable instruction is one that can potentially be spoken together with the following instruction
+(e.g. "turn right and then turn left" announcement is representing two instructions).
+
+In most real-world situations the route can be easily divided into such _instruction islands_.
+An _instruction increment_ will usually contain one instruction island however under some circumstances it can contain
+more _instruction islands_. This happens when the instruction engine needs to preserve state across _instruction islands_.
+Instruction engine tries to minimize the size of the _instruction increment_, however generating
+an increment with a single instruction island may not be possible if two _instruction islands_ are related.
+An example of such relation is when the former instruction island contains an HOV enter instruction and the latter
+island contains an HOV exit instruction for the same HOV lane.
+
+The picture below demonstrates a situation where two instruction increments each having one instruction island.
+The first _instruction increment_ contains 4 instructions (departure, turn, roundabout and turn) and the second instruction
+increment contains 2 instructions (turn and exit highway).
+
+===== Example A - spliting the route into 2 increments
+[plantuml, instruction-increments, alt="Instruction Increments"]
+----
+@startditaa
+
+                     ▲  Offset on route
+Third        +----+  |
+instruction  |cPNK|  |
+increment    |    |  |
+             |    |  |
+             +----+  |                                -+
+             |cGRE| -O-  9 km Turn instruction         | Second
+             |    |  |                                 | instrution
+             |    | -O- 8 km Exit highway instruction  | island
+             |    |  | +----+                         -+
+             |    |  | |cYEL |
+             |    |  | |     |
+Second       |    |  | |     | At least 1 km gap between the last
+instruction  |    |  | |     | instruction of the previous increment
+increment    |    |  | | 4 km| and the first instruction of the next
+             |    |  | | gap | increment.
+             |    |  | |     |
+             |    |  | |     |
+             |    |  | |     |
+             |    |  | |     |
+             +----+  | +-----+                       -+
+             |cBLU| -O- 3 km Turn instruction         |
+             |    |  |                                |
+             |    | -O- 2 km Roundabout instruction   | First
+First        |    |  |                                | instruction
+instruction  |    | -O- 1 km Turn instruction         | island
+increment    |    |  |                                |
+             |    |  |                                |
+             +----+ -O- 0 km Departure instruction    |
+                                                     -+
+@endditaa
+----
+
+[%always]
+<<<
+
+
+===== Example B - waypoints in the middle of the gap
+
+When multiple waypoint instructions are added in the middle of the gap
+between two instruction islands, the instruction engine will no longer be
+able to split the situation into two increments as all the instructions
+become a single instruction island.
+
+[plantuml, instruction-increments-merged-waypoint, alt="Instruction Increments merged when waypoints added"]
+----
+@startditaa
+
+                     ▲  Offset on route
+Second       +----+  |
+instruction  |cGRE|  |
+increment    |    |  |
+             +----+  |                                 -+
+             |cBLU| -O- 9 km Turn instruction           |
+             |    |  |                                  |
+             |    | -O- 8 km Exit highway instruction   |
+             |    |  | +-----+                          |
+             |    |  | |cYEL |                          |
+             |    |  | | 1 km|                          |
+             |    |  | | gap |                          |
+             |    |  | +-----+                          |
+             |    | -O- 7 km Waypoint instruction       |
+             |    |  | +-----+                          |
+             |    |  | |cYEL |                          |
+             |    |  | | 1 km|                          |
+             |    |  | | gap |                          |
+             |    |  | +-----+                          |
+             |    | -O- 6 km Waypoint instruction       |
+             |    |  | +-----+                          |
+             |    |  | |cYEL |                          |
+             |    |  | | 1 km|                          |
+             |    |  | | gap |                          |
+             |    |  | +-----+                          |
+             |    | -O- 5 km Waypoint instruction       |
+             |    |  | +-----+                          |
+             |    |  | |cYEL |                          |
+             |    |  | | 1 km|                          |
+             |    |  | | gap |                          |
+             |    |  | +-----+                          |
+             |    | -O- 4 km Waypoint instruction       |
+             |    |  | +-----+                          |
+             |    |  | |cYEL |                          | First
+             |    |  | | 1 km|                          | instruction
+             |    |  | | gap |                          | island
+             |    |  | +-----+                          |
+             |    | -O- 3 km Turn instruction           |
+             |    |  |                                  |
+             |    | -O- 2 km Roundabout instruction     |
+First        |    |  |                                  |
+instruction  |    | -O- 1 km Turn instruction           |
+increment    |    |  |                                  |
+             |    |  |                                  |
+             +----+ -O- 0 km Departure instruction      |
+                                                       -+
+@endditaa
+----
+
+[%always]
+<<<
+
+===== Example C - no split into increments for continuous situations
+
+In some cases the instruction engine may decide to include multiple instruction
+islands in a single increment. This happens right now when instruction engine
+needs to preserve state between instruction islands, as it is the case
+with HOV instructions.
+
+[plantuml, instruction-increments-hov, alt="Instruction Increments with HOV"]
+----
+@startditaa
+                     ▲  Offset on route
+Second       +----+  |
+instruction  |cGRE|  |
+increment    |    |  |
+             +----+  |                              -+
+             |cBLU| -O- 9 km Turn instruction        | Second
+             |    |  |                               | instruction
+             |    | -O- 14 km Exit HOV instruction   | island
+             |    |  | +----+                       -+
+             |    |  | |cBLK|
+             |    |  | |    |
+             |    |  | |    |
+             |    |  | |11 km|
+             |    |  | |HOV |  No increment split
+             |    |  | |LANE|  during a long
+             |    |  | |    |  guidance situation.
+             |    |  | |    |
+             |    |  | |    |
+             |    |  | |    |
+             |    |  | +----+                      -+
+             |    | -O- 3 km Enter HOV instruction  |
+             |    |  |                              |
+             |    | -O- 2 km Roundabout instruction | First
+First        |    |  |                              | instruction
+instruction  |    | -O- 1 km Turn instruction       | island
+increment    |    |  |                              |
+             |    |  |                              |
+             +----+ -O- 0 km Departure instruction  |
+                                                   -+
+@endditaa
+----
+
+[%always]
+<<<
+
+==== Accumulated data management
+
+Instruction engine in GoSDK is part of _onboard routing_ functional enabler. The initial design of GoSDK requested that _functional enablers_ are stateless.
+This has resulted in the inability to carry state between subsequent instruction engine invocations and therfore resulted in all state
+being lost between instruction increments.
+
+In some cases this has resulted in a decision:
+
+- not to split _instruction increment_ at the _instruction island_ boundary (as shown in Example C for the HOV instruction);
+- loss of performance - as the 1km range after last instruction island in the increment would be analyzed twice, once for the
+  last instruction increment and once for the current instruction increment;
+- inability to split gaps between instruction increments for more fine grained increment sizes;
+- suboptimal user experience if the instrution engine would require data from previous _insruction increments;
+- suboptimal user experience when encountering a route replanning event, due to route refresh, map update, language change or simillar event;
+
+Accumulated data management allevates these problems by enabling the instruction engine to carry over the data from the previous increments or
+even previous routes. It is implemented by the client application passing an opaque buffer between invocations of the instruction engine.
+
+As of 2023.12.20 the accumulated data management isn't fully utilized in the instruction engine and the listed improvements have yet to be implemented.
+If this happens every HOV scenario will be split at the instruction island boundary.
+
+The following diagram represents the improvement over example C from the previous section once accumulated data management is fully implemented
+
+[plantuml, instruction-increments-hov-adm, alt="Instruction Increments with HOV and accumulated data management"]
+----
+@startditaa
+                     ▲  Offset on route
+Third        +----+  |
+instruction  |cGRE|  |
+increment    |    |  |
+             +----+  |                              -+
+             |cBLU| -O- 9 km Turn instruction        | Second
+             |    |  |                               | instruction
+             |    | -O- 14 km Exit HOV instruction   | island
+             |    |  | +----+                       -+
+             |    |  | |cBLK|
+             |    |  | |    |
+             |    |  | |    |
+             |    |  | |10 km|
+             |    |  | |HOV |  No increment split
+Second       |    |  | |LANE|  during a long
+instruction  |    |  | |    |  guidance situation.
+increment    |    |  | |    |
+             |    |  | |    |
+             |    |  | |    |
+             +----+  | +----+                      -+
+             |cYEL| -O- 4 km Enter HOV instruction  |
+             |    |  |                              |
+             |    | -O- 2 km Roundabout instruction | First
+First        |    |  |                              | instruction
+instruction  |    | -O- 1 km Turn instruction       | island
+increment    |    |  |                              |
+             |    |  |                              |
+             +----+ -O- 0 km Departure instruction  |
+                                                   -+
+@endditaa
+----

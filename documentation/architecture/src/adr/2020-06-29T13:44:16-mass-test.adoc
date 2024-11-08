@@ -1,0 +1,28 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Code reuse from MassTest
+
+== Status
+
+Proposed
+
+== Context
+
+We have a story to produce a https://jira.tomtomgroup.com/browse/NAV-18163[maneuver coverage report].  We need to build a tool that takes a polyline, matches the polyline into Arcs, and supplies those arcs to the instruction engine.
+
+We need to figure out how to load the necessary tiles and map match the arcs.
+
+== Decision
+
+We will copy the implementation of MassTest, a testing tool developed by Sven in the navigation-trip-onboardservice.
+
+== Consequences
+
+* It should be quite easy to copy this implementation without fully understanding how it works

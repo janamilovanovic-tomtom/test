@@ -1,0 +1,37 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Using NK2 Tile Cache or onboard Data Access
+
+== Status
+
+Proposed
+
+== Context
+
+To produce guidance we need a broad spectrum of map data. Some basic data is already available via NK2 Tile Cache,
+which is enough to provide limited TbT guidance. However, some major guidance blocks are still missing and we would need
+to extend Tile Cache significantly. Also, TileCache is not compatible with some HCP3 scenarios
+like getting 10 next maneuvers.
+
+On the other hand the full NDS MapAccess component is going to be added to NK2 system in 2-3 sprints from now and
+will be used by Routing Engine and other components for HCP3_SOP1.
+
+== Decision
+
+We have started development of the InstructionEngine 2.0 with NK2 Tile Cache,
+however we are planning to switch to onboard MapAccess as soon as it becomes available in NK2 ecosystem.
+Although we still need to add support of FTX lane block, this seems to be much smaller task than doing this plus extending TileCache.
+Also NDS MapAccess is used in cloud deployment which eases the future switch of NKWorker to InstructionEngine 2.0.
+
+== Consequences
+
+* We can provide full guidance experience and access data along the whole route if necessary
+* We will have extra work of switching to NDS MapAccess before HCP3_SOP1.
+* InstructionEngine 2.0 cannot be used without full onboard map for now.

@@ -1,0 +1,51 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Incremental instruction computation
+
+== Status
+
+Proposal
+
+== Context
+
+Onboard instruction generation relies on the onboard NDS map.  It takes a series of level-13 arcs
+that comprise the route being navigated and can then generate instructions along that route.
+
+With both Hybrid and Onboard Routing the process of supplying the full detailed level onboard map NDS
+arcs to clients is time consuming and should not be blocking.  Therefore this process is incremental.
+
+Ability of generation of new instructions greatly depends on this process.  However we should not
+block the system on instruction computation for the whole newly arrived stretch once such arrives.
+
+
+== Proposal
+
+The proposal therefore is to introduce a worker thread for computation of upcoming instructions.
+This will require a producer-consumer mechanism.  A viable design proposal is to hide it inside
+InstructionProvider.
+
+Details:
+
+1. InstructionProvider will create an instruction generation thread.  This thread will be idle until
+new sequence of map-matched arcs become available to it for consumption, then going into processing phase
+by InstructionEngine and in turn producing new instructions one-by-one.  Those new instructions will
+be cached inside InstructionProvider.
+2. The InstructionProvider interface will not change in this regard: it will still return the next
+instruction based on current position.
+3. Currently instruction generation is driven by InstructionProvider::SetRouteWindow method.  This
+will no longer be the case.  (It is not clear how the InstructionProvider interface will change
+following the complexity of multi-stretch route window and additional information which we need to
+pass to NIE, but this or similar method will not be blocking anymore.)
+
+
+== Consequences
+
+* Multi-threaded environment complexity: we will need to be mindful of thread safety on the boundary
+of InstructionProvider and InstructionEngine.

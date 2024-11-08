@@ -1,0 +1,156 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Cancellable Route Arc Provision
+
+== Status
+
+Proposed
+
+== Context
+
+Currently we have a mechanism for route arc provision to clients in form of an STL iterator wrapping a structure
+containing arc key with offset.  The iterator can be either constructed from a dedicated `IterableArcBuffer`
+object, which operates on a `RouteData` object provided by the Routing Engine, or from a simple STL container,
+a method often used in our test code.  The iterator is an `std::forward_iterator` with a few outstanding properties:
+
+1. The `RouteData` the `IterableArcBuffer` might be _incomplete_, meaning that the `IterableArcBuffer` might get
+appended with new data through dedicated callbacks.  When an iterator reaches the boundary of available data, but
+not the end of the route (represented by an _end_ iterator), a blocking operation occurs, until data underflow is
+resolved and subsequent arcs are available.  This blocking operation can occur either on `++` (increment) operation,
+or when the iterator is dereferenced.
+2. Since a blocking operation may occur, `IterableArcBuffer` needs to support cancellation (in an event of
+deviation, taking a different route proposal, or map update, which all bring a need to restart guidance
+computation and therefore current calculation needs to be immediately cancelled).  Its interface provides a
+`Cancel` method, which marks the buffer as _cancelled_.  Once the buffer is cancelled, an iterator that was created
+from this buffer will point to _end_, but only once incremented.  This allows fast abortion of guidance provider
+loops (`InstructionProvider` and `LaneGuidanceProvider`).
+
+However, there is a culprit.  https://jira.tomtomgroup.com/browse/NAV-61707[This bug] lists several occasions
+where an unexpected crash occurs while using STL algorithms on such iterators inside Instruction Engine.
+Specifically, the crash described in this ticket originates in attempt to calculate distance between two
+iterators (using `std::distance`) on an iterable buffer that has been just cancelled from whatever reason.
+The call originates within `std::assign`, which in turn is called by `LaneDataFetcher` in order to detect a
+lane related situation on the road.
+
+What effectively happens is that iterators A and B point to some locations on the route, but then the buffer is
+cancelled, and _A_ and _B_ continue pointing to the same locations.  Then, `std::distance` attempts to iterate from
+_A_ to _B_ to calculate the distance (https://github.com/llvm-mirror/libcxx/blob/master/include/iterator#L614[link]),
+and since the buffer is cancelled, _A_ starts evaluating to an end after increment (immediately, or after a few
+increments).  This causes the distance calculation loop to run indefinitely, since _A_ equals _end_, while _B_
+still points to some location on the route.  This ultimately either causes the system to hang in an infinite loop,
+or crash a moment later due to attempt to allocate space for an infinitely huge vector
+(https://github.com/llvm-mirror/libcxx/blob/master/include/vector#L2979[link]).
+
+There can be several solutions for the problem, we have a conceptual problem that the iterator might become invalid
+while a dereference operation is already being invoked.  Our only means to escape from this situation is to return
+and invalid arc key, which might end up directly processed by some STL algorithm, and ultimately be input into
+a map access function, like in `LaneDataFetcher` or `RoadStretchFactory`.  This flow needs somehow to be secured
+against blindly processing invalid arc keys.
+
+As part of fixing https://jira.tomtomgroup.com/browse/NAV-74354[NAV-74354] and related issues a helper function has
+been introduced `GetScenarioArcsAsVector`, which is necessary to be used to filter out invalid arc keys from a range.
+This has resolved the immediate crashes that have been observed due to direct processing of invalid arc keys by map
+access, however this makes this mechanism prone to usage errors, since a potential developer may intuitively use the
+arc key iterators directly.
+
+
+== Alternatives
+
+=== 1. Exception-throwing wrapper iterable
+
+`IterableArcBuffer` is exception free, also because of RTTI problems on component boundary (throwing would occur
+in `TripService` and handling of the exception would need to be done in Instruction Engine).  Cancellation results
+in an iterator becoming equal to _end_ after increment and returning _invalid arc key_ when dereferenced.  Both of
+these are used to signal to `InstructionProvider` and `LaneGuidanceProvider` to gracefully stop.
+
+A mechanism that can be employed to stop any computation is exception throwing and handling.  The iterators passed
+to the providers can be overtaken by an additional `Iterable`, capable of "wrapping" those iterators and providing its own iterators to the clients (also with `ValueType=ArcKeyWithOffset`). However,
+this iterable class and iterators will provide additional logic, so when cancelled, incrementing or dereferencing
+an iterator obtained from this iterable will throw an `IterationAborted` exception.  This exception will be handled
+by both `InstructionProvider` and `LaneGuianceProvider` outside of the processing loop, resulting in immediate and
+graceful termination of computation.  This `Iterable` will be implemented inside Instruction Engine, so both
+throwing and handling will be done inside the Instruction Engine, avoiding the cross-component RTTI problem.
+
+The new iterable class will implement:
+
+* `instruction_engine::IterableInterface<instruction_engine::ArcKeyWithOffset>` for iteration
+* `instruction_engine::CancellableArcIterableInterface` for cancellation
+
+The new iterator class will delegate `increment` and `dereference` calls to the former iterator, and throw
+`ArcIterationAborted` exception if the parent iterable is marked as cancelled.
+
+Pros:
+
+* Not a complex fix
+* Safe: dereferencing an invalid arc key will lead to exception (and abortion when handling)
+
+Cons:
+
+* Throwing exceptions during normal code execution might be an anti-pattern
+* The former `ArcBufferIterator` still implements a suboptimal concept and behavior which is "fixed" by the
+wrapper iterator
+
+
+=== 2. Streams as a concept for data source
+
+With blocking and cancellation we are putting extra duties on the iterator concept.  The behaviour of iterators
+is undefined when the underlying container is destroyed, and in fact this usually causes a crash.  Cancelling
+the buffer could be considered analogous to this, and yet we are adding semantics to the iterator concept to
+handle this gracefully.  Also, despite our intent to treat the sequence of route arcs as an STL range, the actual
+usage pattern is more similar to _streaming_ of data from a source, like a TCP socket.  Cancellation easily
+resembles a disconnected socket, which causes an error on client side.  Therefore, it would make sense to migrate
+the Instruction Engine interface and implementation to consume the route arcs through an input stream rather than
+iterators.  The stream would allow peeking, locating an arc (seeking),  and consumption one arc after another.
+Cancellation would be possible by raising stream specific error flags, and checking on them during reading of the
+arcs, similarly to reading data from a socket that might get disconnected.
+
+This ADR doesn't go into low level details of the implementation.  In general, the change involves providing a
+stream of arcs to guidance components, where the arcs will be consumed and the streams would be passed further
+to the situation handlers and `LaneDataFetcher`.  The latter would then fill up their local STL vectors for usage
+by subsequent algorithms, blocking during this operation if underflow occurs and not all the arcs have yet been
+provided.  This is where "error" (cancellation) handling will occur and graceful abortion will be allowed.
+
+Pros:
+
+* Streams are the correct concept supporting streaming data to client and error handling
+
+Cons:
+
+* Major change
+
+
+== Proposal
+
+The proposal is to implement Alternative 1 and throw an `ArcIterationAborted` exception when cancellation is
+requested.
+
+Choosing this approach leads to the following implementation steps:
+
+1. Simplify `IterableArcBuffer` by not making it cancellable anymore.
+2. Simplify `LineOnRouteIterator` by not throwing InvalidLineIteratorError and remove this exception altogether.
+3. Implement the wrapper and transparently use it in instruction engine components.
+4. Remove special handling using `GetScenarioArcsAsVector` and allow using STL functions directly on the iterators.
+
+Indeed this approach relies on exceptions.  However current implementation already relies on an exception thrown
+from `LineOnRouteIterator` (`InvalidLineIteratorError).  Removing it and throwing the new exception from within
+the wrapper does not make the code better in this regard, but also not worse.
+
+Additionally, except the introduction of a new simple wrapper, quite significant amount of code will be deleted,
+such as complex cancellation handling in the existing `IterableArcBuffer` (and quite a big amount of tests),
+or graceful handling of invalid arc keys in `LineOnRouteIterator`.
+
+Also, implementing streams would not spare exceptions from us: this is the way also to handle end of stream.
+
+
+== Consequences
+
+* Using the wrapper iterators inside the code would be safe, given we are handling the exception on top level.
+* Less code in total.
+* Relatively simple change.

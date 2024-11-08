@@ -1,0 +1,204 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Triggering engine configuration for compact and comprehensive mode
+
+== Status
+
+Proposal
+
+== Context
+
+NAV-24930 "Audio Guidance mode can be set" requires that NavKit2 supports 2 guidance modes:
+compact and comprehensive. These modes can have different behaviour. E.g. Compact mode does not
+have early warning trigger points but comprehensive mode does have them.
+
+== Key question
+How should the client pass triggering engine configuration for compact and comprehensive mode.
+
+== Desired quality attributes
+
+.Desired quality attributes
+- Results in compact configuration file - no combinatorial explosion
+- Extensible - we can easily add new configuration dimensions without breaking backwards compatibility.
+- Flexible - clients can customize the system on a fine grained level
+
+== Exmple dimensions for triggering configuration
+Let's imagine we have the following attributes that can be used to customize the triggers:
+.example_attributes
+- instructionType
+- numberOfLanes
+- roadType
+- guidanceMode
+- trigger_type
+- country
+
+== Alternatives
+=== Have two separate configuration "files" for each mode
+These files will be passed as triggering-engine-config and triggering-engine-config-compact-mode.
+
+Benefits:
+None.
+
+The drawback of this approach is that it:
+- we may need to change the approach in the future to streamline it
+- was looking as easier solution at first glance, but prooved to be difficult to test
+  in the trip guidance onboard manager
+
+=== A flat format that completly defines the problem space
+The drawback of this approach is that it:
+- combinatorial explosion of parameters
+- breaks backwards compatibility (not a problem right now for HCP3, other customers do not see the API)
+- not future proof
+
+.Number of paremeters
+- 3 trigger types
+- 7 instruction types
+- 2 guidance modes
+- 3 road types
+- 3 numberOfLanes
+
+Potential number of options 378.
+
+.complete_configuration.json
+[source,JSON]
+----
+{
+{"trigger_type":"confirmation","instructionType":"turn","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+{"trigger_type":"main","instructionType":"turn","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+{"trigger_type":"early_warning","instructionType":"turn","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+
+{"trigger_type":"confirmation","instructionType":"arrival","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+{"trigger_type":"main","instructionType":"arrival","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+{"trigger_type":"early_warning","instructionType":"arrival","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+
+{"trigger_type":"confirmation","instructionType":"turn","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+{"trigger_type":"main","instructionType":"turn","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+{"trigger_type":"early_warning","instructionType":"turn","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+
+{"trigger_type":"confirmation","instructionType":"arrival","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+{"trigger_type":"main","instructionType":"arrival","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+{"trigger_type":"early_warning","instructionType":"arrival","guidanceMode":"comprehensive","numberOfLanes":1,"roadType":"highway"}:
+        { "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000} },
+}
+
+----
+
+=== New rules based configuration format
+This format has a lot of clear advantages.
+It is flexible, extensible and avoids combinatorial explosion.
+
+The drawback of this approach is that it:
+.rule format disadvantages
+- costly to implement
+
+Algorithm for processing the configuration:
+.Algorithm for processing the configuration
+- define 3 cells in memory that will hold "distance_meters", "time_seconds", "message_duration_milliseconds"
+- read rules in order which they appear in config file and
+- for every rule check all selectors in "simple_selectors" match (eg. triggerType is main AND guidanceMode is compact)
+- if they match update the memory cell with parameters defined in the rule
+
+.rule_based_configuration.json
+[source,JSON]
+----
+{
+    "rules" : [
+        {
+          "name": "default_main"
+          "simple_selectors": [
+            "triggerType": "main",
+          ],
+          "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000}
+        },
+        {
+          "name": "default_main"
+          "simple_selectors": [
+            "triggerType": "main",
+            "guidanceMode": "compact"
+          ],
+          "parameters": {"distance_meters" : 222, "time_seconds" : 222, "message_duration_milliseconds" : 3000}
+        },
+        {
+          "name": "default_confirmation"
+          "simple_selectors": [
+            "triggerType": "confirmation",
+          ],
+          "parameters" : {"distance_meters" : 111, "time_seconds" : 111, "message_duration_milliseconds" : 1000}
+        },
+        {
+          "name": "compact_main"
+          "simple_selectors": [
+            "triggerType": "main",
+            "roadType": "highway"
+          ],
+          "parameters": {"distance_meters" : 666, "time_seconds" : 666, "message_duration_milliseconds" : 666}
+        },
+        {
+          "name": "default_confirmation"
+          "simple_selectors": [
+            "triggerType": "confirmation",
+            "roadType": "highway"
+          ],
+          "parameters" : {"distance_meters" : 111, "time_seconds" : 111, "message_duration_milliseconds" : 1000}
+        },
+    ]
+}
+----
+
+=== Single config - simplest approach
+.simple_approach.json
+[source,JSON]
+----
+    {
+        "triggerConfigs" : [
+            {
+                "name"         : "default",
+                "far_away"      : {"distance_meters" : 10000, "time_seconds" : 9000, "message_duration_milliseconds" : 4000},
+                "warning"      : {"distance_meters" : 1000, "time_seconds" : 900, "message_duration_milliseconds" : 3000},
+                "main"         : {"distance_meters" : 100, "time_seconds" : 90, "message_duration_milliseconds" : 2000},
+                "confirmation" : {"distance_meters" : 10, "time_seconds" : 9, "message_duration_milliseconds" : 1000}
+            },
+            {
+                "name"         : "compact",
+                "far_away"      : {"distance_meters" : 10000, "time_seconds" : 9000, "message_duration_milliseconds" : 4000},
+                "warning"      : {"distance_meters" : 1000, "time_seconds" : 900, "message_duration_milliseconds" : 3000},
+                "main"         : {"distance_meters" : 100, "time_seconds" : 90, "message_duration_milliseconds" : 2000},
+                "confirmation" : {"distance_meters" : 10, "time_seconds" : 9, "message_duration_milliseconds" : 1000}
+            }
+
+        ],
+        "instructions" : [
+            {
+                "instructionType" : "arrival",
+                "triggerConfig" : "default",
+                "triggerConfigCompact" : "compact"
+            },
+            {
+                "instructionType" : "turn",
+                "triggerConfig" : "default",
+                "triggerConfigCompact" : "compact"
+            }
+        ]
+    }
+----
+
+== Proposed approach
+Signle config - simple approach.

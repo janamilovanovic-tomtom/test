@@ -1,0 +1,1266 @@
+// Copyright (C) 2017 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+[[section-building-block-view]]
+== Building block view
+
+=== Overview of guidance domain
+
+==== Overview of main guidance components
+
+The guidance system is composed of the following components:
+
+- InstructionEngine - Analyzes map data around the route and produces objects representing instructions.
+- LaneGuidanceBuilder - Analyzes map data around the route and extracts lane level information from the map
+                        which it then exposes in form of multiple objects of class LaneGuidanceScenario that
+                        contains a graph of LaneGuidanceSegments. These LaneGuidanceSegments represent slices
+                        of the route network of the map where all exposed attributes of the lanes remain unchanged.
+- TextGeneration - Creates audio messages from InstructionEngine instructions for the text to speech engine.
+                   These messages are provided in W3C SSML format.
+- DistanceRounding - This component is responsible for rounding the distances for the TextGeneration component.
+                     E.g. A 502m distance may become 500m as this is easier for the user to understand.
+
+These components are used as part of NK2 SDK, GO SDK and in future Online Routing.
+
+[plantuml, guidance-components-overview, alt="Guidance Components Overview"]
+
+----
+
+@startuml
+
+component NavigationSDK
+component RoutingEngine
+
+package Guidance {
+component InstructionEngine
+component LaneGuidanceBuilder
+component TextGeneration
+component DistanceRounding
+}
+
+NavigationSDK -l-> RoutingEngine : uses (A)
+NavigationSDK -d-> InstructionEngine : uses (A)
+NavigationSDK -d-> LaneGuidanceBuilder : uses (C)
+NavigationSDK -d-> TextGeneration : uses (D)
+InstructionEngine -> LaneGuidanceBuilder : uses (B)
+TextGeneration -> DistanceRounding : uses (E)
+
+@enduml
+
+----
+
+[%always]
+<<<
+
+
+==== Interaction between main guidance components
+
+[plantuml, guidance-components-communication, alt="Guidance Simplified Communication Diagram"]
+
+----
+
+@startuml
+
+skinparam linestyle ortho
+rectangle "Application"
+rectangle "NavigationSDK"
+rectangle "InstructionEngine"
+rectangle "TriggeringEngine"
+rectangle "TextGeneration"
+rectangle "DistanceRounding"
+
+NavigationSDK -down-> InstructionEngine: 1: Route
+InstructionEngine -down-> NavigationSDK: 2: Instructions and LaneGuidance
+NavigationSDK -down---> TriggeringEngine: 3: Instructions
+NavigationSDK -down---> TriggeringEngine: RouteProgress
+TriggeringEngine -up---> NavigationSDK: 4: NextInstruction
+NavigationSDK -right-> TextGeneration : 5: NextInstruction
+TextGeneration -down-> DistanceRounding: 6: Distance
+DistanceRounding -up-> TextGeneration: 7: FormattedDistance
+TextGeneration -left-> NavigationSDK: 8: SSMLAudioMessage
+NavigationSDK -up-> Application: Instructions,LaneGuidance,SSMLAudioMessage
+@enduml
+
+----
+
+[plantuml, guidance-components-interaction, alt="Guidance Components Interactions"]
+
+----
+
+@startuml
+title Interactions between an application, navigation SDK and main guidance components
+
+box Application
+  control GraphicalUserInterface
+  control TextToSpeechEngine
+end box
+
+boundary NavigationSDK as "<b>Navigation SDK</b>"
+
+box Instruction and lane gudiance generation
+control InstructionEngine
+control LaneGuidanceBuilder
+end box
+control TriggeringEngine
+box Audio message SSML generation
+control TextGeneration
+control DistanceRounding
+end box
+
+== Building instructions ==
+NavigationSDK -> InstructionEngine : {Map, Route arcs}
+loop For some instructions examine the lane data
+InstructionEngine -> LaneGuidanceBuilder : {Map, Route arcs}
+LaneGuidanceBuilder -> InstructionEngine : LaneGuidanceScenario
+end
+InstructionEngine -> NavigationSDK : Instructions
+
+== Building lane guidance scenarios for instructions ==
+NavigationSDK -> LaneGuidanceBuilder : {Map, Route arcs, Instructions}
+LaneGuidanceBuilder -> NavigationSDK : LaneGuidanceScenarios
+
+
+== Triggering instructions and generating SSML audio messages ==
+loop On GPS map matched position update:
+NavigationSDK -> TriggeringEngine : {Position on route, Instructions}
+TriggeringEngine -> NavigationSDK : {Instructions, Instrution trigger with phase and combine flags}
+NavigationSDK -> GraphicalUserInterface : {Instructions,\nInstruction trigger with phase and combine flags}
+NavigationSDK -> TextGeneration : Instruction to pronounce
+TextGeneration -> DistanceRounding : {Distance,\nSelected distance\n units}
+DistanceRounding -> TextGeneration : Rounded distance
+TextGeneration -> NavigationSDK : SSML Audio Announcements for instruction
+NavigationSDK -> TextToSpeechEngine : [If required to speak:]\nSSML Audio\nAnnouncement
+end
+
+@enduml
+
+----
+
+[%always]
+<<<
+
+
+=== Overview of guidance interfaces
+
+==== Interfaces for building instructions
+
+Instruction engine contains several interfaces that allow external components to build
+instructions for the route. These interfaces have slightly different semantics.
+
+- InstructionProvider - is designed as a multi-threaded component for NavKit2 that
+  delivers instructions one by one,
+- InstructionIncrementGenerator - is the latest API designed for GoSDK that delivers instructions
+                         in increments (see <<section_instruction_increments>>),
+- GetFullInstructionList - is a free standing function that is used by _online routing v2_
+                              to build all instructions for the route with a single call.
+
+It's worth to note that it is possible to replace GetFullInstructionList API with
+InstructionIncrementGenerator as both API can provide full instruction list.
+
+[plantuml, instruction-generation-interfaces, alt="Instruction Generation Interfaces"]
+
+----
+
+@startuml
+
+package GoSDK  {
+    component OnboardDirections
+}
+
+package "NavKit 2 SDK" {
+    component NavigationService
+}
+
+package "Online Routing v2" {
+    component OnlineRouting
+}
+
+package instruction-engine {
+    interface InstructionProvider
+    interface InstructionIncrementGenerator
+    interface "GetFullInstructionList"
+
+    component InstructionEngine
+    component guidance_kml_dumper
+
+    InstructionEngine -up- InstructionProvider
+    InstructionEngine -down- InstructionIncrementGenerator
+    InstructionEngine -down- GetFullInstructionList
+    guidance_kml_dumper -down-|> GetFullInstructionList
+}
+
+OnlineRouting -down-|> GetFullInstructionList
+NavigationService -down-|> InstructionProvider
+OnboardDirections -down-|> InstructionIncrementGenerator
+@enduml
+
+----
+
+[%always]
+<<<
+
+==== Interfaces for building lane guidance data
+
+[plantuml, lane-guidance-generation-interfaces, alt="Lane Guidance Generation Interfaces"]
+
+----
+
+@startuml
+
+package GoSDK  {
+    component OnboardDirections
+}
+
+package "NavKit 2 SDK" {
+    component NavigationService
+}
+
+package "Online Routing v2" {
+    component OnlineRouting
+}
+
+package instruction-engine {
+    interface "GetFullLaneGuidanceList"
+
+    component LaneGuidanceBuilder
+    component guidance_kml_dumper
+
+    LaneGuidanceBuilder -up- GetFullLaneGuidanceList
+    guidance_kml_dumper -down-|> GetFullLaneGuidanceList
+}
+
+OnlineRouting -down-|> GetFullLaneGuidanceList
+NavigationService -down-|> GetFullLaneGuidanceList
+OnboardDirections -down-|> GetFullLaneGuidanceList
+@enduml
+
+----
+
+[%always]
+<<<
+
+==== Interfaces for generating text messages for instructions
+
+[plantuml, text-generation-interfaces, alt="Text Generation Interfaces"]
+
+----
+
+@startuml
+
+package GoSDK  {
+    component GuidanceEngine
+    component VerbalMessageGenerator
+
+    GuidanceEngine -down-> VerbalMessageGenerator
+}
+
+package "NavKit 2 SDK" {
+    component NavigationService
+}
+
+package navigation-text-generator {
+    interface InstructionTextGeneratorInterface
+    interface WarningTextGeneratorInterface
+
+    component InstructionTextGenerator
+    component WarningTextGenerator
+
+    InstructionTextGenerator -up- InstructionTextGeneratorInterface
+    WarningTextGenerator -up- WarningTextGeneratorInterface
+}
+
+NavigationService -down-> InstructionTextGeneratorInterface
+@enduml
+
+----
+
+Please note Online Routing v2 does not currently expose instruction text messages.
+
+[%always]
+<<<
+
+=== GoSDK onboard guidance building block view
+
+==== Incremental instruction generation process in GoSDK
+
+When a new route is planned using _RoutePlanner_ onboard it comes with the initial increment of instructions.
+A definition of an instruction increment can be found in <<section_instruction_increments>>.
+In GoSDK the orchestrator, called _NavigationProcess_, runs a chain of engines on every map matcher input if there is an active route.
+One of these engines, the _RouteReplanningEngine_, is responsible for keeping instructions up to date and making sure that all
+instructions have been computed for the entire route.
+
+It does so by checking the increment end offset that was preserved when the last instruction increment was processed.
+If no higher priority event is encountered (like a route deviation or need for a route refresh) and last increment end offset is smaller than the
+offset of the end of the route the _RouteReplanningEngine_ will ask _RouteReplanner_ to AdvanceGuidanceProgress on the tracked route.
+
+This method will compute and add the next increment of instructions to the currently tracked route.
+
+Internally _AdvanceGuidanceProgress_ uses the bindings of go-sdk-onboard-directions, which in turn uses _InstructionIncrementGenerator_ to
+generate more instructions.
+
+
+==== Component diagram
+
+[plantuml, go-sdk-incremental-instruction-generation-component-diagram, alt="GoSDK Incremental Instruction Generation Component Diagram"]
+
+----
+
+@startuml
+
+package go-sdk-android {
+    component NavigationProcess
+    component RouteReplanningEngine
+    component RouteReplanner
+    component RoutePlanner
+    component OnboardRoutingClient
+}
+
+package go-sdk-bindings {
+    component NativeOnboardRoutingClient
+}
+
+package go-sdk-onboard-directions {
+    component OnboardRoutingClient as DirectionsOnboardRoutingClient
+}
+
+package navigation-instruction-engine {
+    component InstructionIncrementGenerator
+}
+
+NavigationProcess -right-> RouteReplanningEngine : uses
+RouteReplanningEngine -down-> RoutePlanner : uses
+RouteReplanningEngine -right-> RouteReplanner : uses
+RouteReplanner --> RoutePlanner : uses
+RoutePlanner -left-> OnboardRoutingClient : uses
+OnboardRoutingClient --> NativeOnboardRoutingClient : uses
+NativeOnboardRoutingClient -right-> DirectionsOnboardRoutingClient : uses
+DirectionsOnboardRoutingClient -right-> InstructionIncrementGenerator
+
+@enduml
+
+----
+
+[%always]
+<<<
+
+==== Sequence diagram
+
+[plantuml, go-sdk-instruction-increment-generation-sequence-diagram, alt="GoSDK Instruction Increment Generation Sequence Diagram"]
+
+----
+
+@startuml
+box go-sdk-android
+boundary NavigationProcess
+control RouteReplanningEngine
+control RouteReplanner
+control OnboardRoutingClient
+end box
+
+box go-sdk-bindings
+control NativeOnboardRoutingClient
+
+end box
+box go-sdk-onboard-directions
+control "directions::OnboardRoutingClient (c++)"
+end box
+
+box navigation-instruction-engine
+control InstructionIncrementGenerator
+control GetFullLaneGuidance
+end box
+
+NavigationProcess -> RouteReplanningEngine : shouldReplan()
+RouteReplanningEngine -> NavigationProcess : shouldReplan() -> true
+
+NavigationProcess -> RouteReplanningEngine : replan()
+
+par This runs in a coroutine.
+loop IsIncrementNeeded() == true || timesliceExpired
+RouteReplanningEngine -> RouteReplanner : AdvanceGuidanceProgress()
+note left : Native code computes very small increments.\nCa. 50ms, up to few instructions or few kilometers.\nThis loop allows us to compute more instructions\nper map matched position fix.
+RouteReplanner -> OnboardRoutingClient : AdvanceGuidanceProgress()
+OnboardRoutingClient -> NativeOnboardRoutingClient : AdvanceGuidanceProgress()
+NativeOnboardRoutingClient -> "directions::OnboardRoutingClient (c++)" : AdvanceGuidanceProgress()
+"directions::OnboardRoutingClient (c++)" -> InstructionIncrementGenerator : GenerateInstructions()
+InstructionIncrementGenerator -> "directions::OnboardRoutingClient (c++)" : Instructions
+"directions::OnboardRoutingClient (c++)" -> GetFullLaneGuidance : GetFullLaneGuidance(Instructions)
+GetFullLaneGuidance -> "directions::OnboardRoutingClient (c++)" : LaneGuidanceScenarios
+"directions::OnboardRoutingClient (c++)" -> NativeOnboardRoutingClient : CRouteIncrementResponse
+NativeOnboardRoutingClient -> OnboardRoutingClient : NativeRoutingIncrementResponse
+OnboardRoutingClient -> OnboardRoutingClient : mergeNewIncrementToRoute()
+OnboardRoutingClient -> RouteReplanningEngine : RouteIncrementResult{\n Route}
+end
+end
+RouteReplanningEngine -> NavigationProcess : NavigationSnapshot
+
+@enduml
+
+----
+
+
+[%always]
+<<<
+
+=== NavKit2 SDK onboard guidance building block view
+
+This diagram demonstrates how _instruction engine_ is integrated in NavKit2 SDK.
+
+[plantuml, onboard-guidance-architecture, alt="Onboard Guidance Architecture"]
+
+----
+
+skinparam {
+  nodesep 100
+  padding 0
+}
+
+component InstructionEngine_Core {
+  component InstructionProvider
+  component LaneGuidanceProvider
+  interface InstructionProviderInterface
+  interface LaneGuidanceProviderInterface
+}
+
+component OnboardMap_NDSDataAccess {
+  component MapAccessProvider
+  interface MapAccessProviderInterface
+}
+
+component Text_Generation {
+  component InstructionTextGenerator
+  interface InstructionTextGeneratorInterface
+}
+
+component Triggering_Engine {
+  component TriggeringEngine
+  interface TriggeringEngineInterface
+}
+
+interface "Navigation (C++)" as NavigationCpp
+interface "Navigation (Java)" as Navigation
+
+[NK2UI] --> Navigation : use
+[3rdPartyUI] --> Navigation : use
+[NK2ExampleApp] --> Navigation : use
+[SmokeTests] --> Navigation : use
+[NavigationTripClientLibAndroid] -u- Navigation
+[DeveloperUI] -> NavigationCpp : use
+[TripE2ETests] -d-> NavigationCpp : use
+[NavigationTripClientLibAndroid] -l-> NavigationCpp : use
+[NavigationTripClientLib] -u- NavigationCpp
+[NavigationTripClientLib] -r-> ProtobufTripModel : use
+[TripModel] -l- ProtobufTripModel : defines
+[TripOnboardService] -u- ProtobufTripModel : provides
+[InstructionProvider] -u- InstructionProviderInterface
+[LaneGuidanceProvider] -u- LaneGuidanceProviderInterface
+[InstructionTextGenerator] -u- InstructionTextGeneratorInterface
+[TriggeringEngine] -u- TriggeringEngineInterface
+[MapAccessProvider] -u- MapAccessProviderInterface
+[InstructionEngine_Onboard] -d-> MapAccessProviderInterface
+
+[TripOnboardService] -d-> TriggeringEngineInterface : use
+[TripOnboardService] -d-> InstructionProviderInterface : use
+[TripOnboardService] -d-> LaneGuidanceProviderInterface : use
+[TripOnboardService] -d-> InstructionTextGeneratorInterface : use
+[TripOnboardService] -d-> [OnboardMapOnboardService] : use
+
+[OnboardMapOnboardService] -d-> MapAccessProviderInterface : use
+[OnboardMapOnboardService] -d-> [InstructionEngine_Onboard] : use
+[OnboardMapOnboardService] -d-> [TrafficEngine] : use
+[OnboardMapOnboardService] -d-> [RoutingService] : use
+
+[InstructionEngine_Onboard] -d-> InstructionEngine_Core : use
+
+
+----
+
+=== Online guidance building block view
+
+Note: actual consumption of InstructionEngine by NKW Backend is forthcoming.
+
+In contrast to Onboard guidance, NKW Backend consumes instructions directly through the
+InstructionEngine::Core component.
+
+[plantuml, online-guidance-architecture, alt="Online Guidance Architecture"]
+----
+
+component InstructionEngine_Core {
+  component InstructionProvider
+  interface InstructionProviderInterface
+}
+
+[InstructionProvider] -u- InstructionProviderInterface
+[InstructionTextGenerator] -u- InstructionTextGeneratorInterface
+[NKW Backend] -d-> InstructionProviderInterface : use
+[NKW Backend] -d-> InstructionTextGeneratorInterface : use
+
+----
+
+=== InstructionProvider building block view
+==== Computational model diagram
+
+[plantuml, computational-model, alt="Computational Model Component Diagram"]
+----
+
+package "TripService" {
+    (Route) -[#Gold]-> (IterableArcBuffer) : OnPathChanged
+    (Route) -[#Gold]-> [OnboardTripGuidanceManager] : OnPathChanged
+    [OnboardTripGuidanceManager] -[#Gray]-> (IterableArcBuffer) : creates
+}
+package "Instruction Engine" {
+    [InstructionProvider] -[#DodgerBlue]-> [InstructionIncrementGenerator] : GenerateInstructions()
+    [InstructionIncrementGenerator] -[#DodgerBlue]-> [InstructionEngine] : Generate()
+    [InstructionProvider] -[#DodgerBlue]-> (InstructionBuffer) : Insert()
+    [InstructionProvider] -[#Gold]-> (InstructionBuffer) : RemoveBeforeOffset()
+    (InstructionBuffer) .[#Gold].> [InstructionProvider] : next N instructions
+    [InstructionEngine] .[#DodgerBlue].> [InstructionIncrementGenerator] : next instruction, last processed offset
+    [InstructionIncrementGenerator] .[#DodgerBlue].> [InstructionProvider] : instructions as soon as they are generated
+    (JunctionOnRouteProvider) .[#DodgerBlue].> [InstructionEngine] : JunctionOnRoute
+    [InstructionEngine] -[#DodgerBlue]-> (JunctionOnRouteProvider) : iterate
+    [InstructionEngine] -[#DodgerBlue]-> (JunctionOnRouteProvider) : ResetRouteArcsRange()
+}
+
+[OnboardTripGuidanceManager] -[#Gray]-> [InstructionProvider] : creates
+[OnboardTripGuidanceManager] -[#Gold]-> [InstructionProvider] : SetRouteIterator()
+[OnboardTripGuidanceManager] -[#Gold]-> [InstructionProvider] : SetPosition()
+[OnboardTripGuidanceManager] -[#Gold]-> [InstructionProvider] : SetPreferredInstructionLimit()
+[OnboardTripGuidanceManager] -[#Gold]-> [InstructionProvider] : GetNextInstruction()
+[InstructionProvider] .[#Gold].> [OnboardTripGuidanceManager] : next N instructions
+[InstructionProvider] .[#DodgerBlue].> [OnboardTripGuidanceManager] : OnNextInstructionChanged()
+(IterableArcBuffer) .[#DodgerBlue].> (JunctionOnRouteProvider) : arc
+(JunctionOnRouteProvider) -[#DodgerBlue]-> (IterableArcBuffer) : iterate
+[InstructionProvider] -[#Gold]-> (IterableArcBuffer) : Cancel()
+
+legend left
+Legend: yellow line - call on main thread
+yellow dashed line - response on main thread
+blue line - call on instruction computation thread
+blue dashed line - response on instruction computation thread
+endlegend
+
+----
+
+The incremental route resolution (map-matching) process is done by Routing Engine and the result
+is provided for consumption in TripService in form of RouteData object containing a sequence of
+NDS arc keys of the resolved route portion.  The process is run in the background after the route
+has been planned and tracked. OnboardTripGuidanceManager receives a callback and starts tracking
+the route, ready to provide guidance.
+
+The resolved route arcs are supplied to the InstructionProvider and downstream components in form
+of iterator wrapping the arc key with relative arc offsets on route (described by ArcKeyWithOffset
+structure), called ArcKeyIterator.  Dereferencing or incrementing the iterator might block if the
+resolved route portion has been exhausted and more resolved data is to be provided.  The iterators
+are obtained and managed by IterableArcBuffer, owned by OnboardTripGuidanceManager.
+
+The arcs are consumed by InstructionProvider to skip the arcs until given offset, or by
+InstructionEngine when the route is explored further in order to generate an instruction.  In the
+second case the consumption is indirect: InstructionEngine operates on Junction Model, and builds
+upon Junction and Line objects provider by JunctionOnRouteProvider.  JunctionOnRouteProvider in
+its turn is iterable as well, and is directly using the ArcKeyIterator in the range provided to
+it through ResetRouteArcsRange call.
+
+In order not to block the main thread, the instruction computation is run in a separate thread.
+The downstream call to InstructionEngine to obtain the next instruction and the call to
+emplace that instruction in InstructionBuffer are done by that thread.  The process is
+continuous, and is done until either the route is exhausted (the arc iterator equals to end), or
+cancellation is explicitly requested (this happens for example when the route is replanned).
+In case the iterator is blocked, cancellation is signalled to the IterableArcBuffer and the
+waiting is terminated to allow immediate recreation of the computation thread with the new route.
+
+The instruction computation doesn't try to compute all the instructions until the end of the route.
+Instead upon creation of new next instruction listeners by the client, InstructionProvider is
+initialized with the highest number of instructions the listeners subscribe to be provided with.
+InstructionProvider then ensures that that number of instructions will be ready for retrieval by
+the client.  The computation thread is paused when that number is reached, and resumed for some
+more computation when the car position advances past an instruction which is in the buffer.
+As this happens, or new instructions are added to InstructionBuffer, OnboardTripGuidanceManager is
+notified via the OnNextInstructionChanged callback, allowing it to retrieve the next instructions
+using GetNextInstruction call.
+
+Below is a sequence diagram for different scenarios of the instruction computation process:
+
+[plantuml, computational-model-sequence, alt="Computational Model Component Diagram"]
+----
+
+box "A: Routing Thread" #LightBlue
+participant TripService
+participant TripPool
+participant Route
+participant TripGuidanceManagerA
+participant ArcBufferA
+participant InstructionBufferA
+participant InstructionProviderA
+end box
+
+box "B: Instruction Provider Thread" #LightBlue
+participant InstructionProviderB
+participant InstructionEngine
+participant JunctionModel
+participant ArcBufferB
+participant InstructionBufferB
+participant TripGuidanceManagerB
+end box
+
+box "C: Service Thread" #LightBlue
+participant ClientLib
+end box
+
+== Registration of new listeners ==
+
+TripService -> TripGuidanceManagerA : RegisterNextInstructionChangedNotification
+TripGuidanceManagerA  -> InstructionProviderA : SetPreferredInstructionLimit
+
+== Start of navigation ==
+
+TripPool -> TripGuidanceManagerA : TrackRoute
+TripGuidanceManagerA -> ArcBufferA : Create
+TripGuidanceManagerA -> InstructionProviderA : SetRouteIterator
+InstructionProviderA -> InstructionProviderB : create thread
+
+== Instruction generation - normal flow ==
+
+InstructionProviderB -> InstructionEngine : Generate (next instruction)
+InstructionEngine -> JunctionModel : iterate
+JunctionModel -> ArcBufferB : iterate
+ArcBufferB -> JunctionModel : Arc
+JunctionModel -> InstructionEngine : Junction
+InstructionEngine -> JunctionModel : iterate
+JunctionModel -> ArcBufferB : iterate
+ArcBufferB -> JunctionModel : Arc
+JunctionModel -> InstructionEngine : Junction
+InstructionEngine -> InstructionProviderB : Instruction
+InstructionProviderB -> InstructionBufferB : Insert(Instruction)
+InstructionProviderB -> TripGuidanceManagerB : OnNextInstructionChanged
+TripGuidanceManagerB -> TripGuidanceManagerA : post OnNextInstructionChanged on TaskQueue
+TripGuidanceManagerA -> ClientLib : OnNextInstructionChanged
+InstructionProviderB -> InstructionEngine : Generate (next instruction)
+InstructionEngine -> JunctionModel : iterate
+JunctionModel -> ArcBufferB : iterate
+ArcBufferB -> JunctionModel : Arc
+JunctionModel -> InstructionEngine : Junction
+InstructionEngine -> InstructionProviderB : Instruction
+InstructionProviderB -> InstructionBufferB : Insert(Instruction)
+InstructionProviderB -> TripGuidanceManagerB : OnNextInstructionChanged
+TripGuidanceManagerB -> TripGuidanceManagerA : post OnNextInstructionChanged on TaskQueue
+TripGuidanceManagerA -> ClientLib : OnNextInstructionChanged
+
+== Instruction generation - blocked on not enough map-matched route data ==
+
+InstructionProviderB -> InstructionEngine : GenerateOneInstruction
+InstructionEngine -> JunctionModel : iterate
+JunctionModel -> ArcBufferB : iterate
+
+...
+
+TripPool -> ArcBufferA : OnPathChanged
+ArcBufferA -> ArcBufferB : conditionvar
+ArcBufferB -> JunctionModel : Arc
+JunctionModel -> InstructionEngine : Junction
+InstructionEngine -> InstructionProviderB : Instruction
+InstructionProviderB -> InstructionBufferB : Insert(Instruction)
+InstructionProviderB -> TripGuidanceManagerB : OnNextInstructionChanged
+TripGuidanceManagerB -> TripGuidanceManagerA : post OnNextInstructionChanged on TaskQueue
+TripGuidanceManagerA -> ClientLib : OnNextInstructionChanged
+InstructionProviderB -> InstructionEngine : Generate (next instruction)
+InstructionEngine -> JunctionModel : iterate
+JunctionModel -> ArcBufferB : iterate
+ArcBufferB -> JunctionModel : Arc
+JunctionModel -> InstructionEngine : Junction
+InstructionEngine -> InstructionProviderB : Instruction
+InstructionProviderB -> InstructionBufferB : Insert(Instruction)
+InstructionProviderB -> TripGuidanceManagerB : OnNextInstructionChanged
+TripGuidanceManagerB -> TripGuidanceManagerA : post OnNextInstructionChanged on TaskQueue
+TripGuidanceManagerA -> ClientLib : OnNextInstructionChanged
+InstructionProviderB -> InstructionEngine : GenerateOneInstruction
+InstructionEngine -> JunctionModel : iterate
+JunctionModel -> ArcBufferB : iterate
+
+== Car position update ==
+
+Route -> TripGuidanceManagerA : OnProgressChanged
+TripGuidanceManagerA -> InstructionProviderA : SetPosition
+InstructionProviderA -> InstructionBufferA : RemoveBeforeOffset
+InstructionBufferA -> InstructionProviderA : has_next_instruction_changed=false
+Route -> TripGuidanceManagerA : OnProgressChanged
+TripGuidanceManagerA -> InstructionProviderA : SetPosition
+InstructionProviderA -> InstructionBufferA : RemoveBeforeOffset
+InstructionBufferA -> InstructionProviderA : has_next_instruction_changed=false
+Route -> TripGuidanceManagerA : OnProgressChanged
+TripGuidanceManagerA -> InstructionProviderA : SetPosition
+InstructionProviderA -> InstructionBufferA : RemoveBeforeOffset
+InstructionBufferA -> InstructionProviderA : has_next_instruction_changed=true
+InstructionProviderA -> TripGuidanceManagerA : OnNextInstructionChanged
+TripGuidanceManagerA -> ClientLib : OnNextInstructionChanged
+InstructionProviderA -> InstructionProviderB : resume (compute more instructions)
+
+== Cancellation during blocking in iterator increment operator ==
+
+TripPool -> TripGuidanceManagerA : UntrackRoute
+TripGuidanceManagerA -> InstructionProviderA : destroy
+InstructionProviderA -> InstructionProviderB : is_cancelled_=true
+InstructionProviderA -> InstructionProviderB : join
+InstructionProviderA -> ArcBufferA : Cancel
+ArcBufferA -> ArcBufferB : conditionvar
+ArcBufferB -> JunctionModel : endArc
+JunctionModel -> InstructionEngine : endJunction
+InstructionEngine -> InstructionProviderB : empty
+InstructionProviderB -> InstructionProviderA : finished
+
+== Cancellation during blocking in iterator dereference operator ==
+
+TripPool -> TripGuidanceManagerA : UntrackRoute
+TripGuidanceManagerA -> InstructionProviderA : destroy
+InstructionProviderA -> InstructionProviderB : is_cancelled_=true
+InstructionProviderA -> InstructionProviderB : join
+InstructionProviderA -> ArcBufferA : Cancel
+ArcBufferA -> ArcBufferB : conditionvar
+ArcBufferB -> JunctionModel : invalid arc
+JunctionModel -> InstructionProviderB : endJunction
+InstructionProviderB -> InstructionProviderA : finished
+
+----
+
+
+=== InstructionTextGenerator building block view
+
+The trip onboard service receives position updates from the
+positioning engine.  One way it uses this information is to keep a
+currently active audio message available at all times.  This allows
+the message to be prepared by the client's text-to-speech engine.  The
+text generation engine is responsible for building the message text.
+
+[plantuml, building-block-prepare-audio-message, alt="Preparing Audio Message Text Building Block View", width=2048, height=1600]
+----
+
+[triggering engine] <.. (trip onboard service) : instructions
+(trip onboard service) <.. [positioning] : position update
+[triggering engine] <.. (trip onboard service) : position update
+(trip onboard service) <.. [triggering engine] : prepare audio
+[text generation engine] <-[#Gold]- (trip onboard service) : instructions
+(trip onboard service) <-[#DodgerBlue]- (text generation engine) : audio message text
+(trip client library) <.. (trip onboard service) : prepare audio
+
+----
+
+==== Triggering Audio Messages
+
+The position updates are also forwarded to the triggering engine.
+This component is responsible for triggering audio messages when the
+vehicle has reached the appropriate position on the route.
+
+[plantuml, building-block-triggering-audio-messages, alt="Triggering Audio Messages Building Block View"]
+----
+
+(trip onboard service) <.. [positioning] : position update
+[triggering engine] <.. (trip onboard service) : position update
+(trip onboard service) <.. [triggering engine] : play audio
+(trip client library) <.. (trip onboard service) : audio message text
+
+----
+
+<<<
+
+=== LaneGuidanceProvider building block view
+
+==== Lane guidance component diagram
+[plantuml, lane-guidance-component-diagram, alt="Lane Guidance Component Diagram"]
+----
+skinparam {
+  nodesep 100
+  padding 0
+}
+
+package "nk2-navigation-trip-onboardservice" {
+  component LaneGuidanceAdapter #lightblue
+  component TripService
+  component IterableArcBuffer
+  interface NavigatedRouteListener
+}
+
+package "nk2-navigation-instruction-engine::Interface" {
+  interface InstructionProviderInterface
+  interface OnboardLaneGuidanceProviderInterface
+  interface LaneGuidanceListenerInterface
+  interface "IterableInterface<ArcKey>" as IterableInterface
+
+}
+note left of IterableInterface
+  Iterable interface provides
+  an abstraction of the route.
+end note
+
+package "nk2-navigation-instruction-engine::Core" {
+  component OnboardLaneGuidanceProvider #lightblue
+  component LaneGuidanceScenarioFactory #lightblue
+  component LaneGuidanceTracker #lightblue
+  component InstructionTracker #lightblue
+  component LaneGuidanceBuilder #lightblue
+  component InstructionProvider
+
+  note bottom of LaneGuidanceTracker
+    Track the current scenario
+    change and keeps the scenario
+    up to date
+  end note
+
+  note bottom of LaneGuidanceScenarioFactory
+    Takes an instructions list
+    and produces a scenario
+  end note
+
+  note bottom of LaneGuidanceBuilder
+    Builds lane guidance segments
+    for a route stretch.
+  end note
+
+  note bottom of InstructionTracker
+    Provides the most
+    recent lane guidance
+    scenario instructions
+  end note
+}
+
+package "nk2-navigation-trip-model" {
+  interface LaneGuidanceScenario
+  component TripModel
+  TripModel -- LaneGuidanceScenario
+}
+
+[IterableArcBuffer] - IterableInterface
+
+[InstructionProvider] -u- InstructionProviderInterface
+[OnboardLaneGuidanceProvider] -u- OnboardLaneGuidanceProviderInterface
+[OnboardLaneGuidanceProvider] -u- LaneGuidanceListenerInterface
+
+[TripService] -u- NavigatedRouteListener
+[LaneGuidanceAdapter] .d-> NavigatedRouteListener : use
+[TripService] -u-> [LaneGuidanceAdapter] : own
+
+[LaneGuidanceAdapter] .d---> InstructionProviderInterface : use
+[LaneGuidanceAdapter] .d---> OnboardLaneGuidanceProviderInterface : use
+[LaneGuidanceAdapter] .d---> LaneGuidanceListenerInterface : use
+[LaneGuidanceAdapter] .u---> LaneGuidanceScenario: use
+[OnboardLaneGuidanceProvider] .d--> [LaneGuidanceTracker]: use
+[OnboardLaneGuidanceProvider] .d--> [InstructionTracker]: use
+[OnboardLaneGuidanceProvider] .d--> [LaneGuidanceScenarioFactory]: use
+[LaneGuidanceScenarioFactory] .d--> [LaneGuidanceBuilder]: use
+
+note left of LaneGuidanceAdapter
+  Initializes OnboardLaneGuidanceProvider.
+  Passes events to OnboardLaneGuidanceProvider:
+  - new onboard route
+  - progress on route
+  - new upcoming instruction
+end note
+
+----
+<<<
+
+[plantuml,lane-guidance-sequence-diagram,alt="Lane Guidance Sequence Diagram"]
+----
+boundary TripServiceProto as proto
+participant NotificationManager as nm
+participant TripServiceCore as trip_core
+participant TriggeringEngine as ti
+control "Trip service\ntask queue" as task_queue
+participant LaneGuidanceAdapter as adapter
+participant OnboardLaneGuidanceProvider as provider
+control "LaneGuidanceProvider\nworker\nthread" as worker
+
+group Subscribe for the next scenario update
+  proto -> trip_core: OnNextLaneGuidanceScenarioChanged(callback)
+  activate proto
+  activate trip_core
+  trip_core -> task_queue : Post(DoOnNextLaneGuidanceScenarioChanged(callback))
+  deactivate trip_core
+  deactivate proto
+
+  task_queue -> trip_core : DoOnNextLaneGuidanceScenarioChanged(callback)
+  activate task_queue
+  activate trip_core
+  trip_core -> nm: Schedule<NextLaneGuidanceScenarioChangedResponse>(callback)
+  deactivate trip_core
+  deactivate task_queue
+end
+
+group Get the current scenario
+  proto -> trip_core: GetLaneGuidanceScenario(callback)
+  activate proto
+  activate trip_core
+  trip_core -> task_queue: Post(DoGetNextLaneGuidanceScenario(callback))
+  deactivate trip_core
+  deactivate proto
+
+  task_queue -> trip_core: DoGetNextLaneGuidanceScenario(callback)
+  activate task_queue
+  activate trip_core
+  trip_core -> adapter: GetNextLaneGuidanceScenario(callback)
+  activate adapter
+  adapter -> proto: callback(NextLaneGuidanceScenarioResponse)
+  deactivate adapter
+  deactivate trip_core
+  deactivate task_queue
+end
+
+group Set lane guidance scenario instructions
+  task_queue -> ti : OnRouteProgress(progress)
+  activate task_queue
+  activate ti
+  ti -> task_queue : OnCombinedInstructionsReady(instructions_number)
+
+  task_queue -> adapter : SetScenarioInstructions(instructions)
+  activate adapter
+
+  adapter -> provider : SetScenarioInstruction(vector<Instruction>)
+  activate provider
+  provider -> worker: notify()
+  deactivate provider
+  deactivate adapter
+  deactivate ti
+  deactivate task_queue
+  worker -> adapter : OnLaneGuidanceScenarioChanged(scenario)
+  activate worker
+  activate adapter
+  adapter -> task_queue : Post(DoLaneGuidanceScenarioChanged(scenario))
+  deactivate adapter
+  deactivate worker
+
+  task_queue -> trip_core : DoLaneGuidanceScenarioChanged(scenario)
+  activate task_queue
+  activate trip_core
+  trip_core -> nm: Notify<NextLaneGuidanceScenarioChangedResponse>()
+  activate nm
+  nm -> proto: callback(NextLaneGuidanceScenarioChangedResponse)
+  deactivate nm
+  deactivate trip_core
+  deactivate task_queue
+end
+
+group Progress on route
+  task_queue -> adapter : SetPosition(offset)
+  activate task_queue
+  activate adapter
+  adapter -> provider : SetPosition(offset)
+  activate provider
+  provider -> adapter : OnLaneGuidanceScenarioChanged(scenario)
+  activate  adapter
+
+  adapter -> task_queue : Post(DoLaneGuidanceScenarioChanged(scenario))
+
+  deactivate adapter
+
+  deactivate provider
+  deactivate adapter
+  deactivate task_queue
+
+  task_queue -> trip_core : DoLaneGuidanceScenarioChanged(scenario)
+  activate task_queue
+  activate trip_core
+  trip_core -> nm: Notify<NextLaneGuidanceScenarioChangedResponse>()
+  activate nm
+  nm -> proto: callback(NextLaneGuidanceScenarioChangedResponse)
+  deactivate nm
+  deactivate trip_core
+  deactivate task_queue
+end
+
+group Set announcement phase and next maneuver segment
+  task_queue -> ti : SetPosition(offset)
+  activate task_queue
+  activate ti
+  ti -> task_queue : OnTriggerTypeChanged(trigger_type)
+  activate task_queue
+  task_queue -> adapter: SetAnnouncementPhase(instruction,trigger_type)
+  activate adapter
+  adapter -> provider: SetAnnouncementPhase(instruction,trigger_type)
+  activate provider
+  provider -> adapter : OnLaneGuidanceScenarioChanged(scenario)
+  activate adapter
+  adapter -> task_queue : Post(DoLaneGuidanceScenarioChanged(scenario))
+  deactivate adapter
+  deactivate provider
+  deactivate adapter
+  deactivate task_queue
+  deactivate ti
+  deactivate task_queue
+
+  task_queue -> trip_core : DoLaneGuidanceScenarioChanged(scenario)
+  activate task_queue
+  activate trip_core
+  trip_core -> nm: Notify<NextLaneGuidanceScenarioChangedResponse>()
+  activate nm
+  nm -> proto: callback(NextLaneGuidanceScenarioChangedResponse)
+  deactivate nm
+  deactivate trip_core
+  deactivate task_queue
+
+end
+
+----
+
+<<<
+
+==== Lane guidance class diagram
+[plantuml, lane-guidance-class-diagram, alt="Lane Guidance Class Diagram"]
+----
+
+nk2_navigation_trip_clientlib.Navigation -- nk2_navigation_trip_model.NextLaneGuidanceScenarioResponse
+nk2_navigation_trip_onboardservice.LaneGuidanceAdapter -- nk2_navigation_trip_model.NextLaneGuidanceScenarioResponse
+nk2_navigation_trip_onboardservice.LaneGuidanceAdapter -d-> nk2_navigation_instruction_engine_interface.LaneGuidanceProviderInterface
+nk2_navigation_trip_onboardservice.LaneGuidanceAdapter -d-|> nk2_navigation_instruction_engine_interface.LaneGuidanceListenerInterface
+nk2_navigation_trip_onboardservice.LaneGuidanceAdapter -l-|> nk2_navigation_trip_clientlib.ListenerInterface
+nk2_navigation_trip_onboardservice.LaneGuidanceAdapter --> nk2_navigation_instruction_engine_interface.Instruction
+
+package nk2_navigation_trip_clientlib {
+class ListenerInterface {
+    void OnAudioPlay();
+    void OnTriggerTypeChanged(TriggerType);
+    void OnCombineNextInstruction();
+}
+}
+
+package nk2_navigation_trip_clientlib {
+
+class Navigation {
+  void AddLaneSegmentListener(LaneSegmentListener);
+  void RemoveLaneSegmentListener(LaneSegmentListener);
+}
+
+class LaneSegmentListener #CCCCFF {
+  void OnNextLaneSegmentChange(LaneSegments);
+}
+
+class LaneSegments #CCCCFF {
+  LaneSegment GetLaneSegmentAt(int routeOffset);
+  LaneSegment GetCurrent();
+  vector<LaneSegment> GetSegments();
+}
+
+class LaneSegment #CCCCFF {
+  bool IsOnRoute();
+  int GetStartOffsetOnRouteInCentimeter();
+  int GetEndOffsetOnRouteInCentimeter();
+  Polyline GetPolyline();
+  DrivingSide GetDrivingSide();
+  vector<LaneInfo> GetLanes();
+}
+
+class LaneInfo #CCCCFF {
+  LaneSegment GetLaneSegment();
+  int GetLaneNumber();
+  vector<Arrow> GetArrows();
+  Divider GetDrivingSideDivider();
+  Divider GetNonDrivingSideDivider();
+  vector<LaneConnection> GetIncomingConnections();
+  vector<LaneConnection> GetOutgoingConnections();
+}
+
+class LaneConnection #CCCCFF {
+  LaneInfo GetConnectedLane();
+  LaneConnectionType GetType();
+}
+
+class Arrow #CCCCFF {
+  Direction GetDirection();
+  bool IsRecommended();
+}
+
+Navigation --> LaneSegmentListener
+LaneSegmentListener --> LaneSegments
+LaneSegments o-- LaneSegment
+LaneSegment o-- LaneInfo
+LaneInfo o-- LaneConnection
+LaneInfo o-- Arrow
+}
+
+namespace nk2_navigation_trip_model {
+
+class NextLaneGuidanceScenarioResponse #CCCCFF {
+  LaneGuidanceScenario lane_guidance_scenario;
+}
+
+class Arrow #CCCCFF {
+  Direction direction;
+  bool is_recommended;
+}
+
+class LaneConnection #CCCCFF {
+  int segment_index;
+  int lane_index_in_segment;
+  LaneConnectionType lane_connection_type;
+}
+
+class LaneInfo #CCCCFF {
+  repeated<Arrow> lane_arrows;
+  Divider driving_side_divider;
+  Divider non_driving_side_divider;
+  repeated<LaneConnection> incoming_connections;
+  repeated<LaneConnection> outgoing_connections;
+}
+
+class LaneSegment #CCCCFF {
+  int segment_id;
+  repeated<LaneInfo> lanes;
+  PolylineWithoutOffsets center_polyline;
+  int start_offset_on_route_cm;
+  int end_offset_on_route_cm;
+  bool is_on_route;
+  DrivingSide driving_side;
+}
+
+class LaneGuidanceScenario #CCCCFF {
+  repeated<LaneSegment> lane_segments;
+  int current_lane_segment_id;
+}
+
+NextLaneGuidanceScenarioResponse -- LaneGuidanceScenario
+LaneGuidanceScenario o-- LaneSegment
+LaneSegment o-- LaneInfo
+LaneInfo o-- Arrow
+LaneInfo o-- LaneConnection
+
+}
+
+namespace nk2_navigation_trip_onboardservice {
+  class LaneGuidanceAdapter #CCCCFF {
+    void SetRouteIterator(ArcKeyIterator route_arcs_begin, ArcKeyIterator route_arcs_end);
+    void SetScenarioInstructions(vector<Instruction> up_comming_instructions);
+    void SetPosition(int route_offset_in_centimeters);
+    void OnNextLaneGuidanceScenarioChanged(function<NextLaneGuidanceScenarioResponse> callback);
+    void GetNextLaneGuidanceScenario(function<NextLaneGuidanceScenarioResponse> callback);
+  }
+
+  class NavigatedRouteListener {
+    void OnRouteChanged(route);
+    void OnOnboardRouteChanged(route);
+    void OnRouteProgress(int);
+  }
+
+  class IterableArcBuffer {
+  }
+
+  NavigatedRouteListener <|-- LaneGuidanceAdapter
+  IterableArcBuffer --|> nk2_navigation_instruction_engine_interface.IterableInterface
+}
+
+package nk2_navigation_instruction_engine_interface {
+  interface LaneGuidanceProviderInterface #CCCCFF {
+    void SetRouteIterator(ArcKeyIterator route_arcs_begin, ArcKeyIterator route_arcs_end);
+    void SetScenarioInstructions(vector<Instruction>);
+    void SetAnnouncementPhase(AnnouncementAnnouncement, Instruction);
+    void SetPosition(int route_offset_in_centimeters);
+  }
+
+  interface LaneGuidanceListenerInterface #CCCCFF {
+    void OnLaneGuidanceScenarioChanged(LaneGuidanceScenario);
+  }
+
+  interface "IterableInterface<ArcKey>" as IterableInterface
+
+  class Instruction {
+  }
+
+  class AnnouncementPhase{
+  }
+
+  class LaneGuidanceScenario #CCCCFF {
+    vector<LaneSegment> lane_segments;
+    int current_lane_segment_id;
+  }
+
+  class LaneInfo #CCCCFF {
+    vector<Arrow> lane_arrows;
+    Divider driving_side_divider;
+    Divider non_driving_side_divider;
+    vector<LaneConnectionInfo> incoming_connections;
+    vector<LaneConnectionInfo> outgoing_connections;
+  }
+
+  class LaneSegment #CCCCFF {
+    int segment_id;
+    vector<LaneInfo> lanes;
+    bool is_maneuver;
+    vector<Coordinate> polyline;
+    bool is_on_route;
+    int start_offset_on_route_in_centimeters;
+    int end_offset_on_route_in_centimeters;
+    DrivingSide driving_side;
+  }
+
+  class Arrow #CCCCFF {
+    Direction direction;
+    bool is_recommended;
+  }
+
+  class LaneConnectionInfo #CCCCFF {
+    int segment_id;
+    int lane_id;
+    ConnectionType connection_type;
+  }
+
+  LaneGuidanceScenario o-r- LaneSegment
+  LaneSegment o-r- LaneInfo
+  LaneInfo o-r- Arrow
+  LaneInfo o-r- LaneConnectionInfo
+
+  LaneGuidanceProviderInterface -d-> LaneGuidanceListenerInterface
+}
+
+namespace nk2_navigation_instruction_engine {
+
+
+class RoadStretch #CCCCFF {
+  int offset_on_first_arc;
+  int offset_on_last_arc;
+  vector<ArcKey> arcs;
+}
+
+class LaneGuidanceProvider #CCCCFF {
+  void LaneGuidanceProvider(LaneGuidanceListenerInterface);
+  void SetRouteIterator(ArcKeyIterator route_arcs_begin, ArcKeyIterator route_arcs_end);
+  void SetScenarioInstructions(vector<Instruction>);
+  void SetAnnouncementPhase(AnnouncementAnnouncement, Instruction);
+  void SetPosition(int route_offset_in_centimeters);
+}
+
+class LaneGuidanceTrackerInterface #CCCCFF {
+  void UpdateRouteOffset(int route_offset);
+  void OnInstructionTrigger(TriggerType, bool is_combined);
+  void Reset(vector<LaneGuidance>);
+}
+
+class LaneGuidanceBuilderInterface #CCCCFF {
+  LaneGuidanceScenario Generate(RoadStretch, MapAccess);
+}
+
+class LaneGuidanceBuilder #CCCCFF {
+  LaneGuidanceScenario Generate(RoadStretch, MapAccess);
+}
+
+class LaneGuidanceTracker #CCCCFF {
+  void UpdateRouteOffset(int route_offset);
+  void Reset(vector<LaneGuidance>);
+}
+
+LaneGuidanceProvider -u- nk2_navigation_instruction_engine_interface.LaneGuidanceListenerInterface
+LaneGuidanceProvider -u-|> nk2_navigation_instruction_engine_interface.LaneGuidanceProviderInterface
+
+LaneGuidanceProvider --> LaneGuidanceBuilderInterface
+LaneGuidanceProvider --> LaneGuidanceTrackerInterface
+LaneGuidanceTrackerInterface --> nk2_navigation_instruction_engine_interface.LaneGuidanceScenario
+LaneGuidanceBuilderInterface -l-> nk2_navigation_instruction_engine_interface.LaneGuidanceScenario
+LaneGuidanceBuilderInterface -l-> RoadStretch
+
+LaneGuidanceBuilder -u-|> LaneGuidanceBuilderInterface
+LaneGuidanceTracker -u-|> LaneGuidanceTrackerInterface
+LaneGuidanceProvider -u---> nk2_navigation_instruction_engine_interface.Instruction
+}
+
+----

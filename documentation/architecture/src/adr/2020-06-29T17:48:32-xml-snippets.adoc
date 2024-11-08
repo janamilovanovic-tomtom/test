@@ -1,0 +1,29 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Internal XML API
+
+== Status
+
+Proposed
+
+== Context
+
+We are generating annotated KML to support a https://jira.tomtomgroup.com/browse/NAV-18163[maneuver coverage report].  This involves giving important objects, initially Instructions but later Junctions and Situations, the ability to serialise themselves as XML.  We need to decide what sort of API these objects provide to support this.
+
+== Decision
+
+The objects will provide XML snippets as UTF-8 text strings.  The snippets will be included as the "text" of the parent node, without informing the parent DOM object that there is further structure underneath.  The alternative, of passing DOM objects to an XML generation function, was rejected.
+
+== Consequences
+
+* XML DOM objects will not be passed across component boundaries
+* The instruction engine and the client of the instruction engine can use different XML libraries
+* XML snippets will not be validated
+* XML namespaces may be out of sync without careful handling at both ends

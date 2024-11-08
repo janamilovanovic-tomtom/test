@@ -1,0 +1,83 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Instruction generation on a continuously map matched route
+
+== Status
+
+Proposal
+
+== Context
+
+Onboard instruction generation relies on the onboard NDS map.  It takes a series of level-13 arcs
+that comprise the route being navigated and can then generate instructions along that route.
+
+With both Hybrid and Onboard Routing the process of supplying the full detailed level onboard map NDS
+arcs to clients is time consuming and should not be blocking.  Therefore this process is incremental.
+Each time a new portion of RouteData arrives through the HandleOnboardMapReferencesResponse() handler
+function,  it's stitched to the end of the existing route.  In the future once map update is handled the
+existing route parts might even be replaced from the middle.
+
+Appending route arcs portion by portion is part of current implementation.  In the future the granularity
+of route update may be even further refined, for example arcs may be added one by one to the existing
+RouteData.  Our proposal below should be tolerant to such granularity change.
+
+The instruction engine situation handlers work along the available route, scanning it as far as needed
+to generate a meaningful instruction.  For example, for roundabouts a meaningful roundabout instruction
+should be generated. For it to be meaningful and correct, the RoundaboutSituationHandler scans the route
+before the roundabout entry and beyond the roundabout exit.  It preferably needs to have a stretch of arcs
+before the entry and after the exit, and absolutely must have the full sequence of arcs between the entry
+and the exit of the roundabout. Same goes for complex intersection handler.
+
+Given this fundamental requirement of situation handlers, what would happen if the incremental process of
+providing map-matched L-13 arcs to the instruction engine has just supplied arcs that stop in the middle of
+the roundabout, after the entry but before the exit (see Drawing 1)?
+
+The same situation may occur for a U-turn, which could simply be comprised of two independent "turn left"
+maneuvers (see Drawing 2).  Only the situation handler awareness of the bigger picture by having some view
+on the route ahead allows it to realize those two "turn left" instructions should be represented by a single
+meaningful U-turn instruction.
+
+== Proposal
+
+The proposal is to introduce a notion of safe distance `S` for instruction generation.  Given a stretch from
+offset A to offset B, the instruction engine will generate instructions from offset A to offset B-S.
+Currently JunctionProvider provides all the junctions available to it based on the available arcs in
+RouteWindow.  After the proposal is implemented, it will provide only a subset of those arcs.  However the
+situation handlers will be given access to all the arcs, even beyond the safe distance (see Drawing 3).
+A viable implementation could be for JunctionProvider to be configurable to provide only part of
+junctions to the main InstructionEngine loop, yet retaining its whole range to the situation handlers.
+
+But that also means that either the interface to InstructionProvider will contain a continuously increasing
+amount of arcs, or InstructionProvider will accumulate those arcs internally, and throw the old ones away
+only when its of no potential use by any handler (meaning they are far enough behind the last generated
+instruction).
+
+We should be careful with short routes, where the length of the route is smaller than the safe distance,
+or when we are getting closer to the destination.  In both cases at some point we don't expect another
+portion of arcs to be available, making the safe distance a barrier for creating the last instructions.
+We should be sensible to current offset in relation to the total route length, and cancel the safe distance
+limitation dynamically if needed.  So effectively, the safe distance collapses to zero once the entire remainder
+of the route to the destination has been map-matched.
+
+The safe distance might need to be tuned when the system is more mature and the performance of providing
+new arcs vs. time to first instruction KPI requirements are better known.
+
+A discussed alternative was to generate instructions using the whole available range, but instructions being
+closer to the end of the range being marked as "unsafe". Once more arcs are available, those "unsafe"
+instructions may be recalculated and replaced with better ones. However this approach was rejected since it
+introduces additional complexity to the interface and the client facing API.
+
+
+== Consequences
+
+* Time to first instruction might be impacted if the instruction lies beyond the safe distance and the next
+batch of arcs has not been provided yet.  Of course this can be mitigated by acknowledging that first instructions
+might be suboptimal, in case they encounter the problem shown in Drawing 1 and 2.  But this will be left up
+for tuning later on.

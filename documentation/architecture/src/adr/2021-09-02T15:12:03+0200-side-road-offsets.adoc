@@ -1,0 +1,103 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Side Road Offsets
+
+== Status
+
+Proposal
+
+== Context
+
+There is a requirement to disambiguate ambiguous exits.  Our solution includes providing a side
+road offset attribute for an instruction, when such ambiguity is detected.  Later this attribute
+is incorporated into voice guidance, resulting in a message like "Take the second exit to the
+right".
+
+For this purpose a `SideRoadExitOffsets` class was introduced, which exposes an interface for
+tracking lines on route in order to detect outgoing lines in either left or right direction on the
+fishbone, and for enriching an instruction if needed.  The enriched instructions are of type Exit.
+This condition is followed inside `SideRoadExitOffsets` class implementation.
+
+The detected outgoing lines are registered internally as part of the `SideRoadExitOffsets` object
+state.  This state would need to be preserved across multiple calls to `InstructionEngine::Generate`
+method, since we repeatedly call this method for generating instructions. This introduces a problem,
+since `InstructionEngine` is designed not to keep a state.  We insist that it will continue being
+so, therefore a more suitable mechanism must be found to enrich an instruction based on map data
+lying outside of the instruction stretch.
+
+== Alternatives
+
+1. Enriching the Exit instruction will be the responsibility of `ControlledAccessExitHandler`
+and 'ControlledAccessSwitchHighwayHandler'.  It will do so by scanning the route from the
+instruction backwards in order to detect exits preceding a given exit.
+
+Pro: simplicity, cohesiveness
+Con: While currently this would work (on an onboard map), in the future we might want to support
+tile cache.  Traversing backwards might be impossible due to the tile cache limited data.
+
+2. Enriching the Exit instruction will be the responsibility of `ControlledAccessExitHandler`
+and 'ControlledAccessSwitchHighwayHandler'.  It will detect both taken and non-taken exits from
+current position onwards, up to a limited distance.
+
+A potential drawback could be consuming lines which otherwise could be beneficial for other
+handlers.  This is for example if a non-taken exit is detected, followed by a close-by taken exit,
+the lines up to the taken exit will be consumed.  However, this does not pose a real problem,
+since the exits would be located close enough to each other (100m at most), and other instructions
+are not expected to sneak in this interval.
+
+Pros: simplicity, cohesiveness
+Cons: other instructions would be dropped in the interval between start position and the second
+or third taken exit.  However as described above this doesn't pose a real risk.
+
+3. `InstructionProvider` can be stateful, therefore the registered exits can be maintained in
+an object owned by it.  This object can be injected into `ControlledAccessExitHandler` so
+the registered exit information can be obtained and the Exit instruction enriched.
+
+Pros: low implementation complexity
+Cons: `InstructionProvider` should care of more objects related to instruction content
+generation, whereas it's designed to be a wrapper requesting and collecting instructions for
+the client.  Also, injecting stateful objects into situation handlers violates the design and
+creates shortcuts in the system.
+
+4. Enriching an instruction would be done in a post-processing step, where state of intermediate
+exits will be tracked. The mechanism responsible for the post-processing will provide the
+information required to enrich an instruction, such as map access and list of preceding
+instructions.
+
+This mechanism is also suitable for the Advanced Signposts feature, where scanning the route for
+signposts far away from the instruction stretch would be required.
+
+Pros: generic and extensible approach; supports Advanced Signposts feature; no injection.
+Cons: new mechanism to be introduced; state; lack of cohesiveness.
+
+5. Enriching an instruction would be done in a post-processing step, based on instructions only.
+For this non-taken exits will result in a calculated instruction which will be marked as invisible,
+whereas the post-processing step will use those invisible instructions as source of information
+for enriching the ambiguous Exit instruction with side road offset.
+
+This mechanism is also suitable for the Advanced Signposts feature, where scanning the route for
+signposts far away from the instruction stretch would be required.
+
+Pros: generic and extensible approach; supports Advanced Signposts feature; no injection.
+Cons: new mechanism to be introduced; counter-intuitiveness of invisible instructions just to
+hold a state, lack of cohesiveness.
+
+
+== Decision
+
+Option 2: Enriching the Exit instruction will be the responsibility of `ControlledAccessExitHandler`.
+
+The reason for preferring this option over the alternatives is simplicity and no need for an
+additional post-processing mechanism.
+
+== Consequences
+
+1. More complexity in affected handlers.
+2. Risk of dropping instructions in the inspected stretch, however this is only theoretical.

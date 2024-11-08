@@ -1,0 +1,133 @@
+// Copyright (C) 2023 TomTom NV. All rights reserved.
+
+= Exception Handling
+
+== Status
+
+Proposed
+
+== Context
+
+As the instruction engine has grown, we have seen inconsistency
+develop in how and where exceptions are handled.  Developers are
+taught to prioritise safety, so when in doubt they tend to add
+explicit exception handling in local code.  However this leads to
+conflicting expectations about where we might expect exceptions to be
+caught.
+
+The following principles are agreed:
+
+* Exceptions should not cross component boundaries, meaning the public
+  API of the instruction engine.
+* In normal, expected behaviour, no exceptions should be thrown or
+  caught.
+* There are plenty of genuinely exceptional circumstances, such as the
+  engine being restarted during a route.
+* When exceptions are thrown, these should be prominently logged and
+  flagged for investigation.
+* We cannot guarantee good Guidance in the situations where exceptions
+  are thrown.
+
+What is less clear:
+
+* If an exception is thrown, should that guarantee no guidance, or is
+  degraded guidance a possible outcome?
+* Is there value in the pattern of catching, adding information, and
+  rethrowing?
+* What presence or absence of exception handling should be treated as
+  a code smell during review?
+* Are exceptions truly being caught at the API boundary, or is there
+  still a gap where exceptions can leak?
+
+This document intends to clarify those questions and provide clear
+coding guidelines.
+
+== Current Situation
+
+See xref:2021-02-19T13:08:00-error-handling.adoc#exception_handling[this discussion of current
+error handlng].  The summary is that we catch exceptions at three
+levels:
+
+1. 17 of 52 handlers catch exceptions themselves, and normally treat
+this as a failure to consume the junction
+2. The handler stack is wrapped in a try/catch block, but this still
+allows instructions to be generated for later lines
+3. The `Generate` method has an exception handler which almost, but
+not quite, covers the entire instruction engine
+4. The lane guidance APIs do not catch exceptions at all
+
+The inconsistencies here make it difficult for engineers to predict
+whether the code they are in is "safe" against exceptional situations.
+
+== Proposal
+
+=== Exceptions should be caught at API level
+
+All public API functions, for example `GetFullInstructionList`, should
+include a try/catch block at the top level.  This should catch all
+exceptions, i.e. `catch(...)`.  They may also have more specialised
+catch blocks, such as `catch(std::exception)`, so that more useful
+logs can be printed.
+
+If the question arises if a public API function is properly protected
+against exceptions, it should be easy to verify this by checking the
+implementation.  It should not be necessary to dive deeper.
+
+=== Situation handlers may catch and rethrow but may not simply catch
+
+Inside a situation handler, if you see a try/catch block, you should
+expect the catch block to have another throw statement that always
+executes.  The purpose of the catch block should be to log additional
+relevant information, usually at `ERROR` level, to aid debugging.
+
+Since the purpose of these catch blocks is to log information, they
+should generally be for some specific exception type, not just
+`catch(...)`.
+
+There is value in catching exceptions in order to log this
+information.  But this is not a requirement, only a nice-to-have.
+
+It should be easy to inspect a try/catch block and verify that it does
+rethrow.  Therefore, avoid rethrowing in another function.
+
+=== The instruction engine should catch exceptions at each line
+
+The core of the instruction engine is a double loop.  The outer loop
+iterates over lines.  Then for each line, the inner loop iterates over
+situation handlers, looking for the first handler that can consume
+that line.
+
+The instruction engine should catch exceptions from situation handlers
+and react by aborting the inner loop, and continuing to the next line
+in the outer loop.  This is the current behaviour.
+
+The instruction engine must not react to an exception from one
+situation handler by trying further situation handlers on that same
+line.  This has too great a risk of producing suboptimal guidance in
+an untested configuration.  Moving on to the next line provides the
+best chance of recovering without generating bad guidance.
+
+All anticipated exceptions at this level should inherit from
+`std::exception`, so this exception type should be caught.
+
+=== Elsewhere, catch and rethrow
+
+Apart from the API level functions and the instruction engine, all
+other exceptions must be passed through to the top level catch blocks.
+
+The same rules apply here as for situation handlers.
+
+=== Testing
+
+All code that throws should have a unit test to ensure that the
+exception really is thrown.
+
+Similarly, code that catches an exception should have a unit test to
+ensure that the exception is caught.
+
+== Consequences
+
+* Absorbing exceptions and retrying with the next line could still
+  produce untested results
+* This policy restricts us from common-sense recovery techniques such
+  as simply retrying, in the cause of easier auditability

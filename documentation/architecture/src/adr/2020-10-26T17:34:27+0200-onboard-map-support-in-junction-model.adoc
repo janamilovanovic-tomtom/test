@@ -1,0 +1,102 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Supporting onboard map in Junction Model
+
+== Status
+
+Accepted
+
+== Context
+
+One of the fundamental requirements of the onboard instruction engine is to support an onboard map.
+The onboard instruction engine has been developed until now based on offboard map tile cache, since this is the only data access layer that has been available in the NK2 stack.
+At the moment the NK1 map access layer has been made available as a series of Conan packages, which can be taken into NK2 to provide data access to an onboard map.
+
+The Junction Model is a layer designed to provide abstraction from specific map access implementation.
+This way the algorithms implemented in the situation handlers are not aware what kind of map implementation lies underneath.
+Therefore it is clear that the extension needed to support onboard maps is to implemented on Junction Model layer level.
+
+== NDS data access interfaces
+
+The offboard map tile cache is provided by navigation::dataaccess::RoutingData object.
+The onboard map tile cache is provided by DataAccess::NDS::CGuidanceData object.
+Unfortunately the two objects don't share the same interface.
+Also each of them defines Arc and Node types and their keys according to its implementation.
+Therefore having a common code interfacing with both map access interfaces is not a possibility.
+
+== Junction Model entities
+
+Junction Model comprises the following entities that abstract away fundamental NDS objects:
+* Line * Junction * JunctionOnRoute
+
+In addition there is a provider facility for Junction and JunctionOnRoute objects, in form of the JunctionProvider class.
+It has multiple responsibilities, at the moment tied into a single class:
+* Providing sequence of JunctionOnRoute objects from a mapmatched route (comprising of arcs) * Providing Junction objects by request, around a given NDS node.
+
+== Proposed approach
+
+Since we need a separate implementation for each map access, the proposal is to apply templatization of Junction Model structures.
+
+The above 4 classes (Line, Junction, JunctionOnRoute and JunctionProvider) should be therefore templatized.
+The template parameter should contain the types sufficient to interface with a specific map access implementation.
+Those types should be packed into a traits class, MapAccessTraits.
+
+There should be 2 specific MapAccessTraits:
+* OnboardMapAccessTraits * OffboardMapAccessTraits
+
+Those types are:
+* RoutingData * Arc and Node * ArcKey and NodeKey * IncidentRoadSegmentIterator * KeyConverter (see below)
+
+Each MapAccessTraits defines an alias specific for given map access implementation.
+For example, OnboardMapAccessTraits defines the type RoutingData = DataAccess::NDS::CGuidanceData, while OffboardMapAccessTraits defines the type RoutingData = navigation::dataaccess::RoutingData.
+
+== Keys and conversions
+
+The JunctionProvider is templatized with map access traits.
+Both specializations inherit from a common interface JunctionProviderInterface.
+The interface contains junction creation method CreateJunction(), which accepts an NDS node.
+Since the NDS node is now map access implementation specific, and the interface can't depend on that, it's proposed to make use of packed keys, which are represented as 64-bit integers.
+That means that CreateJunction() will accept a packed node key representing the NDS node to create the junction for.
+
+For this use key converters will exist.
+Key converters will be map access implementation specific.
+That means that there is a need for two key converters:
+
+* OnboardKeyConverter
+* OffboardKeyConverter
+
+Each converter has the ability to perform conversion between packed to unpacked keys and vice versa.
+The type is also aliased in MapAccessTraits by KeyConverter type field, and is used before the call to JunctionProvider::CreateJunction() to pack the key, and inside the method to unpack it for actual junction creation.
+
+== Alternative
+
+Create an abstraction layer to hide the differences between onboard and offboard map access implementations.
+The upside of this alternative is that the Junction Model doesn't need templatization.
+The downside is yet another layer of abstraction, while Junction Model already aims to be such.
+
+== Decision
+
+Templatize Junction Model building blocks as described above.
+
+== RouteWindow and instruction engine public interface
+
+The RouteWindow is an input to the instruction engine, describing a set of map-matched arcs the instructions are to be provided for.
+Arcs are map access implementation specific, which means that the type describing an arc or arc key would be different for offboard and onboard map access.
+There is a constraint that map access data types can't be part of the instruction engine interface.
+Therefore the proposed solution is to describe the route window by a set of arc keys.
+In order to enable accommodation of either type of arc key, the set is proposed to be of an std::variant type.
+Both the producer and the consumer of this set knows exactly which map access implementation it's working with, therefore setting/fetching the correct type from the set is straightforward.
+
+== Consequences
+
+* Templatizing requires making specialization inline.
+This requires having additional .hpp files instead of the former .cpp ones, and including them from the headers.
+* Some of the code needs duplication due to the need for specializing for specific map access interface.
+* boost::variant is part of the instruction engine interface.

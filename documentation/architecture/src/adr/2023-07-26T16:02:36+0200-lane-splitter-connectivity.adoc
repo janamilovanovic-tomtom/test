@@ -1,0 +1,93 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Connectivity When Splitting Lane Segments
+
+== Status
+
+Implemented
+
+== Context
+
+A Lane Guidance Scenario is a sequence of lane segments, each of which
+describes a stretch of the route along which the lane configuration
+does not change.  The lane segments are derived from lane groups in
+the map.  For lane segments, "lane configuration" includes dividers
+and lane forks/merges.  But "lane configuration" as defined in the FTX
+spec allows for divider changes and forks/merges within a single lane
+group.
+
+Therefore in order to accomodate the full data of a lane group in a
+set of lane segments, the lane segments need to be split into smaller
+sections where the lane configuration is consistent.  This is the job
+of `LaneSegmentSplitter`.
+
+Connectivity between lane groups is represented as lane connector IDs.
+Two lanes are connected if the destination connector ID of one matches
+the source connector ID of another.  This is a rather indirect process
+to write code for.  Therefore internal data structures give each lane
+in each lane segment a list of incoming connections and a list of
+outgoing connections.  Each connection refers to a segment ID and a
+lane index.
+
+Images taken from https://miro.com/app/board/uXjVM0Co3JA=/[this Miro
+board].
+
+== Current Implementation
+
+Since a single lane group is often split into many lane segments, we
+have an optimised implementation to avoid constantly switching the
+connections between segments.  The process follows these steps:
+
+. Create a single lane segment for each lane group
+. Establish outgoing connectivity among all lane segments
+. For each segment, for each divider change:
+.. Find the existing segment containing the divider change
+.. Insert a new segment just after that
+.. Copy the existing segment into the new segment (including
+connectivity)
+. For each added segment, add trivial connectivity from the previous
+segment
+. Add incoming connectivity as the dual of all outgoing connectivity
+
+image::2023-07-26T16:02:36+0200-lane-splitter-connectivity/NAV-113005
+lane splits - Previous Operation.jpg[width=500]
+
+== Problem
+
+As part of https://jira.tomtomgroup.com/browse/NAV-113005[NAV-113005]
+we now need to create splits due to lane forks (confusingly, forks are
+also described as "splits" in the spec, but with a different meaning
+to that used here).  If two lanes become three, all subsequent
+segments must also have three lanes.  If we want to preserve the
+straightforward copying of data when splitting, we need to perform
+this kind of split first, before performing splits due to divider
+changes.
+
+As part of this, connectivity is no longer trivial.  Therefore it can
+no longer be performed as a separate step at the end.
+
+== Proposal
+
+Trivial connectivity will now be added immediately after each split,
+rather than in a single operation at the end.
+
+We can still easily postpone adding incoming connectivity until the
+last step, since it is still just the dual of the outgoing
+connectivity.
+
+The new procedure will look like this:
+
+image::2023-07-26T16:02:36+0200-lane-splitter-connectivity/NAV-113005
+lane splits - Proposed Operation.jpg[width=500]
+
+== Consequences
+
+* (positive) when debugging, the internal state of the lane scenario
+  will be consistent after each split

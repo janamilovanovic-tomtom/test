@@ -1,0 +1,154 @@
+// Copyright (C) 2024 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Data accumulation in the instruction engine
+
+== Status
+
+Accepted
+
+== Context
+
+Following xref:./2023-10-05-accumulated-data-management.adoc[Accumulated data management] and xref:./2023-11-24-accumulated-data-in-instruction-engine-client.adoc[Accumulate data in instruction engine client],
+in order to support situations requiring accumulated data, we proposed a solution which accumulates data in the instruction engine and store that data in clients of instruction engine.
+
+For GO SDK incremental instruction generation, one instruction engine instance only generates one instruction increment of a route.
+As the instruction engine is stateless, the accumulated data needs to be stored in Route object. For generating each increment, the accumulated data will be passed to the instruction engine.
+
+For NK2, as one instruction engine instance will generate instructions for one route, the accumulated data is used inside instruction engine and will be discarded when instruction engine is destroyed.
+
+The accumulated data format will be serialized binary data. https://github.com/tomtom-internal/go-sdk-android/pull/8680/files[The API PR] has been merged.
+
+== Key Question
+Should the data accumulation be tightly coupled with situation handlers in order to achieve optimal performance?
+
+== Current Implementation
+
+=== Instruction engine
+Situation handlers are constructed with several fetchers, such as signpost fetcher or lane data fetcher, depending on the needs of the situation handler.
+The InstructionEngine class calls situation handlers to generate instructions by giving lines on route.
+Situation handlers will return the generated instructions along with the last processed line on route.
+
+=== NK2
+NK2 OnboardTripGuidanceManager uses one instance of InstructionEngine to generate all instructions for one route.
+
+=== GO SDK
+For each instruction increment, instruction engine returns the last processed offset. The last processed offset will be sent back to instruction engine in the next iteration.
+And the instruction engine will generate instructions after that offset.
+
+== Problem
+The lines on route can be iterated only forward. Situation handlers can't get the previous lines on route.
+In order to support some scenarios requiring previous lines on route, we post-process something after instruction generation finished. But it does not work for GO SDK incremental instruction generation.
+The data needs to be accumulated. But there are 2 key questions:
+
+* Do we want to let situation handlers accumulate data?
+** If yes, we could miss some data because some situation handlers will not always be run.
+** If no, some intermediate data produced during situation handler processing can't be accumulated. Or this data needs to be computed from map data again when accumulating it.
+* In one instruction generation iteration, do we want to let the data accumulated by one situation handler be shared with other situation handlers?
+** If yes, only later situation handlers can access the data produced by previous situation handlers.
+However, a situation handler doesn't have such information in its own. Engineers need to carefully check the situation handler sequence and know what data will be produced by previous handlers.
+Additionally, we had the implementation of one situation handler depend on the internal processing and data of another situation handler. This makes for very entangled code.
+** If no, the same data needs to be computed by each handler again and again.
+
+== Proposal
+Situation handlers don't accumulate and don't share data. Situation handlers can only read accumulated data. The data is accumulated by instruction engine.
+
+It's less error-prone. The performance impact is acceptable.
+The performance can only be impacted if there is data calculated in a situation handler, which needs to be calculated again in the accumulation phase of the instruction generation.
+
+The proposal has the following components:
+
+* An AccumulatedData interface. All kinds of accumulated data, such as landmarks or instructions, need to implement this interface.
+[source,cpp]
+----
+class AccumulatedData {
+ public:
+  virtual std::string Key() const = 0;
+  virtual std::string Serialize() const = 0;
+  virtual void Initialize(const std::string& serialized_data) = 0;
+
+  // The data can be coming from the lines on route and the generated instructions.
+  virtual void Accumulate(const LineOnRouteIterator& begin_iterator,
+                          const LineOnRouteIterator& end_iterator,
+                          const Instructions& generated_instructions) = 0;
+  virtual AccumulatedData& operator+=(const AccumulatedData& other) = 0;
+};
+----
+
+* AccumulatedDataManager
+** Owns all AccumulatedData
+** Accumulates data
+** Provides const references of `AccumulatedData` to the constructor of situation handlers.
+*** Preferably, only the needed `AccumulatedData` is passed into the situation handler instead of all `AccumulatedData`.
+** Serialize/deserialize all AccumulatedData
+* InstructionEngine is responsible for accumulating data after instructions are generated. It owns an AccumulatedDataManager.
+
+== Other alternatives considered
+=== Alternative #1
+Situation handler accumulates data but not share with other handlers during an instruction generation iteration.
+Based on the proposal, in SituationHandlerInterface::Result, we can add
+[source,cpp]
+----
+class SituationHandlerInterface {
+ public:
+  struct Result {
+    ...
+
+    // Data accumulated during processing.
+    std::vector<std::unique_ptr<AccumulatedData>> accumulated_data{};
+  };
+...
+};
+----
+So a situation handler can return the accumulated data. And InstructionEngine will ask AccumulatedDataManager to accumulate it after all situation handlers process finished.
+
+*Pros*
+
+* Intermediate data can be accumulated. It doesn't need to be recomputed.
+
+*Cons*
+
+* Some data could be missed because not all situation handlers will be run.
+* If several handlers need the same data during an instruction generation iteration, it needs to be recomputed.
+
+=== Alternative #2
+This alternative is similar to Alternative #1.
+The only difference is that InstructionEngine will ask AccumulatedDataManager to accumulate data after each situation handler process.
+So that the later handlers can access the accumulated data immediately.
+
+*Pros*
+
+* Intermediate data can be accumulated. It doesn't need to be recomputed.
+* Several handlers can access the same data during an instruction generation iteration.
+
+*Cons*
+
+* Some data could be missed because not all situation handlers will be run.
+* It's error-prone. Only later situation handler can access the data produced by previous situation handlers. However, situation handler doesn't have such information in its own. Engineers need to carefully check the situation handler sequence and know what data will be produced by previous handlers. When someone modifies previous handlers, it can affect later handlers.
+
+=== Alternative #3
+Based on the proposal, in order to accumulate and share intermediate data, which is derived from map data but not part of the generated instructions, we can add data collectors which will be always run before all situation handlers.
+And the InstructionEngine can additionally accumulate the data collected by data collectors before running all situation handlers. Therefore, the collected data can be shared with situation handlers.
+
+The flow will be like this:
+
+. Data collectors collected data.
+. InstructionEngine accumulates data collected by data collectors.
+. Run situation handlers.
+. InstructionEngine accumulates data from map data and generated instructions for the processed route stretch.
+
+In this way, we can avoid the disadvantages of Alternative #1 and Alternative #2. But because of the following reasons, we don't choose this alternative.
+
+* The purpose of data collector is to speed up the instruction generation. But it's not the main purpose of accumulated data. Performance improvement should be addressed separately.
+* Without data collector, although the performance is not optimal, it’s not a blocker issue as map data has been cached in tile.
+
+== Consequences
+After the proposal is implemented, we can start to define what kind of accumulated data we need to support and which accumulated data is needed by which handler.
+Some post-processing can be replaced by accumulated data. For example, traffic light post-processing can be replaced by accumulated traffic lights.
+Most importantly, post-processing does not support GO SDK incremental instruction generation. Accumulated data can support it.

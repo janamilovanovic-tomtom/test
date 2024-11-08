@@ -1,0 +1,51 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Roundabout Angle Calculation
+
+== Status
+
+Implemented
+
+== Context
+
+We have a story to
+https://jira.tomtomgroup.com/browse/NAV-16736[Correct Angles for
+Roundabouts with V-shaped exits].  We need to implement an improved
+algorithm for estimating the perceived angle of these exits.
+
+We previously [[2020-07-23T15:16:35+0200-roundabout-incident-angle]]
+decided to calculate the difference between the incident angles of the
+arcs at the entry and exit.  This ADR supercedes that decision.
+
+== Decision
+
+We will estimate the center of the roundabout as the center of the
+bounding box of all junctions on the roundabout.  We will estimate the
+angle of an exit as the angle between the center and a "distant
+point": a point approximately 50m along the road leading from the
+exit.
+
+The distant point must lie on a junction model junction - in that
+sense the 50m is a minimum, and the actual point may be farther than
+that if the 50m distance is met in the middle of the next line. At the
+same time, the distant point must not lie beyond a bifurcation, so the
+chosen point may be closer than 50m if there is a bifurcation before
+that.
+
+The angle of the entry will be calculated from the junction where the
+entry joins the roundabout to the center of the roundabout.  No
+attempt will be made to "backtrack" 50m along the route. This is
+because we currently have no ability to iterate backwards from a point
+on the route.
+
+== Consequences
+
+* It is rather hard to explain this behaviour to stakeholders
+* Roundabout instructions should have an improved estimation of direction

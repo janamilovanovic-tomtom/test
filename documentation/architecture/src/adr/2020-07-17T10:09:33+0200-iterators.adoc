@@ -1,0 +1,107 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Iterators in the Junction Model
+
+== Status
+
+Implemented
+
+== Context
+
+=== Sequences
+
+In order to generate instructions for a client, we deal with quite a
+number of sequences of objects along a route:
+
+* A Polyline is a sequence of coordinates
+* A Mapmatched Polyline is a sequence of Arcs
+* A JunctionOnRouteProvider provides a sequence of Junctions along a route
+* A SituationHandlerProvider provides a sequence of Situation Handlers
+  that can describe each situation along the route
+* A SituationPackageProvider provides a sequence of SituationPackages
+* An InstructionProvider provides a sequence of NIE Instructions
+* The TripGuidanceManager provides a sequence of NK2 Instructions
+
+These sequences effectively form a pipeline of greater and greater
+analysis and abstraction along the route.
+
+=== Batch Evaluation vs Lazy Evaluation
+
+Throughout the current implementation, we handle these sequences of
+objects in batches.  In general each provider takes a vector of
+objects from the previous step and generates its own vector of objects
+in one operation.  In some cases the provider then holds a vector
+iterator pointing to a current position within the cache, allowing it
+to provide a sequential API to clients.
+
+This is quite inefficient.  It is also not very idiomatic C\+\+.  A
+more efficient approach to implementing a pipeline like the above is
+to generate each object on demand.  A read of an instruction from the
+`TripGuidanceManager` should trigger each provider to read its
+dependent provider until it has enough data to provide just one result
+of its own.
+
+=== C++ Uses Iterators
+
+In C++ the pattern of providing a sequence of objects, which may be
+cached or may be created dynamically, is extremely common.  To provide
+standard algorithms for processing these providers, the STL defines a
+standard API.  There are great advantages to adhering to this
+standard API.  First it eases cognitive load on developers who have to
+deal with the STL anyway.  Second the APIs are battle-hardened and
+well-designed.  Third, it provides access to large numbers of standard
+algorithms, which are also battle-hardened and well-designed.
+
+The standard API for a sequence of objects is the iterator.  There is
+also a boost API for iterator-like objects that is rather simpler to
+implement - this is `boost::iterator`.
+
+In the current implementation of the junction model, we have very
+little pressing need for iterators.  It is almost as easy to implement
+anything we plan to do using a simple for loop.
+
+However, if we really wanted to implement lazy evaluation of all of
+these layers, especially if we wanted to take that right back to the
+map matching of the polyline, we would have a very large amount of
+work to do.  Whereas if we stick to an iterator approach throughout,
+it is straightforward to plug together the providers using standard
+STL algorithms.
+
+=== Abstracting the Container
+
+A problem with using iterators in this way, is that iterators belong
+to containers.  A consumer of an iterator needs to specify the type of
+the iterator, and that necessarily means specifying the type of the
+container as well.  For example:
+
+ GenerateInstructions(std::vector<TArc>::iterator begin, std::vector<TArc>::iterator end);
+
+If the caller of this function wants to switch to using a TArc factory
+instead of a vector of TArcs, GenerateInstructions needs to
+change too.  This is not something that the STL model handles well.
+
+This is a particular problem when passing iterators across component
+boundaries, since it can cause dependency cycles.
+
+== Decision
+
+Our own Iterator class is introduced and the PImpl idiom is used to
+decouple it from the underlying container. This way all iterators over
+a value type T have the same type Iterator<T>. Therefore API methods
+can accept(return) iterators over a certain value type knowing(saying)
+nothing about the underlying container.
+
+== Consequences
+
+* Each iterator needs to contain a pointer to an object allocated on the heap,
+  which is not very efficient
+* Creating mock iterators is somewhat tricky, since you need to
+  retain a pointer to the underlying implementation
+* Iterators can be passed across component boundaries safely

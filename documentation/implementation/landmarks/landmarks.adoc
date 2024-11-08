@@ -1,0 +1,23 @@
+// Copyright (C) 2023 TomTom NV. All rights reserved.
+
+= Landmarks
+
+== Definition
+
+*Landmarks* are objects or features of a landscape or town that are easily seen and recognized from a distance,
+especially those that enable someone to establish their location. The guidance engine incorporates optional landmark
+into the instruction. This landmark may then be used to improve visual or audio guidance.
+
+Common examples of landmarks include "at the traffic light" or "at the end of the road."
+
+== How do we detect the Landmarks?
+
+Since there are different landmarks, we have different algorithms: +
+* for detecting xref:./end-of-road.adoc[End of Road] +
+
+== Landmarks priority
+
+Since an instruction may only have one attached landmark, we are selecting the single most appropriate one using the priority as follows (from highest to lowest priority):
+
+- End of Road
+- At Traffic Light

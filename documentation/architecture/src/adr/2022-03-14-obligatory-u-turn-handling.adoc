@@ -1,0 +1,51 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Obligatory U-Turns are generated wrongly instead of normal U-turn
+
+== Status
+
+Implemented
+
+== Context
+
+It is possible that an obligatory turn is being generated mistakenly for a normal U-Turn. And the reason is that in any turn instruction we check if there are drivable alternative out-going arcs from
+the iterator variable called `turn_end_line`,In case there are drivable alternative roads or technically we can say if `HasDrivableAlternative(**turn_end_line)` returned true so we generate a `kTurn`
+instruction and If not so we set it to `kObligatoryTurn`.And that behavior was leading to the original problem mentioned in (https://jira.tomtomgroup.com/browse/NAV-74895) where `turn_end_line` based
+on initialization is lying at the horizontal arc of the U-turn and it is marked as Plural Junction and as you can see in case 1 in the first Image, If we want to generate the instruction based on the
+drivable alternativity for `turn_end_line` it will return an `kObligatoryTurn` where a `kTurn` Instruction should be returned
+
+image::Obligatory Turn is generated.jpg[]
+
+== Decision
+
+So instead of only checking the alternative drivability for one line that the iterator `turn_end_line` is pointing to,We iterate on the arcs one by one where the starting range is `incoming_line` and
+end range is the outgoing arc from `turn_end_line` to be able to check the alternative drivablity for `turn_end_line` so we can say `std::next(turn_end_line)` is our end range and check the alternative
+drivablity as long as we are iterating.If any of those lines returned true so the `kTurn` instruction should be generated.Otherwise in case none of the lines has any drivable alternatives so we generate
+`kObligatoryTurn`.
+
+And the reason for that is `turn_end_line` is not always at the same position of `incoming_line` sometimes the position varies if the outgoing arc of `incoming_line` is a plural junction and that's
+where the `turn_end_line` is set to. Otherwise, if no plural junction is outgoing from the `incoming_line` then both are equally positioned.
+
+We cant also only check the drivable alternative for `incoming_line` and ignore the `turn_end_line` cause we will be generating again wrong `kObligatoryTurn` instruction. And for instance, case 2
+demonstrated in the second image and the reason for a wrong instruction generation is that there exist no drivable alternative roads for the `incoming_line` but exists for `turn_end_line` and that is
+why we need to also check if any alternative drivable roads for `turn_end_line` that may be positioned differently due to a plural junction like this case.And by checking the drivable alternativity
+each line starting from `incoming_line` till `std::next(turn_end_line)` we make sure we generate the correct instruction no matter what line that iterator `turn_end_line` is pointing to.
+
+So If we also check in such cases like case 2 for `HasDrivableAlternative(**turn_end_line)` it will return true and hence generated a normal turn, not an obligated turn instruction.
+
+image::no drivable alternative for incoming_line.jpeg[]
+
+If we apply the same concept on case one in the first image we now generate a correct U-Turn instruction instead of Obligatory turn.
+
+image::U-Turn Instruction is generated.jpg[]
+
+== Consequences
+
+* Situations where a wrong obligatory turn instruction was generated for a U-Turn (https://jira.tomtomgroup.com/browse/NAV-74895) are handled properly and fixed.

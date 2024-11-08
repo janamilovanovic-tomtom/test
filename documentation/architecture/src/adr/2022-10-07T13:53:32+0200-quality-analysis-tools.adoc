@@ -1,0 +1,433 @@
+// Copyright (C) 2022 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Improving Quality and Analysis Workflows
+
+Quality and Analysis is about answering two questions:
+
+* What proportion of the results are good, bad, or strange?
+* When the results are bad or strange, why is that?
+
+Normally the process involves zooming in and out on details.  You
+start with a large number of routes and gather lots of data.  Then you
+identify one thing that is bad or strange.  You zoom in on one example
+to figure out why.  Then you zoom out again to draw generalisations
+and quantify how widespread the effect is.
+
+This approach primarily supports proactive software development, where
+we find out where we need to improve before customers complain.  We
+also should be reactive, we need tools to investigate specific bug
+reports.  But in general, you need more sophisticated tools to be
+proactive.  This is because the data sets are larger and it is less
+clear in advance where the trail will lead.
+
+== Glossary
+
+BatchRouter:: A NavKit1 tool for dumping a set of routes defined as OD pairs
+CSV:: Comma-separated values, a standard way of interchanging tabular data
+Conan:: A package manager for C++, used throughout NavKit1, NavKit2, and later SDKs
+Graphviz:: A tool for laying out and rendering graph data
+KML:: Keyhole Markup Language, a language for describing geographical placemarks superimposed on a map, popularised by Google Earth
+Legay Instruction Engine:: The instruction engine used in NavKit1
+Mass Test:: Tests involving dumping instructions from a large number of routes and computing statistics about the results
+NIE Regression test:: Tests involving dumping instructions in a route and comparing against a reference set of known good instructions
+NIE:: New Instruction Engine
+OD pairs:: Origin/Destination pairs, each expressed as a latitude/longitude coordinates
+PNG:: Portable Network Graphics, a standard for 2d raster images
+SQLite:: A standalone database stored in a single file, with a command-line tool that supports Structured Query Language (SQL)
+SVG:: Scalable Vector Graphics, a standard for vector images
+Triggering Engine:: A C++ component in NavKit2 for determining the correct point to trigger audio announcements
+Valgrind:: Open source tool for performance profiling
+
+== Existing Tools
+
+We currently have a large number of tools which fall along the lines
+of "dump instructions along one or more routes and analyse the
+results":
+
+* NIE regression test (conan, ctest, instruction_engine_regression_test.py, lane_guidane_regression_test.py)
+* Separate run instruction regression test (run_instruction_regression_tests.py)
+* Separate run lane guidance regression test (run_lane_guidance_regression_tests.py)
+* Update regression tests (conan, ctest, instruction_engine_regression_test.py, lane_guidane_regression_test.py)
+* Extending instruction regression tests (generate_instruction_regression_test_references.sh)
+* Extending lane guidance regression tests (generate_lane_guidance_regression_test_references.sh)
+* Triggering engine regression test (conan, ctest, regression_test.py)
+* Update triggering engine regression tests (conan, ctest, regression_test.py)
+* Extend triggering engine regression tests (not scripted, directly run BatchRouter, arckey_dumper, instruction_dumper)
+* Generate KML files from OD pairs - mostly only used by other scripts (generate_kml_from_od.sh)
+* Compare routes from OD pairs files between two maps and/or NIE versions (comparison.py)
+* Compare routes from OD pairs files between legacy and NIE (compare_new_and_legacy_instructions.py)
+* Mass tests (masstest.py)
+* Profiling with valgrind (route_profiler.sh)
+* Lane guidance quality report (generate_kml_from_od.sh and a dozen other scripts)
+* Debugging a route from an OD pair file in kml dumper (ad-hoc scripts held by individual developers)
+* Chopping up a set of routes into one short route for each instruction (kml_analysis)
+* Performance testing a set of routes (currently impossible)
+* Dumping images of instructions overlaid on satellite or map renders (currently impossible)
+
+== Inputs and outputs
+
+Our tools take a surprisingly wide range of types of input and output.
+The majority take an NDS map and work with KML files.  Many don't need
+a map.  But many others produce a bunch of miscellaneous file types,
+and then other tools get built to take advantage of those outputs.
+
+* Maps (NDS, keystores)
+* OD pairs files (normally the entry point, sometimes automatically generated)
+* KML files - in various states of completeness
+* Lane connectivity descriptions in Graphviz format (debug mode only)
+* Rendered lane connectivity files as SVG
+* Log files, often inputs for further data gathering
+* CSV files
+* SQLite databases (batch router and placemark-to-sqlite)
+* Charts as images, normally PNG
+
+== Problems with the current tools
+
+* When a tool fails, it's hard to dig out just that one command
+* It's hard to find the thing to debug inside
+* Developers don't learn how to use tools
+* Tools evolve to be too hard to use
+* Workflows have different entry points, steep learning curve
+* Workflows have very complicated data paths inside
+* Hard to reproduce failures in CI or other automated pipelines
+* Flows are very fragile, developers don't pay attention to error handling
+* Duplication due to scripts having to run in contexts that can't share code
+* Split between python and bash scripts
+* Map management generally - downloading, switching, complex parameters with long paths
+
+== Desirable properties of a better system
+
+* Self documenting.  Somewhere there is a consistent place that you
+  can look up the inputs and outputs of a stage and where they live on
+  disk.
+* Flat structure.  Rather than a tree or a graph, we should aim for
+  workflows to be defined as a linear sequence of steps.
+* Recoverable.  It should be easy to run just a subset of a workflow,
+  restarting from a point.  Running a workflow in pieces should
+  produce the same result.
+* Separation of steps.  Each step should be runnable and debuggable on
+  its own.
+* Fallback to Manual.  If steps run subcommands, the user should be
+  able to easily reproduce that step on their own.
+* Flexibility.  Each step should have many different knobs and
+  buttons, without requiring them all to be set on the command line.
+  Config files could help here.
+* Robustness.  Each step should carefully check that the results are
+  as expected.  Errors should not necessarily stop the entire
+  workflow, but must always be recorded.
+* Disk space management.  Some of these steps produce lots of output
+  to disk.  They should check proactively that there is enough space
+  and abort before hitting 100% with a clear error message.
+* Expectation checking.  If a step expects input KML files to contain
+  instructions, it should check that before it starts
+* Automation.  It should be easy to run a workflow in Azure, and if a
+  workflow runs in Azure it should be easy to reproduce locally (no
+  docker)
+* Introspection.  It should be possible to make a workflow report its
+  own sequence of steps, including the inputs and outputs.  Dry runs
+  should be supported.
+
+== Proposal
+
+Basically, copy the approach used to build pipelines of placemark
+processors.
+
+We should prefer python tools over shell scripts, for testability.
+Workflows should be divided into steps, where each step is a shared
+Python class.  A workflow should be defined in python as a sequence of
+steps with configuration.  A single top-level script should not
+contain any logic, just configuration.
+
+Each step should explicitly define its inputs and outputs in code,
+including expected properties of the inputs.  They should log the
+paths on disk of the inputs and outputs.  Each step should also have a
+standard place to record external programs it expects to run, such as
+kml dumper or routing cli.  It should take the path to those binaries
+as part of its configuration.  It should log the full command lines it
+runs.
+
+Each step should be written assuming a large input dataset, in which
+different routes are covered by different maps.  It should be just as
+convenient to run a script over our entire multi-continental test set
+as over one single route.
+
+Steps should avoid cleaning up data.  They should register/report
+intermediate files they create, and all such files should be cleaned
+up by a separate job.
+
+There should be a core workflow management script that supports
+features such as introspection and dry runs, running just part of a
+pipeline, restarting a failed pipeline from the last step, or
+switching to a debugger at a particular step.
+
+Most steps should support debugging the C++ binaries they run.
+
+== Wireframe
+
+In this section I pretend what this might look like for a user.
+
+=== Single Route from Coordinates
+
+This is a tool we have long wanted and have
+https://jira.tomtomgroup.com/browse/NAV-91111[a JIRA] for.  Given two
+coordinates on the command line, the tool should create a KML file
+with the instructions.  This is especially useful for reproducing user
+bug reports.
+
+----
+> instructions-for-coordinates --help
+usage: instructions-for-coordinates [-h] [-d] [-q] [-v] [-l LOGFILE] ORIGIN DESTINATION OUTKML
+
+Plans a route and generates a KML file with instructions.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -q, --quiet           print less verbose output
+  -v, --verbose         print more verbose output
+  -l LOGFILE, --log LOGFILE
+                        output file to store instruction dumper log
+----
+
+Typically this produces nothing on stdout:
+
+----
+> instructions-for-coordinates "52.5131600,13.3292600" "52.5110700,13.3230900" roundabout.kml
+>
+----
+
+Were you wondering how it figured out which map to use there?  I
+assume that users will use something like the alias I created for
+selecting maps:
+
+----
+> map <TAB> <TAB>
+HCP3_EUR_43_211H0_ER026.0  ftx_northern_ireland       hcp3_berlin                hcp3_sanfrancisco          tt_nl_ger_north
+ftx_california             ftx_southern_bavaria       hcp3_california            hcp3_uk_fra
+> map HCP3_EUR_43_211H0_ER026.0
+/Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/DATA 43706
+> map
+MAP="/Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/DATA"
+KEYSTORE="/Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/keystore.sqlite"
+MAPID=43706
+----
+
+The script should then automatically pick up those variables from the
+environment without needing them to be specified on the command line.
+The reason for not incorporating that into the script itself is that
+it is necessarily interactive, and also developers will want to
+customise this for their environment.
+
+=== Multiple Routes from OD Pairs
+
+Sometimes we want to generate instructions for a large number of
+routes at once.  This is basically the exact same process as the above
+script and should share almost all the code.  But the arguments are so
+different that it justifies its own script.  The input is a file, and
+the output has to be a directory.
+
+----
+> instructions-for-coordinates --help
+usage: instructions-for-coordinates [-h] [-d] [-q] [-v] [-l LOGFILE] ODFILE OUTDIR
+
+Plans routes from an OD pairs file and generates KML files with instructions.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -j, --jobs            number of parallel threads to run
+  -d, --dry-run         do not do anything, show inputs and outputs
+  -q, --quiet           print less verbose output
+  -v, --verbose         print more verbose output
+  -l LOGFILE, --log LOGFILE
+                        output file to store instruction dumper log
+----
+
+Note that both commands output to a single log file, since they both
+use a single run of the KML dumper.
+
+Also, this command takes a long time, so it should produce some output on stdout:
+
+----
+> instructions-for-od-pairs my-routes.od kmlfiles
+Generating routes... (duration 00:01:33)
+Map matching... (duration 00:02:31)
+Generating instructions... (duration 00:01:01)
+----
+
+In dry run mode, the script prints out its inputs and outputs, and the
+C++ commands it executes:
+
+----
+> instructions-for-coordinates --dry-run my-routes.od kmlfiles
+Generate routes... (duration 00:01:33)
+  <- map /Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/DATA
+  <- keystore /Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/keystore.sqlite
+  <- od pairs ./my-routes.od
+  -> KML directory ./my-routes/
+  ...Engines.Routing.Test.BatchRouter.Fastest.TileLeveling.FOR.NDS map=...
+Map match... (duration 00:02:31)
+  <- map /Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/DATA
+  <- keystore /Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/keystore.sqlite
+  <- KML directory ./my-routes/
+  -> KML directory ./my-routes/
+  ...arckey_dumper --recursive --input...
+Generate instructions... (duration 00:01:01)
+  <- map /Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/DATA
+  <- keystore /Users/exon/project/navkit-data/NDSMaps/HCP3_EUR_43_211H0_ER026.0/keystore.sqlite
+  <- KML directory ./my-routes/
+  -> KML directory ./my-routes/
+  ...guidance_kml_dumper --recursive --input...
+----
+
+Inside, this script should be mostly configuration:
+
+----
+    class InstructionsForCoordinates(quality_analysis.workflow.Workflow):
+
+        def __init__(self):
+            super().__init__()
+            self.add_step("generate_routes",
+                          quality_analysis.generate_routes.GenerateRoutes(),
+                          {"description": "Generate routes",
+                           "od_pairs_files": [od_pairs_file],
+                           "output_dir": dataset_name})
+            self.add_step("map_match",
+                          quality_analysis.map_match.MapMatch(),
+                          {"description": "Map match",
+                           "dir": dataset_name})
+            self.add_step("generate_instructions",
+                          quality_analysis.generate_routes.GenerateInstructions(),
+                          {"description": "Generate instructions",
+                           "dir": dataset_name})
+----
+
+Then the base class would implement most of the fancy features like
+dry run mode.  All of the hard work of the tests will be implemented
+in the classes, which will be shared and tested.
+
+=== Count Instructions
+
+Imagine that we also would like a script that only counts the
+instructions, but doesn't bother saving the KML files.
+
+This is not a very useful script!  You're not going to use it
+every day.  Nevertheless, when you need it, you need it.  It should be
+possible to write such a script, including tests, check it in,
+document it, all within a couple of hours.  When people add features
+to the core, they should automatically work in this special-purpose
+script.  Currently we would fork a pretty large script, not add any
+tests, and then forget to maintain it.  This leads to wasted effort
+the next time someone actually wants such a thing.
+
+----
+> count-instruction-types --help
+usage: count-instruction-types [-h] [-d] [-q] [-v] ODPAIRSFILE
+
+Counts the number of instruction types across a set of routes from an OD pairs file.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -j, --jobs            number of parallel threads to run
+  -q, --quiet           print less verbose output
+  -v, --verbose         print more verbose output
+  -l LOGFILE, --log LOGFILE
+                        output file to store instruction dumper log
+----
+
+When run normally, it produces output like this:
+
+----
+> count-instruction-types my-routes.od
+Generating routes... (duration 00:01:33)
+Map matching... (duration 00:02:31)
+Generating instructions... (duration 00:01:01)
+Analysing... (duration 00:00:04)
+
+  59 Arrival
+  59 Departure
+   2 EnterAutoTransport
+   6 Exit
+   2 ExitAutoTransport
+  17 ExitRoundabout
+  12 Fork
+   6 Merge
+   1 ObligatoryTurn
+  26 Roundabout
+   3 SwitchHighway
+  25 Turn
+----
+
+This is almost exactly the same as the last script, it just includes
+an extra analysis step based on placemark processors.  As a result,
+even duplicating three of the four steps from the previous script, the
+whole thing is very small:
+
+----
+    class CountInstructionTypes(quality_analysis.workflow.Workflow):
+
+        def __init__(self):
+            super().__init__()
+            self.add_step("generate_routes",
+                          quality_analysis.generate_routes.GenerateRoutes(),
+                          {"description": "Generate routes",
+                           "od_pairs_files": [od_pairs_file],
+                           "output_dir": dataset_name})
+            self.add_step("map_match",
+                          quality_analysis.map_match.MapMatch(),
+                          {"description": "Map match",
+                           "dir": dataset_name})
+            self.add_step("generate_instructions",
+                          quality_analysis.generate_routes.GenerateInstructions(),
+                          {"description": "Generate instructions",
+                           "dir": dataset_name})
+            self.add_step("analyse",
+                          quality_analysis.count_types.CountTypes(),
+                          {"description": "Analyse",
+                           "dir": dataset_name},
+                           "csv": f"{dataset_name}.csv"})
+----
+
+=== Routes on Multiple Maps
+
+Another common set of tasks, especially concerning regression tests,
+is running multiple routes on multiple maps.  For example the
+regression tests have OD pairs spread across directories, where each
+directory name refers to another directory containing a map.
+
+----
+> instructions-for-od-pairs-maps --help
+usage: instructions-for-coordinates [-h] [-d] [-q] [-v] [-l LOGFILE] ODDIR MAPDIR OUTDIR
+
+Generates instructions from OD pairs stored in directories matching map directories
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -j, --jobs            number of parallel threads to run
+  -d, --dry-run         do not do anything, show inputs and outputs
+  -q, --quiet           print less verbose output
+  -v, --verbose         print more verbose output
+  -l LOGDIR, --log LOGDIR
+                        directory to hold instruction dumper logs
+----
+
+There are multiple tasks that might want a structure like that,
+including running regression tests, regenerating regression tests,
+comparing regression test output for two versions of instruction
+engine.  But the code for correlating the OD pairs and maps is really
+complicated!  This should be abstracted away.  The result for the user
+should as far as possible resemble a single tool that can be used on
+one route specified as coordinates on the command line, or multiple
+routes specified as a single OD pair file, or directories of OD pairs
+spread across maps.
+
+Notice that since this time we run the KML dumper multiple times, you
+specify a log directory instead of a log file.  If you don't specify a
+log directory the logs will go to `/dev/null`.  But with the log
+directory, you can then grep all the logs for a particular error
+message of interest.

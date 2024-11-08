@@ -1,0 +1,33 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Scripting Language for analysing instructions
+
+== Status
+
+Proposed
+
+== Context
+
+We have a story to produce a https://jira.tomtomgroup.com/browse/NAV-18163[maneuver coverage report].  We will build this out of several tools that use KML files as intermediate file formats.  Most of these tools mostly just process XML and do not require access to other TomTom libraries.  They would be best implemented with a scripting language.  Which language?
+
+== Alternatives
+
+* Python
+* Ruby
+* Javascript
+
+== Decision
+
+Python
+
+== Consequences
+
+* We may be able to utilise scripts earlier written by Omega for analysing the arrival experience at POIs
+* Some of us will have to learn how to code in Python

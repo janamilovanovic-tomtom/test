@@ -1,0 +1,41 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= XML dump format for Instructions
+
+== Status
+
+Implemented
+
+== Context
+
+We have implemented an InstructionDumper tool.  It has two immediate purposes:
+
+* To support a coverage report https://jira.tomtomgroup.com/browse/NAV-19322[NAV-19322]
+* As a debugging tool for the new instruction engine
+
+We want to dump instructions in a format that can be processed and analysed in flexible ways.
+
+We want data to be conveniently viewable in Google Earth (see link:2020-06-29T13:54:53-visualisation-tool[Visualisation tool]).
+
+The data should coexist with other types of data inside ExtendedData in a KML file (see link:2020-06-29T13:39:16-route-instruction-generation[Route Instruction Generation]).
+
+See also link:2020-06-29T17:48:32-xml-snippets[Internal XML API].
+
+== Decision
+
+The instructions will be stored as custom XML data structures, inside a "nie" namespace.
+
+== Consequences
+
+* We can store more than just key-value pairs
+* There are no name conflicts with other data structures stored in the same KML file
+* The data is not immediately viewable in Google Earth
+* We need to write a separate utility to expand chosen data structures for viewing in Google Earth
+* That utility can do more sophisticated styling for easier analysis

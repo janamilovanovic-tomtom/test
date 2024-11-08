@@ -1,0 +1,78 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Providing API to query all instructions at once
+
+== Status
+
+Accepted
+
+== Context
+
+The intermediate client of instruction computation ("the client") is OnboardTripGuidanceManager.
+In order to keep the client informed of computation of new instructions, we provide a callback
+OnNextInstructionChanged(), which the client implements.  This callback is called once a new
+instruction in front of the car appears or changes, even if the instruction is not the next
+immediate one.  This API serves well the purpose of the final navigation client, where progress
+along the route is made, until the driver receives an Arrival instruction and route navigation
+ends simultaneously in multiple components in TripService.
+
+With the introduction of incremental instruction computation, new instructions are continuously
+generated.  While this is fine for a driving scenario, where the speed of the car is slower
+than the speed of generation of new instructions, for our smoke test client, InstructionDumper,
+where instructions are to be queried as fast as possible for dumping them into KML, this is not
+well suitable.  InstructionDumper can't simply query for ALL instructions immediately after the
+new route is supplied to InstructionProvider, since at that point none or only a small amount of
+instructions will be computed.
+
+== Proposal
+
+InstructionProvider will have a new blocking call GetAllInstructions().  This call will wait
+for the computation thread to finish, or alternative invoke the computation directly, and will
+provide all the instructions that reside in the cache by the end of computation.
+
+Pros:
+
+* Straight-forward query, simpler to implement.
+
+Cons:
+
+* Very specific to InstructionDumper use case.
+* Separate API for instruction retrieval, which needs extra testing that its output matches
+the API used by NK2.
+
+=== Alternative
+
+InstructionProvider will notify the client when computation of all instructions has been done.
+At that point the client can query for infinite number of instructions using the
+InstructionProvider::GetNextInstruction() call (at the moment this call will return all the
+instructions in cache, and with NAV-34439 it will return at most this number of instructions).
+InstructionProviderListenerInterface will provide an additional callback the listener will
+implement, and know when it can perform such query, ensuring all instructions will be delivered.
+
+Pros:
+
+* This might be useful in the future if we decide that the client holds the map lock. This way
+the lock can be freed by the client without the Instruction Engine being aware of it.
+* This might be useful in the future for full instruction list.  This approach allows a non-
+blocking way of querying them.
+
+Cons:
+
+* Less straight-forward way to query all instructions.
+
+
+== Decision
+
+Accepting proposal 1 due to simplicity.
+
+
+== Consequences
+
+* Additional API method for retrieval of instructions

@@ -1,0 +1,129 @@
+// Copyright (C) 2022 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Road Name in Follow Messages
+
+== Status
+
+Outdated.  There is https://confluence.tomtomgroup.com/display/FlaminGO/NIE_012+-+Special+instructions#NIE_012Specialinstructions-FollowtheroadforXXkm[The UX spec] has now changed.
+
+
+== Context
+
+Following from https://jira.tomtomgroup.com/browse/NAV-62026[a bug
+report] we have https://jira.tomtomgroup.com/browse/NAV-71030[a user
+story to change the road names used in follow messages].
+
+At the moment instructions only have one incoming road name, which is
+the name of the road immediately prior to the maneuver.  However,
+often the road name and/or number changes along the route.  In
+particular, a road may gain or lose road class designation and thus
+change road number prefix, for example changing from "N44" to "A44",
+without any maneuver or practical effect on the road conditions.
+
+This is a particular problem for "follow" announcements, which occur a
+very long way before the maneuver point, giving plenty of time for the
+road name or number to change between the announcement point and the
+maneuver point.  This can be confusing for the driver, who will see
+road signs telling them they are on one road while the car is telling
+them something contradictory.
+
+== UX Guidance
+
+This use case is covered by the UX spec
+https://confluence.tomtomgroup.com/display/FlaminGO/NIE_012+-+Special+instructions[here]:
+
+> There are situation when roads name changes during the stretch of
+> "follow the road" instruction. There is no manoeuvre at this change
+> point therefore no instruction is required. In this case we use
+> following rules: 1. Current street name is always used for initial
+> audio announcement 2. At the point of road name change no special
+> audio instruction is announced, however reference to road name in
+> the NIP must be silently updated.  3. If instruction is repeated
+> (following 30min repetition rule) it should use new (current) road
+> name in the Audio announcement.
+
+This has not been implemented, and this ADR does not propose
+implementing that.  This proposal is a version that is simpler and
+quicker to implement and will satisfy the current customer complaints.
+
+We have at least two options for implementing this full solution, both
+of which present large architectural challenges.
+
+=== Dynamically updating instructions
+
+We could make the `InstructionProvider` watch the current route
+progress and actually modify the first instruction in the list
+according to the current road information.
+
+This violates assumptions that downstream consumers have about how
+instructions are delivered, namely that they are immutable.
+
+This would also be quite a complicated change to the code
+architecture.
+
+=== Including all road information in instructions
+
+Instead of including just one incoming road in instructions, we could
+include all the roads between the instruction and the previous
+instruction.
+
+This is a non-backwards-compatible change that would have to be
+surfaced to clients, for example to support the same behaviour in
+GoSDK.  The `Instruction` class is already very complicated and deeply
+nested, and this would provide a further level of complexity which
+would be hard to communicate to consumers.
+
+=== Quicker solution
+
+The proposal given here is designed to get a solution out quickly
+which does not break existing contracts and satisfies the majority of
+the issues faced by real drivers.
+
+== Decision
+
+We will omit road names from an instruction if the road name changes
+anywhere along the route between it and the previous instruction.
+Similarly we will omit road numbers if those road numbers change
+between it and the previous instruction.
+
+Leaving this data blank will cause text message generation to fall
+back to simpler templates.  For example, the usual case where the data
+does not change might be announced as:
+
+> Follow the highway A1 for 100km
+
+If the road number "A1" changes, then it would be announced as:
+
+> Follow the highway for 100km
+
+Unlike road names, multiple road numbers are included in each
+instruction.  In this case we will blank out the entire vector of road
+numbers if any of them change.
+
+An alternative would have been to only blank out the vector if the
+road number that the driver actually sees has changed.  However, the
+text message generator includes complex logic for selecting the best
+road number to use, so it isn't as simple as choosing the first one.
+We would have to replicate that logic inside the instruction engine,
+and this added complexity is not worth the benefit.
+
+== Consequences
+
+* Drivers will often have less context to reassure themselves that
+  they are on the correct road
+* This will complicate the core instruction engine.  Handlers only
+  have access to lines adjacent to the maneuver.  Only the instruction
+  engine can accumlate road information along the entire stretch
+  between maneuvers.
+* This proposal does not address what happens if the road type
+  changes, e.g. motorway status.  This affects the decision as to
+  whether road name or road number is used.  Correctly handling this
+  would require extra UX work, and is outside the scope of the
+  original bug report.

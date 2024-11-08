@@ -1,0 +1,129 @@
+// Copyright (C) 2022 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Follow Name in Follow Messages Implementation
+
+== Status
+
+Proposed
+
+== Context
+
+We have https://jira.tomtomgroup.com/browse/NAV-92017[a story to clean
+up road names in follow instructions].  The problem is that when a
+follow instruction is announced, it uses the road name at the point of
+the maneuver.  But that is far in the distance.  If the road name at
+the current car position is different, it can be confusing for the
+driver.
+
+There is
+https://confluence.tomtomgroup.com/display/FlaminGO/NIE_012+-+Special+instructions#NIE_012Specialinstructions-FollowtheroadforXXkm[a
+UX spec].  This has been updated since
+xref:2022-09-13T12:47:59+0200-follow-message-road-name.adoc[the
+previous ADR].  The new rule is that if the road name changes anywhere
+from the previous instruction to the next instruction:
+
+* Do not include the road name in the audio announcement
+* The next instruction panel should reflect the current road name
+
+Similar logic applies to the road numbers.  However, there may be
+multiple road numbers for an instruction, whereas there is only one
+road name.  The rule is that if any road number is changed, added, or
+removed along the stretch between the instructions, the road number is
+considered to have changed.
+
+== Proposal
+
+We will consult eSolutions about their preferred solution.  We intend
+to implement the adjustment of the voice message in the trip service,
+but we will consult with eSolutions first.
+
+That leaves the problem of how to handle the NIP.  Again we need to
+consult with eSolutions about their preferred option:
+
+* Supplying new fields, current road name / number, in the `onDistanceToNextInstructionChanged`
+* Getting the current road name from a separate service, such as driving assistance, and using this when the phase is "follow"
+* Supplying new fields, current road name / number, in the instruction, and continually update that
+* Having the incoming road of the next instruction updated just once when the next instruction changes
+* Blanking out the incoming road name as in the previous proposal
+
+The key risks that needs to be discussed are:
+
+* We may send additional next instruction updates, which may cause "flickering" of the display.
+* We may end up with the voice instruction not matching what is shown in the NIP.
+* We need to define what the driver hears when manually triggering an audio instruction.
+
+== Alternatives Considered
+
+=== Implement in the Trip Service
+
+We could implement the suggested functionality in the trip service.
+
+The trip service gets regular callbacks to `OnNextInstructionChanged`,
+containing the list of upcoming instructions.  Whenever the car passes
+an instruction, we get a callback with a new first instruction.  When
+this happens, the trip service could either:
+
+1. compare the outgoing road name of the previous first instruction
+with the incoming road name of the new first instruction, or
+2. compare the incoming road name of the new first instruction with
+the road name at the current car position.
+
+If they are different, it would blank out the road name before
+relaying the new instruction list to the client.  A similar approach
+would be used for road numbers.
+
+This would not attempt to update the road name every time
+the current road name changes.  This approach should not result in any
+more `OnNextInstructionChanged` callbacks being sent to the client
+than the current situation.
+
+The main problem with this solution is that it is neither implementing
+the UX spec, nor necessarily supplying Audi with the solution they
+want.
+
+=== Use `PostHandlerInterface`
+
+We already have an "extra" set of handlers inheriting from
+`PostHandlerInterface`.  We will extend this interface with an
+`AddLine` member function to accumulate data from lines.  In addition,
+the existing `Process` function will be made non-`const`, so that the
+state can be reset after each batch of instructions is generated.
+
+Since this is not really a PostProcessor any more, the base class
+should be renamed from `PostHandlerInterface` to `InstructionMutator`.
+
+This also does not implement the proposed UX spec.
+
+=== Imitate `ApplySideRoads`
+
+A big disadvantage of the proposed approach is that it breaks an
+intended goal of the instruction engine, that it should be stateless.
+
+To avoid that, we could add a new step to the `InstructionEngine` loop
+similar to the way we added `ApplySideRoads`.  This would be able to
+separate query the map data for all lines between two iterators, and
+manipulate the instructions accordingly.
+
+There are two objections to this:
+
+* When there are long stretches between instructions (the main use
+  case for Follow instructions), this could thrash the tile cache by
+  iterating over the same long sequence of arcs a second time.
+* The API of this system doesn't have much in common with any other
+  piece, and so it would be one more piece of special handling in the
+  central `InstructionEngine` code.
+
+== Go SDK Implications
+
+In Go SDK the preferred option is to implement the full UX solution.
+
+For this, the current road name needs to be passed to the text
+generator instead of the incoming road name from the next instruction.
+Meanwhile, the NIP should always show the current road name.

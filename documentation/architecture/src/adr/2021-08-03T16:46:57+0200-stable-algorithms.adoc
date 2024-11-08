@@ -1,0 +1,33 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Prefer Stable Algorithms
+
+== Status
+
+Accepted
+
+== Context
+
+We now have regression tests that compare generated KML files in their entirety before and after a code change is pushed.  The tests are real-world scenarios, and there can be subtle changes in the results depending on the order of processing.  In particular, as part of NAV-53540 we spent two full days trying to get regression tests stable enough to get through CI.
+
+== Decision
+
+We will try to use stable algorithms and containers as far as possible.  That means using `std::stable_sort` instead of `std::sort`, `std::map` instead of `std::unsorted_map`, etc.
+
+Computer science textbooks and programming websites often recommend using unstable versions, since they are more efficient.  However, this consideration is less important for our use cases, which almost universally use small container sizes much less than 100 elements long.  For such small instances, the stable versions are in fact often more efficient.
+
+It is generally important to think through your choice of algorithms and containers.  However, in practice developers usually have a habitual container that they use, and these decisions are not questioned before a change gets merged.  In this case it is worth cultivating a mental bias towards stable algorithms.
+
+We should look out for these choices in code reviews and ask either to switch to a stable algorithm, or document with a comment why an unstable algorithm should be preferred.
+
+== Consequences
+
+* We will suffer a small performance penalty
+* We will be out of step with industry best practice

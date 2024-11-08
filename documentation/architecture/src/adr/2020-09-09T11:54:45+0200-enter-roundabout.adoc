@@ -1,0 +1,31 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Instruction type "enter roundabout"
+
+== Status
+
+Implemented
+
+== Context
+
+The initial implementation of roundabouts in the new instruction engine simply issued the instruction "enter the roundabout" on the first junction on the route that entered an arc marked as a roundabout.
+
+We now have a https://confluence.tomtomgroup.com/display/FlaminGO/Roundabouts[full roundabout specification] which rather requires an instruction like "cross the roundabout", optionally (on big roundabouts) followed by a "take the exit" instruction.  This has been mostly implemented, so the old "enter roundabout" instruction type is no longer used.
+
+However this is not sufficient when a waypoint or destination lies on the roundabout itself.  In this case the best guidance will be a combined instruction: "enter the roundabout, then you have reached your destination".
+
+== Decision
+
+We will leave the "enter roundabout" instruction type in place, because we will use it later when we implement waypoints on roundabouts.
+
+== Consequences
+
+* We will have an unused and rather confusing instruction type left over
+* We will have to take this into account in our tests and in the message generator

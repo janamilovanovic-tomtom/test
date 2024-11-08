@@ -1,0 +1,89 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= Route API for onboard guidance
+
+== Status
+
+Accepted
+
+== Context
+
+Onboard instruction generation relies on the onboard NDS map.  It takes a series of level-13
+arcs that comprise the route being navigated and can then generate instructions along that
+route.
+
+The process of using an online planned route and fitting it onto an onboard map is called
+"onboard reference resolving" or "map-matching" (which is different than map-matching of
+current vehicle position onto the map done in Driving Context).  This process is incremental,
+and its output is represented as a continuous sequence of map arc keys.  Sometimes the
+sequence is not continuous, for example when there are gaps in the map-matched route, which is
+caused by inability to map-match part of the route due to discrepancies between the map on
+which the online route has been planned and the onboard map.  For simplicity, the output of
+this process can be referred to as a static sequence of arc keys.
+
+Currently this sequence of arc keys is passed to the instruction engine in a form of route
+window, an action which triggers instruction computation on the whole sequence.  This poses
+several problems:
+
+1. Given route window might abruptly end in the middle of a situation, such as roundabout.
+Without having further part of this route available, the instruction engine cannot generate a
+meaningful roundabout instruction.  Therefore we must have a mechanism ensuring continuity of
+route data even when the process of map-matching produces discrete route windows.
+2. Given route window might be very long.  Current approach of generating instructions for the
+whole route window might be too time consuming, we might want only to produce instructions for
+a part of it at a time, and for the next part at another time.
+
+Apart from route window which is obtained anew each time a new portion of the route is map-
+matched, there is static information for the route:
+
+* Departure and arrival coordinates
+* Waypoints
+* Route length
+
+
+== Decision
+
+The decision is to eliminate the route window concept, and instead introduce iterators to
+map-matched route data, i.e. the route data will be represented as an iterable arc buffer.
+The iterable arc buffer will provide a standard container API, allowing to obtain an iterator
+to the start and end of map-matched arc sequence.  The iterator itself will wrap an arc key,
+and will implement an API of a forward STL iterator.
+
+The interface between TripService and InstructionProvider will be changed accordingly, so the
+iterators to the map-matched route data will be passed to it instead of setting discrete route
+windows.  Internally these iterators will be used to emulate a sliding window, marking where
+on the route the last instruction was generated.  The complexity of reacting to new portions
+of map-matched arcs and emulating continuity will be part of the iterator implementation, and
+therefore hidden from the instruction engine.
+
+The problems listed above will be therefore addressed as following:
+
+1. If a situation is detected as split because the route window abruptly ends in the middle of
+it, such case will be detected and the iterator will point to the route before this split
+situation.  Once more route data is available, seamless processing from that point is possible
+without the need to perform any stitching.
+2. We can perform as much processing as required (either in terms of number of instructions or
+distance) and keep the iterator pointing to where the computation has stopped.  The computation
+can continue seamlessly from that point on the next occasion.
+
+All static information of the route (itineraries) will be moved into RouteAttributes structure,
+and will be passed to InstructionProvider during route construction (since this information is
+known at that time).
+
+
+== Consequences
+
+* Map-matched route will be exposed as an iterable STL container
+* Minimal complexity on instruction engine side
+* No need for stitching
+* No memory overhead due to no need to copy map-matched data in order to provide continuity
+* Flexibility of computation model: having iterators in the interface allows changing our
+computational model to pull-based by changing the iterator implementation.  The interface
+remains resilient to such changes.

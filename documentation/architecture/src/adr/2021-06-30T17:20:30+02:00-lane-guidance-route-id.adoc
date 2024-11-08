@@ -1,0 +1,67 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+//
+// This software is the proprietary copyright of TomTom NV and its subsidiaries and may be
+// used for internal evaluation purposes or commercial use strictly subject to separate
+// license agreement between you and TomTom NV. If you are the licensee, you are only permitted
+// to use this software in accordance with the terms of your license agreement. If you are
+// not the licensee, you are not authorized to use this software in any manner and should
+// immediately return or destroy it.
+
+= How to ensure that correct vehicle horizon route receives SLG data
+
+== Status
+
+Accepted
+
+== Problem
+Vehicle Horizon service needs to expose SLG data. Since the NK2 system is multithreaded we can anticipate the situation
+where there will be a race caused by receiving an SLG update for the previously tracked route when already a newly tracked
+route is available.
+
+== Alternatives
+
+=== #1: No special handling of the situation
+We accept the fact that Vehicle Horizon may receive stale SLG data.
+
+Advantages:
+
+- no need to do any work outside of vehicle horizon
+
+Disadvantages:
+
+- careful design of Vehicle Horizon is required to avoid a crash on stale data
+
+==== #2: Create an adapter/mixin for VH that wraps events from LaneGuidanceAdapter/LaneGuidanceProvider
+The adapter listens to RouteListener and to LaneGuidanceAdapter/Provider. Whenever a new route is tracked it stores
+the route id. Whenever new scenario is available from LaneGuidanceAdapter it passes the LaneGuidanceScenario and the
+route id to VH.
+
+==== #3: Extend LaneGuidanceAdapter to support a listener API with additional route id
+VehicleHorizon provides a new RouteLaneGuidanceListenerInterface. This interface contains a method:
+```
+void OnLaneGuidanceScenarioChanged(route_id, lane_guidance_scenario)
+```
+LaneGuidanceAdapter is extended to support the new listener:
+```
+  RegisterRouteLaneGuidanceListener(listener)
+```
+
+==== #4: Extend LaneGuidanceScenario to include route id
+In navigation-instruction-engine-interface:
+
+- route id is added to the LaneGuidanceScenario.
+- a route_id parameter is added to LaneGuidanceProviderInterface::SetRouteIterator()
+
+In navigation-instruction-engine:
+LaneGuidanceProvider is extended to support new LaneGuidanceProviderInterface.
+LaneGuidanceProvider passes the route_id obtained from SetRouteIterator() to resulting LaneGuidanceScenario.
+Alternatively, the route_id could be passed as part of the constructor, assuming the LaneGuidanceProvider is rebuilt every time the route changes.
+
+In navigation-trip-onboardservice:
+LaneGuidanceAdapter::SetRouteIterator(start_iterator,end_iterator) is extended with route_id parameter.
+The lane guidance adapter passes the route id to LaneGuidanceProvider via SetRouteIterator call.
+
+
+== Solution
+
+We will choose solution #4, extending the LaneGuidanceScenario with the route ID.  This is because the other options risk further race conditions.

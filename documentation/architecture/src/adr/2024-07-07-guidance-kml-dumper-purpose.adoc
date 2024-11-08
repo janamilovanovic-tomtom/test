@@ -1,0 +1,142 @@
+// Copyright (C) 2018 TomTom NV. All rights reserved.
+
+= Purpose of guidance KML dumper
+
+== Context
+
+=== History of the issue
+
+During the implementation of NAV-144950 Further reduce instruction gap
+requirement for batching we have discovered that guidance kml dumper
+does not use the GoSDK InstructionGenerator API that would allow us
+to test the side effects of decreasing the increment size.
+
+A PR has been created that addressed this issue :
+https://github.com/tomtom-internal/navigation-instruction-engine/pull/1563[PR#1563]
+
+This has led to a discussion that revolved around the alignment of guidance-kml-dumper
+with different products and their behavior.
+
+=== Purpose of guidance kml dumper
+
+The primary motivation for developing the KML dumper was to support regression
+tests, that run the Guidance components over a medium-sized, representative
+selection of cases, which surface unintended side-effects of code changes. A
+second important use is to perform mass tests, which cover a much larger,
+random selection of situations that real drivers encounter. A third use is
+detailed investigation of individual cases, often bug reports from customers.
+
+The purpose of the KML dumper is to exercise the Guidance business logic and
+produce detailed, reproducible descriptions of the results of that business
+logic. It provides a mechanism for exploring how the Instruction Engine
+(including lane guidance) typically behaves around an intersection.
+
+It does not provide an accurate simulation of driving through an intersection.
+This is because the instruction engine APIs may be called in different ways,
+with different sequences and timings, depending on how exactly the client
+implementation interacts with real-world driving conditions.
+
+=== Current problems of regression testing infrastructure
+
+Currently guidance-kml-dumper is not testing the behaviour of any our products.
+Different products use different internal APIs and this leads to diverging behaviour.
+One such example of diverging behavior is a bug discovered after switching
+guidance-kml-dumper from InstructionProvider API to InstructionGenerator API.
+
+
+The table below summarise the APIs that are used by different products:
+
+[cols="3*",options="header"]
+|===
+|Product name
+|Instruction API
+|LaneGuidance API
+
+|guidance-kml-dumper
+|InstructionProvider
+|GetFullLaneGuidanceList
+
+|NK2SDK
+|InstructionProvider
+|LaneGuidanceProvider
+
+|GoSDK
+|InstructionGenerator
+|GetFullLaneGuidanceList
+
+|OnlineRouting v2
+|InstructionGenerator
+|GetFullLaneGuidanceList
+
+|===
+
+If two products are using different APIs then they will most likely generate different data.
+If two products are using the same API there can still be a mismatch in the generated data
+if different parameters are used for generation.
+In case the generation parameters are the same differences may still be found due to the implementation
+mismatch between guidance-kml-dumper way of invoking the API and the implementation that runs in the product.
+
+Our working assumption here is that even if such differences exist we will try to keep them
+minimised to ensure that guidance-kml-dumper excercises a complete coverage of our APIs.
+For this we will try to make guidance-kml-dumper approximately mimic the behaviour of the product when
+calling these APIs.
+
+Keeping guidance-kml-dumper in it's current state can potentially lead to subpar testing
+of production APIs and leaking of undiscovered bugs, as it was the case with:
+https://jira.tomtomgroup.com/browse/GOSDK-27370[GOSDK-27370]
+
+== Main topics of discussion
+
+=== Potential problems of substituting end to end tests with guidance kml dumper
+
+Because things can change outside of our control and knowledge we will not be able to
+precisely mimic how different SDKs call our API and can only approximate such behaviour.
+
+There was an argument that guidance-kml-dumper should not try to emulate any concrete product
+because this would make developers assume that they can substitute end to end testing with
+guidance-kml-dumper based tests and therefore lead to inadequate testing. This problem was
+assessed as being not important.
+
+To clarify the situation it was agreed to document in an ADR the pupose of guidance kml dumper
+as a good enough but not perfect proxy for end to end behaviour that allows quick evaluation
+of changes in the instruction engine repository.
+
+=== Support for testing of different products
+
+Another issue that was raised was that we have multiple products and it is not clear which product behaviour
+should be imitated by guidance-kml-dumper.
+
+So far we have decided that by default guidance-kml-dumper should mirror the behaviour of GoSDK and OnlineRouting products.
+The rationale was that both these products behave in the same way and GoSDK is the preferred SDK of choice
+for all future products. This assumption is based on the quote from PU Directions All Hands from 26th October 2023:
+
+[quote,Felix Koenig,PU Directions All Hands 26th October 2023 - NavKit2 Product Challanges and Opportunities]
+The future is NavSDK – ambition to double-down and focus all our efforts on making NavSDK great.
+Company priorities: 1. Orbis GA, 2. NavSDK Torch, 3. NavSDK Automotive MLP (incl. HCP3).
+NavKit2 is significantly ahead of NavSDK in terms of feature scope: onboard maps, hybrid navigation, EV features,
+alternative routes, Japan & Korea support, …
+
+https://tomtominternational.sharepoint.com/:p:/r/sites/pudirections/_layouts/15/Doc.aspx?sourcedoc=%7B35D19EAF-67B1-44C8-B5EF-DE7465C8C3C2%7D&file=20231026_PU-Directions_All-Hands.pptx&action=edit&mobileredirect=true[Link to document.]
+
+There were many concerns about supporting multiple product behaviours as this would increase the complexity of
+guidance-kml-dumper, as it would need to support an additional command line parameter. It was decided against
+having this feature and just focus on replicating GoSDK/OnlineRouting behaviour.
+
+PR#1563 cited will allow selection between old behviour
+(by passing --instruction_source=get_full_instruction_list) or the GoSDK/OnlineRouting behavoiur.
+This functionality will be kept only for the duration of deprecation period of GetFullInstructionList and will be removed later.
+
+== Conclusion
+
+Historically guidance kml dumper behaviour did not follow any specific product behaviour.
+In future we want guidance kml dumper by default to approximately mimic the NavSDK/GoSDK behvaviour in regards
+to which instruction engine APIs it excercises and how it uses them.
+
+Guidance KML should not care about concepts such as map updates and current car position.
+It does not provide an accurate simulation of driving.
+
+Guidance KML dumper based tests support only a subset of features that are supported by
+a full end to end tests.
+
+Guidance KML must not be used instead of proper end to end tests, it is only a fast feedback tool that should catch
+majority of the bugs.

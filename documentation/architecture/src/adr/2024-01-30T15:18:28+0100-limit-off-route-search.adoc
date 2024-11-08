@@ -1,0 +1,264 @@
+// Copyright (C) 2021 TomTom NV. All rights reserved.
+
+= Limiting Off-Route Arc Search
+
+== Status
+
+Implemented
+
+== Context
+
+We have a bug report with a long and complicated etiology,
+https://jira.tomtomgroup.com/browse/NAV-113472[NAV-113472].  The
+complaint is that the ExitView is not shown for the highway exit.  As
+of writing it's not clear exactly why the front-end is not displaying
+the ExitView.  However, in this particular situation, it was noted
+that the lane segment immediately after the maneuver has no
+recommended arrows.
+
+In the reported route, after exiting, the driver would turn right.
+And in fact immediately after passing the exit we do deliver a new
+scenario centred around the turn which recommends the right-hand lane.
+Nevertheless, it is a bug that the original scenario did not have any
+recommendations.  This can be reproduced in KML dumper by stopping the
+route just before the turn.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/screenshot.png[width=400]
+
+If the route really finished at that point, the correct guidance would
+be that either lane is fine, there should be straight arrows in both
+lanes, and both those arrows should be recommended.  Similarly, when
+such a scenario is generated to cover only the highway exit, it should
+also show straight arrows that are both recommended.
+
+This ADR covers fixing that bug, bearing in mind that this might not
+be directly causing the original bug report.
+
+== Cause
+
+The cause of the bug is incorrectly collecting the set of off-route
+arcs.  This is done by `GetOffRouteArcs`.  This algorithm is fairly
+complicated, and there is also some historical context.
+
+=== Finding Off-Route Arcs
+
+Consider the following route and arc network.  In this diagram blue
+arcs (labelled A, B, C, D, E, F) are on-route, and the heavier arrows
+(labelled B, C, D, E) indicate the current road stretch used to
+generate the scenario.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-010.jpg[width=120]
+
+To find the set of off-route arcs, we do a breadth-first-search (BFS),
+limited to 100m, and starting from the end of each on-route arc in the
+current stretch.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-020.jpg[width=120]
+
+This produces the following set of arcs:
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-030.jpg[width=120]
+
+We then filter out the on-route arcs in the stretch, leaving the
+resulting set of off-route arcs:
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-040.jpg[width=120]
+
+Note that Arc F is an on-route arc, but is not filtered out by
+`GetOffRouteArcs`, because that function only has access to the arcs
+from the current stretch.
+
+=== NAV-84499 Preventing Overlap
+
+The problem here is that arc F is identified as an off-route arc.
+Depending on how the scenario is displayed, this could be confusing
+for the driver.  In particular, a new scenario may happen to start at
+arc F.  The driver may see F "flicker" from off-route to on-route.
+This was noticed as
+https://jira.tomtomgroup.com/browse/NAV-84499[NAV-84499].
+
+To avoid that, it is best to avoid including arc F in the scenario at
+all, by not including this in the off-route arcs.  The fix was to omit
+the last arc from the start of the breadth-first-search.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-050.jpg[width=120]
+
+This then produces a smaller set of connected arcs, and after
+filtering out the on-route arcs the result looks like this:
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-070.jpg[width=120]
+
+=== NAV-113472 Arc Rejoins Route
+
+This approach typically worked fine.  However, it doesn't help in the
+particular situation noticed in NAV-113472.  Here is the network
+labelled with Link IDs:
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-120.jpg[width=400]
+
+The problem is when a scenario ends on arc 66.  If the following arcs
+89 and 101 are included as off-route arcs, the `LaneGuidanceBuilder`
+will detect diverging lane groups and synthesise left and right
+arrows.  But since both of those diverging lane groups are attached to
+off-route arcs, both arrows are marked as not recommended.
+
+In this case the problem is that there is an off-route sequence of
+arcs through 104 and 103 that allows arcs 89 and 101 to be discovered,
+even though the search doesn't begin from arc 66.
+
+To generalise this to the abstract example, suppose the road network
+looks like this:
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-090.jpg[width=120]
+
+Thus the search discovers F by going via G and H.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-100.jpg[width=120]
+
+== Proposal
+
+We will note the end node of the route stretch and not pursue the BFS
+beyond that point.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-110.jpg[width=120]
+
+=== Exception - Loops
+
+In some lane guidance scenarios there is a loop in the arc network.
+For example, below the road stretch is B C D E, but E also connects to
+B, which is bi-directional.  The route may end here, or it may
+continue further along arc F or back along arc A.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-130.jpg[width=200]
+
+If we stop the BFS at the end point, then off-route arcs outgoing from
+arc B, such as arc G, will not be discovered.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-140.jpg[width=200]
+
+Therefore we need to detect if the end node is the tail node of any
+on-route arc.  If so, we should not limit the search.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-150.jpg[width=200]
+
+However, note that this risks now re-introducing the original problem:
+we may discover arcs A and F as off-route.  But in fact the route may
+proceed further along one of those arcs.
+
+Given the difficult semantics of lane guidance scenarios with loops
+anyway, we believe this is an acceptable risk.
+
+=== Exception to the Exception
+
+The situation is slightly different when the loop circles around to
+the very start of the scenario.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-160.jpg[width=200]
+
+In this case, without limiting the search, we will find all the
+outgoing arcs from the end of the scenario.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-170.jpg[width=200]
+
+But in this case there is no problem stopping the search at the end of
+the route after all.  So this forms an exception to the exception.  In
+practice, when searching for on-route arcs whose tail node is the same
+as the end node, we should not consider the first arc.  This again
+produces a good set of arcs.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-180.jpg[width=200]
+
+== Regressions
+
+While testing, two types of regressions were discovered.  These are
+both cases of triggering existing bugs that are present elsewhere.
+They both cause arrow synthesis that wasn't working anyway to work
+less well.  Separate bugs have been filed and triaged to track these.
+
+=== Route ends in plural junction
+
+This is tracked as
+https://jira.tomtomgroup.com/browse/NAV-135344[NAV-135344].
+
+When synthesising arrows, we search forwards from a diverging lane
+segment until we find an arc that is not in a plural junction.  This
+is in order to find the "true" direction the lane leads towards.
+
+Consider this situation, where we want to synthesise arrows at the end
+of Arc A.  Suppose that D and B are both plural junctions.  Typically
+we would search forward and find C and E.  Therefore we would
+synthesise right and left arrows respectively, instead of slight right
+and straight.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-190.jpg[width=200]
+
+However, if the route ends on Arc B, then Arc C is not part of the
+scenario.  Before this change, it would be added as an off-route arc.
+This means that the eventual arrows synthesised, right and left, would
+both not be recommended.  After this change, Arc C is no longer
+included as an off-route arc.  So only the left arrow is synthesised,
+still not recommended.  This is a regression.
+
+Here is how that appears in the example from the bug, before and
+after:
+
+image:2024-01-30T15:18:28+0100-limit-off-route-search/nav-135344-before.png[width=200]
+image:2024-01-30T15:18:28+0100-limit-off-route-search/nav-135344-after.png[width=200]
+
+=== Off-route connection
+
+This is tracked as
+https://jira.tomtomgroup.com/browse/NAV-135342[NAV-135342].
+
+The last lane segment on the route is supposed to have straight arrows
+in all lanes, all recommended.  However, stray connections from
+off-route arcs can still exist.  This can cause the last lane segment
+on the route to be interpreted as a diverging segment.  Arrows will be
+synthesised, but since they all lead to off-route arcs, none of those
+arrows will be recommended.
+
+Consider this situation.  The on-route arcs of the scenario are Arc A
+and Arc B, and the off-route arc is Arc C.  Before this change, D and
+E would also be discovered as off-route arcs.
+
+image::2024-01-30T15:18:28+0100-limit-off-route-search/off-route-200.jpg[width=200]
+
+Lane group LG3 will be discovered as an off-route lane segment, due to
+being on Arc C.  But it has an incoming connection from lane group
+LG2.  This actually represents driving along Arc E, which is not even
+part of the scenario.
+
+We will check Arc B to see if we should synthesise arrows.  If LG2 is
+connected to multiple outgoing segments, it will be treated as a
+diverging arc, and arrows will be synthesised.  Since this is the last
+segment on the route, none of those arrows will be recommended.
+
+Here is how that looks on the route `finland4`, before and after.  In
+this case the left-turn arrow actually represents connectivity to
+multiple different off-route arcs, which is why this segment is still
+treated as a diverging segment, even after we remove the straight
+connections.
+
+image:2024-01-30T15:18:28+0100-limit-off-route-search/nav-135342-before.png[width=200]
+image:2024-01-30T15:18:28+0100-limit-off-route-search/nav-135342-after.png[width=200]
+
+The solution is to not create outgoing connectivity for the last
+on-route lane segment.  But this is an unrelated change to the one
+proposed here.
+
+== Consequences
+
+* Extra complexity in the `GetOffRouteArcs` functions
+* We no longer need the logic that removes the last arc from the BFS
+  input
+* When scenarios loop back on themselves, in some cases we may still
+  mark on-route arcs as off-route
+* NAV-135342 "incorrect arrows in last on-route segment" will be
+  exacerbated in some cases
+* NAV-135344 "no recommended arrows when route ends in plural
+  junction" will be exacerbated in some cases
+
+== References
+
+Images taken from https://miro.com/app/board/uXjVNziobvI=/[this Miro
+board].
