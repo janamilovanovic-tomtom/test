@@ -11,11 +11,42 @@ def main(src_dir, build_dir):
         if file.endswith('.md'):
             with open(os.path.join(src_dir, file), 'r') as infile:
                 content = infile.read()
+
             # Convert Markdown to HTML
             html = markdown.markdown(content, extensions=['tables'])
+
+            # Add CSS for table borders
+            styled_html = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{os.path.splitext(file)[0]}</title>
+    <style>
+        table {{
+            border-collapse: collapse;
+            width: 100%;
+        }}
+        th, td {{
+            border: 1px solid black; /* Border for table cells */
+            padding: 8px; /* Padding inside cells */
+            text-align: left; /* Align text to the left */
+        }}
+        th {{
+            background-color: #f2f2f2; /* Light grey background for header */
+        }}
+    </style>
+</head>
+<body>
+{html}
+</body>
+</html>
+"""
+
             filename = os.path.splitext(file)[0]
             with open(os.path.join(build_dir, f'{filename}.html'), 'w') as outfile:
-                outfile.write(html)
+                outfile.write(styled_html)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
