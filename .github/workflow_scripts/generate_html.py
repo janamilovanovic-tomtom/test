@@ -11,7 +11,8 @@ def main(src_dir, build_dir):
         if file.endswith('.md'):
             with open(os.path.join(src_dir, file), 'r') as infile:
                 content = infile.read()
-            html = markdown.markdown(content)
+            # Convert Markdown to HTML
+            html = markdown.markdown(content, extensions=['tables'])
             filename = os.path.splitext(file)[0]
             with open(os.path.join(build_dir, f'{filename}.html'), 'w') as outfile:
                 outfile.write(html)
