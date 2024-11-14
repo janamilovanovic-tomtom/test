@@ -38,6 +38,8 @@ Sometimes Cardinal directions are indicated as part of road number.
 Road numbers varieties
 ======================
 
+
+
 Due to multiple standards that are often used simultaneously on signposts, there varieties of Road numbers refereeing to the same road segment.
 
 | **Road Number format** | **Region** |  | **Priority** | **Notes** |
