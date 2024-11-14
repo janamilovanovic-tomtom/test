@@ -16,8 +16,15 @@ def main(src_dir, build_dir):
             # Convert Markdown to HTML
             html = markdown.markdown(content, extensions=['tables'])
 
-            # Replace .md with .html in links
-            html = html.replace('.md)', '.html)')
+            # Replace all occurrences of .md with .html in the HTML content
+            # This regex looks for Markdown link syntax and replaces .md with .html
+            # This regex looks for Markdown link syntax and replaces .md with .html
+            html = re.sub(r'\[(.*?)\]\((.*?)(\.md)\)', r'[\1](\2.html)', html)
+
+            # To handle links like ./test.md
+            html = re.sub(r'\[(.*?)\]\((\.\/.*?)(\.md)\)', r'[\1](\2.html)', html)
+
+
             # Add CSS for table borders
             styled_html = f"""
 <!DOCTYPE html>
