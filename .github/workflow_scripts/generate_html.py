@@ -17,8 +17,7 @@ def main(src_dir, build_dir):
             html = markdown.markdown(content, extensions=['tables'])
 
             # Replace .md with .html in links
-            html = re.sub(r'\[(.*?)\]\((.*?\.md)\)', lambda match: f"[{match.group(1)}]({match.group(2)[:-3]}.html)", html)
-
+            html = html.replace('.md)', '.html)')
             # Add CSS for table borders
             styled_html = f"""
 <!DOCTYPE html>
