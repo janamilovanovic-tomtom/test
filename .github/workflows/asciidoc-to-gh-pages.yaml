@@ -64,14 +64,14 @@ jobs:
             src_dir = '${{ inputs.src_dir }}'
             build_dir = '${{ inputs.build_dir }}'
           
-          for file in os.listdir(src_dir):
-            if file.endswith('.md'):
-              with open(os.path.join(src_dir, file), 'r') as infile:
-                content = infile.read()
-              html = markdown.markdown(content)
-              filename = os.path.splitext(file)[0]
-              with open(os.path.join(build_dir, f'{filename}.html'), 'w') as outfile:
-                outfile.write(html)
+            for file in os.listdir(src_dir):
+              if file.endswith('.md'):
+                with open(os.path.join(src_dir, file), 'r') as infile:
+                  content = infile.read()
+                html = markdown.markdown(content)
+                filename = os.path.splitext(file)[0]
+                with open(os.path.join(build_dir, f'{filename}.html'), 'w') as outfile:
+                  outfile.write(html)
           "
 
       - name: Fix ownership of HTML files
