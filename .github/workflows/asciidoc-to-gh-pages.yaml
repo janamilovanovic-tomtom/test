@@ -45,12 +45,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+     # - uses: actions/setup-python@v5
+      #  with:
+       #   python-version: "3.10"
 
-      - name: Update ADR index file
-        run: python3 .github/workflow_scripts/update-adr-listing.py --adr_dir="${{ inputs.src_dir }}/architecture"
+   #   - name: Update ADR index file
+    #    run: python3 .github/workflow_scripts/update-adr-listing.py --adr_dir="${{ inputs.src_dir }}/architecture"
 
       - name: Generate HTML from Markdown
         id: markdown-generator
