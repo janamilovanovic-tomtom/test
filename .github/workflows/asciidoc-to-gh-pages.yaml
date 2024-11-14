@@ -55,12 +55,24 @@ jobs:
       - name: Generate HTML from Markdown
         id: markdown-generator
         run: |
-            pip install markdown
-            mkdir -p "${{ inputs.build_dir }}"
-            for file in "${{ inputs.src_dir }}"/*.md; do
-              filename=$(basename "$file" .md)
-              markdown "$file" > "${{ inputs.build_dir }}/${filename}.html"
-            done
+          pip install markdown
+          mkdir -p "${{ inputs.build_dir }}"
+          python3 -c "
+            import markdown
+            import os
+
+            src_dir = '${{ inputs.src_dir }}'
+            build_dir = '${{ inputs.build_dir }}'
+          
+          for file in os.listdir(src_dir):
+            if file.endswith('.md'):
+              with open(os.path.join(src_dir, file), 'r') as infile:
+                content = infile.read()
+              html = markdown.markdown(content)
+              filename = os.path.splitext(file)[0]
+              with open(os.path.join(build_dir, f'{filename}.html'), 'w') as outfile:
+                outfile.write(html)
+          "
 
       - name: Fix ownership of HTML files
         run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
