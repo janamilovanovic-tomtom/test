@@ -75,6 +75,6 @@ Strings
 | 11 | ***SW*** | Cardinal direction SOUTH\-WEST |  |
 
 * * *
-
+[test](./test.md)
 END OF DOCUMENT
 ===============

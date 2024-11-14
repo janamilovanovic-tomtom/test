@@ -3,6 +3,7 @@
 import markdown
 import os
 import sys
+import re
 
 def main(src_dir, build_dir):
     os.makedirs(build_dir, exist_ok=True)
@@ -14,6 +15,9 @@ def main(src_dir, build_dir):
 
             # Convert Markdown to HTML
             html = markdown.markdown(content, extensions=['tables'])
+
+            # Replace .md with .html in links
+            html = re.sub(r'\[([^]]+)\]\(([^)]+)\.md\)', r'[\1](\2.html)', html)
 
             # Add CSS for table borders
             styled_html = f"""
