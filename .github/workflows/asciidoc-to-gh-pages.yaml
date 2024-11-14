@@ -2,7 +2,7 @@
 
 ---
 
-name: Deploy AsciiDoc to GitHub Pages
+name: Deploy Markdown to GitHub Pages
 # Publishes to: http://username.github.io/repository.
 # Docs: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-with-a-custom-github-actions-workflow
 # To enable gh-pages: https://pages.github.com/
@@ -19,7 +19,7 @@ on:
         required: true
         type: string
       src_dir:
-        description: root of path of AsciiDoc files to recursively build HTML from
+        description: root of path of Markdown files to recursively build HTML from
         required: true
         type: string
       build_dir:
@@ -35,7 +35,7 @@ permissions:
 
 jobs:
   deploy:
-    name: Deploy AsciiDoc to GitHub Pages
+    name: Deploy Markdown to GitHub Pages
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -45,44 +45,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-     # - uses: actions/setup-python@v5
-      #  with:
-       #   python-version: "3.10"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-   #   - name: Update ADR index file
-    #    run: python3 .github/workflow_scripts/update-adr-listing.py --adr_dir="${{ inputs.src_dir }}/architecture"
+      - name: Install dependencies
+        run: pip install markdown
 
       - name: Generate HTML from Markdown
-        id: markdown-generator
-        run: |
-          pip install markdown
-          mkdir -p "${{ inputs.build_dir }}"
-          python3 -c "
-            import markdown
-            import os
-
-            src_dir = '${{ inputs.src_dir }}'
-            build_dir = '${{ inputs.build_dir }}'
-          
-            for file in os.listdir(src_dir):
-              if file.endswith('.md'):
-                with open(os.path.join(src_dir, file), 'r') as infile:
-                  content = infile.read()
-                html = markdown.markdown(content)
-                filename = os.path.splitext(file)[0]
-                with open(os.path.join(build_dir, f'{filename}.html'), 'w') as outfile:
-                  outfile.write(html)
-          "
+        run: python3 .github/workflow_scripts/generate_html.py "${{ inputs.src_dir }}" "${{ inputs.build_dir }}"
 
       - name: Fix ownership of HTML files
         run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
 
       - name: Copy assets
-        # Copy all non asciidoc files to the destination folder
-        # -k to treat symlinks to shared/ as if they were actual folders
         run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
-      # from example: https://github.com/actions/starter-workflows/blob/main/pages/static.yml
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
