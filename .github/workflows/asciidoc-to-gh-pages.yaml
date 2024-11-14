@@ -52,19 +52,15 @@ jobs:
       - name: Update ADR index file
         run: python3 .github/workflow_scripts/update-adr-listing.py --adr_dir="${{ inputs.src_dir }}/architecture"
 
-      - name: Generate HTML from AsciiDoc
-        id: asciidoctor
-        uses: docker://asciidoctor/docker-asciidoctor:latest
-        with:
-          entrypoint: asciidoctor
-          args: >
-            --backend html
-            --doctype book
-            --require asciidoctor-diagram
-            -R "${{ inputs.src_dir }}"
-            -D "${{ inputs.build_dir }}"
-            -a revision="${{ inputs.package_version }}"
-            "${{ inputs.src_dir }}/**/*.adoc"
+      - name: Generate HTML from Markdown
+        id: markdown-generator
+        run: |
+            pip install markdown
+            mkdir -p "${{ inputs.build_dir }}"
+            for file in "${{ inputs.src_dir }}"/*.md; do
+              filename=$(basename "$file" .md)
+              markdown "$file" > "${{ inputs.build_dir }}/${filename}.html"
+            done
 
       - name: Fix ownership of HTML files
         run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
@@ -72,7 +68,7 @@ jobs:
       - name: Copy assets
         # Copy all non asciidoc files to the destination folder
         # -k to treat symlinks to shared/ as if they were actual folders
-        run: rsync -akv --exclude='.*' --exclude='**/*.adoc' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
+        run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
       # from example: https://github.com/actions/starter-workflows/blob/main/pages/static.yml
       - name: Setup GitHub Pages
