@@ -10,7 +10,7 @@ Motivation
 
 Directional information described here [Directional Information - Road names, Road numbers, Towards](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Directional%20Information%20-%20Road%20names%2C%20Road%20numbers%2C%20Towards%20/Directional_Information-Road-names_Road-numbers_Towards.md) varies drastically across world regions. The purpose of this page is to capture those differnces and specify regional design patterns in regards to **Road names/numbers, Towards information, Exit numbers, Intersection names.**
 
-
+[test](./test.md)
 
 Spelling of numerical values
 ============================
