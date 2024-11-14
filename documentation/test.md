@@ -16,6 +16,6 @@ asljasjjansa
 
 
 
-[test](./index.html)
+[test](./index.md)
 
 asljasjjansa
