@@ -23,6 +23,6 @@ jobs:
     uses: ./.github/workflows/asciidoc-to-gh-pages.yaml
     with:
       package_version: '1.1.0'
-      src_dir: documentation
+      src_dir: test
       # Make sure this is outside of the src_dir
       build_dir: doc_build
