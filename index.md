@@ -8,6 +8,8 @@ TomTom provides a set of guidance methods that operate simultaneously and cover 
 
 [Instructions](Instructions.html)
 
+[Instructions](Instructions/Instructions.html)
+
 [Instructions](Instructions/Instructions.md)
 
 [Region specific designs](./Region%20specific%20designs/Region_specific_designs.md)

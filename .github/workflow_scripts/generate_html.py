@@ -1,5 +1,3 @@
-# .github/workflow_scripts/generate_html.py
-
 import markdown
 import os
 import sys
@@ -8,55 +6,59 @@ import re
 def main(src_dir, build_dir):
     os.makedirs(build_dir, exist_ok=True)
 
-    for file in os.listdir(src_dir):
-        if file.endswith('.md'):
-            with open(os.path.join(src_dir, file), 'r') as infile:
-                content = infile.read()
+    for root, dirs, files in os.walk(src_dir):
+        for file in files:
+            if file.endswith('.md'):
+                # Construct the relative path to the file from the src_dir
+                relative_path = os.path.relpath(root, src_dir)
+                # Create the corresponding directory in the build_dir
+                output_dir = os.path.join(build_dir, relative_path)
+                os.makedirs(output_dir, exist_ok=True)
 
-            # Convert Markdown to HTML
-            html = markdown.markdown(content, extensions=['tables'])
+                # Read the content of the Markdown file
+                with open(os.path.join(root, file), 'r') as infile:
+                    content = infile.read()
 
-            # Replace all occurrences of .md with .html in the HTML content
-            # This regex looks for Markdown link syntax and replaces .md with .html
-            # This regex looks for Markdown link syntax and replaces .md with .html
-            html = re.sub(r'\[(.*?)\]\((.*?)(\.md)\)', r'[\1](\2.html)', html)
+                # Convert Markdown to HTML
+                html = markdown.markdown(content, extensions=['tables'])
 
-            # To handle links like ./test.md
-            html = re.sub(r'\[(.*?)\]\((\.\/.*?)(\.md)\)', r'[\1](\2.html)', html)
+                # Replace all occurrences of .md with .html in the HTML content
+                html = re.sub(r'\[(.*?)\]\((.*?)(\.md)\)', r'[\1](\2.html)', html)
+                html = re.sub(r'\[(.*?)\]\((\.\/.*?)(\.md)\)', r'[\1](\2.html)', html)
 
+                # Add CSS for table borders
+                styled_html = f"""
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>{os.path.splitext(file)[0]}</title>
+                    <style>
+                        table {{
+                            border-collapse: collapse;
+                            width: 100%;
+                        }}
+                        th, td {{
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }}
+                        th {{
+                            background-color: #f2f2f2;
+                        }}
+                    </style>
+                </head>
+                <body>
+                {html}
+                </body>
+                </html>
+                """
 
-            # Add CSS for table borders
-            styled_html = f"""
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{os.path.splitext(file)[0]}</title>
-    <style>
-        table {{
-            border-collapse: collapse;
-            width: 100%;
-        }}
-        th, td {{
-            border: 1px solid black; /* Border for table cells */
-            padding: 8px; /* Padding inside cells */
-            text-align: left; /* Align text to the left */
-        }}
-        th {{
-            background-color: #f2f2f2; /* Light grey background for header */
-        }}
-    </style>
-</head>
-<body>
-{html}
-</body>
-</html>
-"""
-
-            filename = os.path.splitext(file)[0]
-            with open(os.path.join(build_dir, f'{filename}.html'), 'w') as outfile:
-                outfile.write(styled_html)
+                # Write the HTML content to the corresponding output file
+                filename = os.path.splitext(file)[0] + '.html'
+                with open(os.path.join(output_dir, filename), 'w') as outfile:
+                    outfile.write(styled_html)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
