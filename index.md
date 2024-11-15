@@ -6,14 +6,10 @@ TomTom provides a set of guidance methods that operate simultaneously and cover 
 
 [Guidance Framework - Methods & Components](./Guidance%20evaluation%20and%20Improvements/Guidance_evaluation_and_Improvements.html)
 
-[Instructions](Instructions.html)
-
 [Instructions](Instructions/Instructions.html)
 
-[Instructions](Instructions/Instructions.md)
+[Region specific designs](./Region%20specific%20designs/Region_specific_designs.html)
 
-[Region specific designs](./Region%20specific%20designs/Region_specific_designs.md)
+[Customer specific designs - HCP3, STL](./Customer%20specific%20designs%20-%20HCP3,%20STL/Customer_specific_designs_HCP3,STL.html)
 
-[Customer specific designs - HCP3, STL](./Customer%20specific%20designs%20-%20HCP3,%20STL/Customer_specific_designs_HCP3,STL.md)
-
-[Guidance evaluation and Improvements](./Guidance%20evaluation%20and%20Improvements/Guidance_evaluation_and_Improvements.md)
+[Guidance evaluation and Improvements](./Guidance%20evaluation%20and%20Improvements/Guidance_evaluation_and_Improvements.html)
