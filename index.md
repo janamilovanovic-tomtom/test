@@ -4,7 +4,7 @@ Car navigation systems are designed to provide guidance to drivers by using a va
 
 TomTom provides a set of guidance methods that operate simultaneously and cover different aspects of guidance. This space provides definitions of methods and components of NIE.
 
-[Guidance Framework - Methods & Components](./Guidance%20evaluation%20and%20Improvements/Guidance_evaluation_and_Improvements.md)
+[Guidance Framework - Methods & Components](./Guidance_evaluation_and_Improvements.html)
 
 [Instructions](./Instructions/Instructions.md)
 
