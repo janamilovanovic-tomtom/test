@@ -8,17 +8,17 @@ Table of Contents
 =================
 
 
-*   [Table of Contents](#Consecutivemanoeuvres(ChainInstructions)-TableofContents)
-*   [Motivation](#Consecutivemanoeuvres(ChainInstructions)-Motivation)
-*   [Terminology](#Consecutivemanoeuvres(ChainInstructions)-Terminology)
-*   [When Chain Instruction is generated?](#Consecutivemanoeuvres(ChainInstructions)-WhenChainInstructionisgenerated?)
-*   [Visual Format of Chain Instruction](#Consecutivemanoeuvres(ChainInstructions)-VisualFormatofChainInstruction)
-*   [Triggering points &amp; Chain Instruction](#Consecutivemanoeuvres(ChainInstructions)-Triggeringpoints&amp;ChainInstruction)
-*   [Chain Instruction Audio Format](#Consecutivemanoeuvres(ChainInstructions)-ChainInstructionAudioFormat)
-*   [Types of Instructions that can be used as Chain Instructions.](#Consecutivemanoeuvres(ChainInstructions)-TypesofInstructionsthatcanbeusedasChainInstructions.)
-    *   [Examples](#Consecutivemanoeuvres(ChainInstructions)-Examples)
-*   [Roundabouts as Consecutive Manoeuvres](#Consecutivemanoeuvres(ChainInstructions)-RoundaboutsasConsecutiveManoeuvres)
-*   [Strings](#Consecutivemanoeuvres(ChainInstructions)-Strings)
+*   [Table of Contents](#Table-of-Contents)
+*   [Motivation](#Motivation)
+*   [Terminology](#Terminology)
+*   [When Chain Instruction is generated?](#When-Chain-Instruction-is-generated)
+*   [Visual Format of Chain Instruction](#Visual-Format-of-Chain-Instruction)
+*   [Triggering points & Chain Instruction](#Triggering-points--Chain-Instruction)
+*   [Chain Instruction Audio Format](#Chain-Instruction-Audio-Format)
+*   [Types of Instructions that can be used as Chain Instructions.](#Types-of-Instructions-that-can-be-used-as-Chain-Instructions)
+    *   [Examples](#Examples)
+*   [Roundabouts as Consecutive Manoeuvres](#Roundabouts-as-Consecutive-Manoeuvres)
+*   [Strings](#Strings)
 
 Motivation
 ==========

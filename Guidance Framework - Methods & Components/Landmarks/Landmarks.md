@@ -1,12 +1,12 @@
 ![](images/157686367.png)
 
 
-| **Interaction Designer** | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence) |
-|---|---|
-| **Visual Designer** | [Georgios Koultouridis](https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence) |
-| PO | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence) |
-| DEV | [Vadym Khandus](https://tomtom.atlassian.net/wiki/people/712020:2b00ecb1-a543-4410-818c-575056da8b84?ref=confluence) |
-| TICKETS | [GOSDK\-13065](https://jira.tomtomgroup.com/browse/GOSDK-13065)[NAV\-23334](https://jira.tomtomgroup.com/browse/NAV-23334)[NAV\-95745](https://jira.tomtomgroup.com/browse/NAV-95745)[NAV\-92335](https://jira.tomtomgroup.com/browse/NAV-92335) |
+| **Interaction Designer** | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence)                                                                                                                                  |
+|---|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Visual Designer** | [Georgios Koultouridis](https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence)                                                                                                                                            |
+| PO | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence)                                                                                                                                |
+| DEV | [Vadym Khandus](https://tomtom.atlassian.net/wiki/people/712020:2b00ecb1-a543-4410-818c-575056da8b84?ref=confluence)                                                                                                                                 |
+| TICKETS | [GOSDK\-13065](https://tomtom.atlassian.net/browse/GOSDK-13065)<br>[NAV\-23334](https://tomtom.atlassian.net/browse/NAV-23334)<br>[NAV\-95745](https://tomtom.atlassian.net/browse/NAV-95745)<br>[NAV\-92335](https://tomtom.atlassian.net/browse/NAV-92335) |
 
   
 
@@ -14,18 +14,17 @@ Table of Contents
 =================
 
 
-*   [Table of Contents](#Landmarks-TableofContents)
-*   [Introduction to Landmarks](#Landmarks-IntroductiontoLandmarks)
-*   [Impact on Instruction Design](#Landmarks-ImpactonInstructionDesign)
-*   [Supported landmarks](#Landmarks-Supportedlandmarks)
-*   [General Design Principle &amp; methods](#Landmarks-GeneralDesignPrinciple&amp;methods)
-    *   [Inform about Landmark when it is needed.](#Landmarks-InformaboutLandmarkwhenitisneeded.)
-    *   [One Landmark at a time](#Landmarks-OneLandmarkatatime)
-    *   [Visual &amp; Audio Pointers](#Landmarks-Visual&amp;AudioPointers)
-    *   [Serial Landmarks handling](#Landmarks-SerialLandmarkshandling)
-*   [Specific Landmarks designs](#Landmarks-SpecificLandmarksdesigns)
-*   [](#Landmarks-)
-[](#Landmarks-)*   [](#Landmarks-)[Future plans](#Landmarks-Futureplans)
+*   [Table of Contents](#Table-of-Contents)
+*   [Introduction to Landmarks](#Introduction-to-Landmarks)
+*   [Impact on Instruction Design](#Impact-on-Instruction-Design)
+*   [Supported landmarks](#Supported-landmarks)
+*   [General Design Principle &amp; methods](#General-Design-Principle--methods)
+    *   [Inform about Landmark when it is needed.](#Inform-about-Landmark-when-it-is-needed)
+    *   [One Landmark at a time](#One-Landmark-at-a-time)
+    *   [Visual &amp; Audio Pointers](#Visual--Audio-Pointers)
+    *   [Serial Landmarks handling](#Serial-Landmarks-handling)
+*   [Specific Landmarks designs](#Specific-Landmarks-designs)
+*   [Future plans](#Future-plans)
 
   
 
@@ -45,7 +44,7 @@ Landmarks are manifested in Guidance in following ways:
 *   Visualised in the NIP (not all Landmarks)
 *   Landmarks are also rendered on the map (not all Landmarks)
 
-NIE provides [modular Instruction architecture](https://tomtom.atlassian.net/wiki/pages/viewpage.action?pageId=157680070). There is a specific component in this architecture which is reserved for Landmarks - _**Pointer**_. Term _**Landmark**_ and _**Pointer**_ can be used interchangeably, but it is important to clarify, while _**Landmark**_ refers to the real object itself on the road in real world, _**Pointer**_ is a UI element (and audio component) which is pointing to it. 
+NIE provides [modular Instruction architecture](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20arhitecture/Instruction_architecture.md). There is a specific component in this architecture which is reserved for Landmarks - _**Pointer**_. Term _**Landmark**_ and _**Pointer**_ can be used interchangeably, but it is important to clarify, while _**Landmark**_ refers to the real object itself on the road in real world, _**Pointer**_ is a UI element (and audio component) which is pointing to it. 
 
   
 
@@ -129,10 +128,10 @@ Some types of Landmarks (Traffic Lights) often come in successions, which makes 
 
 To dive into design details of each type of landmark, follow those pages:
 
-1.  [End of the road](https://tomtom.atlassian.net/wiki/display/FlaminGO/Landmark+-+End+of+the+Road)
-2.  [Traffic Light](https://tomtom.atlassian.net/wiki/display/FlaminGO/Landmark+-+Traffic+Light)
-3.  [Bridge](https://tomtom.atlassian.net/wiki/display/FlaminGO/Landmark+-+Bridges)
-4.  [Tunnel](https://tomtom.atlassian.net/wiki/display/FlaminGO/Landmark+-+Tunnels)
+1.  [End of the road](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20End%20of%20the%20Road/Landmark_End_of_the_Road.md)
+2.  [Traffic Light](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Traffic%20Light/Landmark_Traffic_Light.md)
+3.  [Bridge](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Bridges/Landmark_Bridges.md)
+4.  [Tunnel](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Tunnels/Landmark_Tunnels.md)
 
   
 
@@ -170,8 +169,3 @@ Below a full list of potential items to explore as a candidates for Landmarks: 
 
   
 
-  
-
-  
-
-![](attachments/157686285/157686313.png?height=200)

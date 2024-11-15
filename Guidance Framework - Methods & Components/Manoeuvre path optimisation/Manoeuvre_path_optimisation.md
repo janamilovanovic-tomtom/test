@@ -11,7 +11,7 @@ In multi-lane environments, guidance indicates lane configuration at the manoeuv
 
 It is important to note that _**MPO**_ is only effective for close to each other manoeuvres and doesn't provide any value if distance between them is significant, for longer stretches lane changes don't pose any troubles. This document describes the logic of the _**Recommended lanes**_ are how they applied in guidance under different conditions.
 
-NOTE: This document focuses on the internal logic of MPO only and does not define methods used in it, such as [NIP - next instruction panel](https://tomtom.atlassian.net/wiki/pages/viewpage.action?pageId=157679965), [SLG - simple lane guidance](https://tomtom.atlassian.net/wiki/pages/viewpage.action?pageId=157680032), [Chain instructions](https://tomtom.atlassian.net/wiki/pages/viewpage.action?pageId=157680675&amp;src=contextnavpagetreemode). Those methods are defined by corresponding pages.
+NOTE: This document focuses on the internal logic of MPO only and does not define methods used in it, such as [NIP - next instruction panel](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.md), [SLG - simple lane guidance](https://tomtom.atlassian.net/wiki/pages/viewpage.action?pageId=157680032), [Chain instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Consecutive%20manoeuvres%20(Chain%20Instructions)/Consecutive_manoeuvres_(Chain_Instructions).md). Those methods are defined by corresponding pages.
 
 Scenarios
 =========

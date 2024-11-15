@@ -8,9 +8,9 @@ Table of Contents
 =================
 
 
-*   [Table of Contents](#Landmark-TrafficLight-TableofContents)
-*   [Introduction](#Landmark-TrafficLight-Introduction)
-*   [Traffic Lights](#Landmark-TrafficLight-TrafficLights)
+*   [Table of Contents](#Table-of-Contents)
+*   [Introduction](#Introduction)
+*   [Traffic Lights](#Traffic-Lights)
 
   
 

@@ -16,18 +16,18 @@ Table of Contents
   
 
 
-*   [Table of Contents](#Landmark-EndoftheRoad-TableofContents)
-*   [Introduction](#Landmark-EndoftheRoad-Introduction)
-    *   ["end of the road" example](#Landmark-EndoftheRoad-"endoftheroad"example)
-*   [Instruction design for the end of the road pointer](#Landmark-EndoftheRoad-Instructiondesignfortheendoftheroadpointer)
-*   [Break down of Use cases](#Landmark-EndoftheRoad-BreakdownofUsecases)
-    *   [1\. Very Short road segments between manoeuvres](#Landmark-EndoftheRoad-1.VeryShortroadsegmentsbetweenmanoeuvres)
-    *   [2\. Parking lots, Pedestrian areas, Service Areas](#Landmark-EndoftheRoad-2.Parkinglots,Pedestrianareas,ServiceAreas)
-*   [3\. Road splits before T-Junction](#Landmark-EndoftheRoad-3.RoadsplitsbeforeT-Junction)
-*   [4\. When main road turns](#Landmark-EndoftheRoad-4.Whenmainroadturns)
-    *   [5\. At complex intersections](#Landmark-EndoftheRoad-5.Atcomplexintersections)
-    *   [6\. At Exit ramps](#Landmark-EndoftheRoad-6.AtExitramps)
-*   [Short Summary of rules for filtering out "at the end of the road" pointer](#Landmark-EndoftheRoad-ShortSummaryofrulesforfilteringout"attheendoftheroad"pointer)
+*   [Table of Contents](#Table-of-Contents)
+*   [Introduction](#Introduction)
+    *   ["end of the road" example](#end-of-the-road-example)
+*   [Instruction design for the end of the road pointer](#Instruction-design-for-the-end-of-the-road-pointer)
+*   [Break down of Use cases](#Break-down-of-Use-cases)
+    *   [1\. Very Short road segments between manoeuvres](#1Very-Short-road-segments-between-manoeuvres)
+    *   [2\. Parking lots, Pedestrian areas, Service Areas](#2-Parking-lots-Pedestrian-areas-Service-Areas)
+*   [3\. Road splits before T-Junction](#3-Road-splits-before-T-Junction)
+*   [4\. When main road turns](#4-When-main-road-turns)
+    *   [5\. At complex intersections](#5-At-complex-intersections)
+    *   [6\. At Exit ramps](#6-At-Exit-ramps)
+*   [Short Summary of rules for filtering out "at the end of the road" pointer](#Short-Summary-of-rules-for-filtering-out-at-the-end-of-the-road-pointer)
 
   
 

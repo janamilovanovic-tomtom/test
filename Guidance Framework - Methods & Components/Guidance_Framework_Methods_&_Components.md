@@ -7,35 +7,35 @@ NIE Framework
 
 Instruction engine is build on foundation of components, methods and map data. Components include visual and audio based interfaces. Methods include design patterns that control those components. There are following methods and components defined in NIE:  
 
-[Instruction architecture](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680070/Instruction+architecture)
+[Instruction architecture](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20arhitecture/Instruction_architecture.md)
 
-[Next Instruction Panel - NIP](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157679965/Next+Instruction+Panel+-+NIP)
+[Next Instruction Panel - NIP](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.md)
 
-[Simple Lane Guidance - SLG](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157718677/Simple+Lane+Guidance+-+SLG)
+[Simple Lane Guidance - SLG](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Simple%20Lane%20Guidance%20-%20SLG/Simple_Lane_Guidance.md)
 
-[Lane Level Guidance (LLG/LLN)](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680334/Lane+Level+Guidance+LLG+LLN)
+[Lane Level Guidance (LLG/LLN)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Lane_Level_Guidance(LLG_LLN).md)
 
-[Audio Instructions](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680007/Audio+Instructions)
+[Audio Instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20Instructions/Audio_Instructions.md)
 
-[Instruction Triggering Logic](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157679961/Instruction+Triggering+Logic)
+[Instruction Triggering Logic](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20Triggering%20Logic/Instruction_Triggering_Logic.md)
 
-[Distance Formatting](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680264/Distance+Formatting)
+[Distance Formatting](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Distance%20Fromatting/Distance_Formatting.md)
 
-[Directional Information (Road names, Road numbers)](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157686877/Directional+Information+-+Road+names+Road+numbers+Towards)
+[Directional Information (Road names, Road numbers)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Directional%20Information%20-%20Road%20names%2C%20Road%20numbers%2C%20Towards%20/Directional_Information-Road-names_Road-numbers_Towards.md)
 
-[Road Signposts](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157702310/Road+Signposts)
+[Road Signposts](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Road%20Signposts/Road_Signposts.md)
 
-[Natural Continuation](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680361/Natural+Continuation)
+[Natural Continuation](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Natural%20Continuation%20/Natural_Continuation.md)
 
-[Consecutive manoeuvres (Chain Instructions)](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680675/Consecutive+manoeuvres+Chain+Instructions)
+[Consecutive manoeuvres (Chain Instructions)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Consecutive%20manoeuvres%20(Chain%20Instructions)/Consecutive_manoeuvres_(Chain_Instructions).md)
 
-[Optical Driving Instruction (OFA)](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157695332/Optical+Driving+Instruction+OFA)
+[Optical Driving Instruction (OFA)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Optical%20Driving%20Instruction%20(OFA)/Optical_Driving_Instruction(OFA).md)
 
-[Manoeuvre path optimisation](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680435/Manoeuvre+path+optimisation)
+[Manoeuvre path optimisation](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Manoeuvre%20path%20optimisation/Manoeuvre_path_optimisation.md)
 
-[Audio management](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680448/Audio+management)
+[Audio management](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20management/Audio_management.md)
 
-[Landmarks](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157686285/Landmarks)
+[Landmarks](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks.md)
 
 Terminology used in this document
 =================================

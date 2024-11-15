@@ -1,19 +1,19 @@
 | **Interaction Designer** | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence) |
 |---|---|
 | **ENG OWNER** | [Oleh Kis](https://tomtom.atlassian.net/wiki/people/712020:bd4f4d9f-75d9-4d67-8408-8ace89f8fda6?ref=confluence) , [Bohdan Soroka](https://tomtom.atlassian.net/wiki/people/712020:d6cafcbe-bb3a-4305-bba3-02e3350309bc?ref=confluence) \- HCP3, |
-| **Dev. team** | O\-light.  [NAV\-151478](https://jira.tomtomgroup.com/browse/NAV-151478?src=confmacro) \- Unable to retrieve issue. You don't have permission or need to [authenticate](https://tomtom.atlassian.net/wiki/plugins/servlet/applinks/oauth/login-dance/authorize?applicationLinkID=d8fe222a-fe17-3dd8-96f3-0293f0a69f83) |
+| **Dev. team** | O\-light.  [NAV\-151478](https://tomtom.atlassian.net/browse/NAV-151478?src=confmacro)  |
 | **PM** | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence) |
 | **Code** | [https://bitbucket.tomtomgroup.com/projects/NAVKIT2/repos/nk2\-navigation\-instruction\-engine/commits](https://bitbucket.tomtomgroup.com/projects/NAVKIT2/repos/nk2-navigation-instruction-engine/commits) |
 
-### WHAT CHANGED?
 
-Last revision of the document made following changes:  
-1. Removed time component from triggering algorithm.  
-2. Detached (put into expandable container) sections of the spec that should be handled (and owned) as part of dev. documentation.
+> [!NOTE]
+> **WHAT CHANGED?** <br><br> Last revision of the document made following changes:
+<br> 1. Removed time component from triggering algorithm.
+<br> 2. Detached (put into expandable container) sections of the spec that should be handled (and owned) as part of dev. documentation.
 
-### DISCLAIMER
 
-The document below is covering user experience and general guidelines for technical implementation. It might not cover exact methods for achieving this user experience, algorithms and heuristics. For more elaborative technical documentation please refer to corresponding dev. documentation.
+> [!NOTE]
+> **DISCLAIMER** <br> The document below is covering user experience and general guidelines for technical implementation. It might not cover exact methods for achieving this user experience, algorithms and heuristics. For more elaborative technical documentation please refer to corresponding dev. documentation.
 
 Introduction
 ============

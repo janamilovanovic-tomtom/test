@@ -1,9 +1,9 @@
 ![](images/157703442.png)
 
-| **Interaction Designer** | @Matteo Fanchin[Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence) |
-|---|---|
-| **Visual Designer** | [Georgios Koultouridis](https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence) |
-| PM | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence) |
+| **Interaction Designer** | @Matteo Fanchin <br>[Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence) |
+|---|-----------------------------------------------------------------------------------------------------------------------------------------|
+| **Visual Designer** | [Georgios Koultouridis](https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence)                               |
+| PM | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence)                   |
 
   
 
@@ -11,13 +11,13 @@ Table of Contents
 =================
 
 
-*   [Table of Contents](#Landmark/TrafficLight-TableofContents)
-*   [Landmarks Introduction](#Landmark/TrafficLight-LandmarksIntroduction)
-*   [Manifestation of Traffic Lights](#Landmark/TrafficLight-ManifestationofTrafficLights)
-*   [Visual Representation](#Landmark/TrafficLight-VisualRepresentation)
-*   [Audio Instruction](#Landmark/TrafficLight-AudioInstruction)
-*   [Map Representation](#Landmark/TrafficLight-MapRepresentation)
-*   [Multiple instances of Traffic Light](#Landmark/TrafficLight-MultipleinstancesofTrafficLight)
+*   [Table of Contents](#Table-of-Contents)
+*   [Landmarks Introduction](#Landmarks-Introduction)
+*   [Manifestation of Traffic Lights](#Manifestation-of-Traffic-Lights)
+*   [Visual Representation](#Visual-Representation)
+*   [Audio Instruction](#Audio-Instruction)
+*   [Map Representation](#Map-Representation)
+*   [Multiple instances of Traffic Light](#Multiple-instances-of-Traffic-Light)
 
   
 

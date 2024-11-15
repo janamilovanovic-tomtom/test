@@ -54,7 +54,7 @@ Here is an example of the NIP with all possible components in it:
 
 **Audio Instruction** compliments the NIP Visual instruction and helps driver to navigate with less dependency on the screen. Our goal is to reduce reliance on the screen for guidance, provides full set of audio information required for successful performing of a manoeuvre.  Audio instruction attributes are referring to visual attributes in the NIP.
 
-| **Distance \->** | **Pointer \->**  | **Action \->**      | **Purpose ->**              | **Direction \->**                                |
+| **Distance \->** | **Pointer \->**  | **Action \->**      | **Purpose ->**              | **Direction \-/**                                |
 |------------------|------------------|---------------------|-----------------------------|--------------------------------------------------|
 | in 600 meters    | after the tunnel | use two right lanes | to take the exit No. 17 West | onto Interstate 276 East, towards Staaten Island |
 
@@ -63,27 +63,26 @@ Categories of Instructions
 
 Instructions can be categorised by types. Here are all available types of instructions grouped into 4 categories:
 
-| **Road network instructions**, concerning changing from one road to another at an intersection | **Controlled access (Motorways)** **instructions**, concerning interacting with high\-speed interchanges via physically separated channels. | **Modal instructions**, describing interaction with non\-topological aspects of the road infrastructure. | **Route instructions,** describing the journey itself rather than actual maneuvers |
-|---|---|---|---|
-| Turn Left/Right  Bear Left/Right  Turn Sharply Left/Right  Turn around (U\-turn)  Turn around when possible  Follow road to Left/Right  Continue straight  Roundabout  Keep Left/Right (at fork) | Take Motorway (join Highway)  Take exit (leave Highway)  Keep Left/Right (Highway fork)  ~~Switch Highway (via exit)~~  Enter HOV lane  Exit HOV lane | Border Crossing  Toll Gates  Take Ferry  Take Car Train | Departure Instruction  Arrival Instruction  Follow road for XX km |
+| **Road network instructions**, concerning changing from one road to another at an intersection                                                                                                       | **Controlled access (Motorways)** **instructions**, concerning interacting with high\-speed interchanges via physically separated channels. | **Modal instructions**, describing interaction with non\-topological aspects of the road infrastructure. | **Route instructions,** describing the journey itself rather than actual maneuvers |
+|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|---|---|
+| Turn Left/Right <br> Bear Left/Right <br> Turn Sharply Left/Right <br> Turn around (U\-turn) <br> Turn around when possible <br> Follow road to Left/Right <br> Continue straight <br> Roundabout<br> Keep Left/Right (at fork) | Take Motorway (join Highway) <br> Take exit (leave Highway) <br> Keep Left/Right (Highway fork) <br> ~~Switch Highway (via exit)~~  <br>Enter HOV lane <br> Exit HOV lane | Border Crossing <br> Toll Gates  <br>Take Ferry <br> Take Car Train | Departure Instruction  <br>Arrival Instruction  <br>Follow road for XX km |
 
 **How we define Instruction type?**  
 In order to do define the instruction type, we need to look at two Components: **Action** and **Purpose**. One of them defines the type, but which one is depends on specific use case. **As a general rule, Purpose defines the instruction type when it is available. In the absense of Purpose, Action defines the instruction type.**
 
-| **Distance \-\&gt;** | **Pointer \-\&gt;** | **Action \-\&gt;** | **Purpose \-\&gt;** | **Direction \-/** |
-|---|---|---|---|---|
-| in 800 meters | at the traffic light | **turn right** | \-\-\- | onto Street name |
-| in 800 meters | at the traffic light | use two right lanes | **to turn right** | onto Street name |
+| **Distance \->** | **Pointer \->**      | **Action \->**      | **Purpose \->**   | **Direction \-/** |
+|------------------|----------------------|---------------------|-------------------|---|
+| in 800 meters    | at the traffic light | **turn right**      | \-\-\-            | onto Street name |
+| in 800 meters    | at the traffic light | use two right lanes | **to turn right** | onto Street name |
 
 In the first example, **Purpose is absent** and therefore the Instruction type is defined by the Action, which is Turn Right.
 
 In the second example, **Purpose is defining** the type of the instruction (Turn Right), while Action is providing a secondary information.
 
-### Terminology mismatch
+> [!NOTE]
+> **Terminology mismatch** <br> At the moment, instruction types categorisation described here is not aligned with categorisation used in NIE. Alignment work is required.
 
-At the moment, instruction types categorisation described here is not aligned with categorisation used in NIE. Alignment work is required.
-
-Actions and Purpose components
+**Action** and **Purpose** components
 ==============================
 
 **Action** and **Purpose** are the most important components of an instruction. There are the following Actions and Purposes available in the arsenal of Guidance. As illustrated, there are some items that can be used as both Actions and Purposes. Not all Actions can be used with all Purposes (this doesn't make practical sense), but only certain combinations are possible. Those are indicated by the arrows.

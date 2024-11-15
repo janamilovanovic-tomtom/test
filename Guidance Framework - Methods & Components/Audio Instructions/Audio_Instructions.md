@@ -13,7 +13,7 @@ Audio, or spoken, instructions are the means of Guidance and used in combination
 Relevant Documents:
 
 [Instructions Triggering Logic](https://tomtom.atlassian.net/wiki/x/WQFmCQ) - provides definition of how instructions (both audio and visual) are triggered in time.  
-[Instruction Architecture](Instruction-architecture_157680070.html) - defines in detail Next Instruction Panel (NIP) component which displays visual guidance information which is replicated by Audio Instruction.
+[Instruction Architecture](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20arhitecture/Instruction_architecture.md) - defines in detail Next Instruction Panel (NIP) component which displays visual guidance information which is replicated by Audio Instruction.
 
 It is worth to read both of those documents before diving into audio Instructions details because Audio is synchronised with Visual representation of Instruction.
 
@@ -150,15 +150,15 @@ Content of this page just outlines the architecture of audio instructions and de
 
 [NIE\_011 - Turn manoeuvres overview](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157679963)
 
-[Forks Instructions (Bifurkations, Trifurcation, Exits)](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680013/Furcations+-+Bifurkations+Trifurcation+Exits)
+[Forks Instructions (Bifurkations, Trifurcation, Exits)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits%20%20/Furcations-Bifurkations_Trifurcation_Exits.md)
 
 [NIE\_007 - Simple Lane Guidance (SLG)](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680032)
 
-[Roundabouts](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680439/Roundabouts)
+[Roundabouts](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Roundabouts/Roundabouts.md)
 
-[Ferry &amp; Car Train connections](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680117/Ferry+Car+Train+connections)
+[Ferry &amp; Car Train connections](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Ferry%20%26%20Car%20Train%20connections%20%20/Ferry_%26_Car_Train_connections.md)
 
-[NIE\_015 - Departure Instruction](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157686483/Departure+Instruction)
+[NIE\_015 - Departure Instruction](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Departure%20Instruction/Departure_Instruction.md)
 
 * * *
 
