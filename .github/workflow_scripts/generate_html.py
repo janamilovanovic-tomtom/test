@@ -23,12 +23,17 @@ def main(src_dir, build_dir):
                 html = markdown.markdown(content, extensions=['tables'])
 
                 # Replace all occurrences of .md with .html in the HTML content
-                # Replace all occurrences of .md with .html in the HTML content
-                # Update regex to handle links and paths correctly
-                html = re.sub(r'\[(.*?)\]\((.*?)\.md\)', r'[\1](\2.html)', html)
+                # Update regex to handle links and paths correctly, including special characters and spaces
+                # This regex replaces .md with .html in all Markdown links
+                html = re.sub(r'\[(.*?)\]\(([^)]+?)(\.md)\)', r'[\1](\2.html)', html)
 
-                # Handle links starting with './'
-                html = re.sub(r'\[(.*?)\]\(\./(.*?)\.md\)', r'[\1](./\2.html)', html)
+                # Handle links starting with './' (relative links)
+                html = re.sub(r'\[(.*?)\]\(\./([^)]*?)\.md\)', r'[\1](./\2.html)', html)
+
+                # Handle links in directories (e.g., "folder/file.md" -> "folder/file.html")
+                html = re.sub(r'\[(.*?)\]\(([^/]*?)/([^)]*?)\.md\)', r'[\1](\2/\3.html)', html)
+
+
                 # Add CSS for table borders
                 styled_html = f"""
                 <!DOCTYPE html>
