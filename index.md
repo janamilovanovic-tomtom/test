@@ -4,12 +4,12 @@ Car navigation systems are designed to provide guidance to drivers by using a va
 
 TomTom provides a set of guidance methods that operate simultaneously and cover different aspects of guidance. This space provides definitions of methods and components of NIE.
 
-[Guidance Framework - Methods & Components](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Guidance_Framework_Methods_%26_Components.md)
+[Guidance Framework - Methods & Components](./Guidance%20evaluation%20and%20Improvements/Guidance_evaluation_and_Improvements.md)
 
-[Instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Instructions.md)
+[Instructions](./Instructions/Instructions.md)
 
-[Region specific designs](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Region%20specific%20designs/Region_specific_designs.md)
+[Region specific designs](./Region%20specific%20designs/Region_specific_designs.md)
 
-[Customer specific designs - HCP3, STL](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Customer%20specific%20designs%20-%20HCP3%2C%20STL/Customer_specific_designs_HCP3%2CSTL.md)
+[Customer specific designs - HCP3, STL](./Customer%20specific%20designs%20-%20HCP3,%20STL/Customer_specific_designs_HCP3,STL.md)
 
-[Guidance evaluation and Improvements](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20evaluation%20and%20Improvements/Guidance_evaluation_and_Improvements.md)
+[Guidance evaluation and Improvements](./Guidance%20evaluation%20and%20Improvements/Guidance_evaluation_and_Improvements.md)
