@@ -40,7 +40,7 @@ jobs:
               mkdir -p "$OUTPUT_DIR/$RELATIVE_PATH"
           
               OUTPUT_FILE="$OUTPUT_DIR/${INPUT_FILE%.md}.pdf"
-              #mdpdf "$INPUT_FILE" -o "$OUTPUT_FILE"
+              mdpdf "$INPUT_FILE" -o "$OUTPUT_FILE"
               echo "Converted $INPUT_FILE to $OUTPUT_FILE"
           done
           
