@@ -6,6 +6,8 @@ TomTom provides a set of guidance methods that operate simultaneously and cover 
 
 [Guidance Framework - Methods & Components](./Guidance%20evaluation%20and%20Improvements/Guidance_evaluation_and_Improvements.md)
 
+[Instructions](Instructions/Instructions.html)
+
 [Instructions](Instructions/Instructions.md)
 
 [Region specific designs](./Region%20specific%20designs/Region_specific_designs.md)
