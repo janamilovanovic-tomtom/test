@@ -25,7 +25,7 @@ jobs:
       - name: Update Markdown Links to PDF
         run: |
           echo "Updating Markdown links to PDF..."
-          python3 update_links.py
+          python3 .github/workflows/update_links.py
 
       - name: Convert Markdown to PDF
         run: |
