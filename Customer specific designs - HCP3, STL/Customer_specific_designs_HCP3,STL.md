@@ -7,4 +7,4 @@ TT has a number of customers for whom various levels of solutions are provided. 
 
 [NIE_029 - HCP3 instruction timing](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Customer%20specific%20designs%20-%20HCP3%2C%20STL/NIE_029%20-%20HCP3%20instruction%20timing/NIE_029_HCP3_instruction_timing.md)
 
-[NIE_023 - NIP in Cluster (STL)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Customer%20specific%20designs%20-%20HCP3%2C%20STL/NIE_023%20-%20NIP%20in%20Cluster%20(STL)/NIE_023_NIP_in_Cluster(STL).md)
+[NIE_023 - NIP in Cluster (STL)](./NIE_023%20-%20NIP%20in%20Cluster%20(STL)/NIE_023_NIP_in_Cluster(STL).md)
