@@ -14,29 +14,42 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin zip
+          sudo apt-get install -y librsvg2-bin zip python3-pip
           # Install Node.js
           curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
           sudo apt-get install -y nodejs
           # Install mdpdf
           npm install -g mdpdf
+          # Install Python and dependencies for script
+          pip3 install -r requirements.txt
+
+      - name: Update Markdown Links to PDF
+        run: |
+          echo "Updating Markdown links to PDF..."
+          python3 update_links.py
 
       - name: Convert Markdown to PDF
         run: |
-          OUTPUT_DIR="nie_ux_spec"
+          echo "Converting Markdown files to PDFs..."
+          INPUT_DIR="."
+          OUTPUT_DIR="output"
+          
           mkdir -p "$OUTPUT_DIR"
           
-          for INPUT_FILE in $(find . -name "*.md" ! -name "README.md"); do
-             echo "Processing file: $INPUT_FILE"
-             OUTPUT_FILE="${INPUT_FILE%.md}.pdf"
-             mdpdf "$INPUT_FILE" && mv "$OUTPUT_FILE" "$OUTPUT_DIR/"
-             echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
+          find "$INPUT_DIR" -name "*.md" ! -name "README.md" | while read -r INPUT_FILE; do
+              RELATIVE_PATH=$(dirname "${INPUT_FILE#./}")
+              mkdir -p "$OUTPUT_DIR/$RELATIVE_PATH"
+          
+              OUTPUT_FILE="$OUTPUT_DIR/${INPUT_FILE%.md}.pdf"
+              mdpdf "$INPUT_FILE" -o "$OUTPUT_FILE"
+              echo "Converted $INPUT_FILE to $OUTPUT_FILE"
           done
           
-           zip -r "nie_ux_spec.zip" "$OUTPUT_DIR"
+          # Create ZIP file with all PDFs
+          zip -r "${OUTPUT_DIR}.zip" "$OUTPUT_DIR"
 
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v4
         with:
           name: nie_ux_spec
-          path: nie_ux_spec.zip
+          path: output.zip
