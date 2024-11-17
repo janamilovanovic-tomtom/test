@@ -19,10 +19,11 @@ def main(src_dir, build_dir):
                 with open(os.path.join(root, file), 'r') as infile:
                     content = infile.read()
 
-                content = re.sub(r'\[(.*?)\]\(([^)]+?)(\.md)([?#]?.*?)\)', r'[\1](\2.html\4)', content)
+                content = re.sub(r'\[(.*?)\]\((.+?)(\.md)([?#]?.*?)\)', r'[\1](\2.html\4)', content)
 
 
-                # Convert Markdown to HTML
+
+            # Convert Markdown to HTML
                 html = markdown.markdown(content, extensions=['tables'])
 
                 # Add CSS for table borders
