@@ -1,6 +1,6 @@
 This section contains definitions of all _**instruction types**_ used by NIE. Instruction types are created in order to support varieties of road situations that driver can encounter. Each instruction type is designed specifically to perform the manoeuvre with least amount of effort and to disambiguate potential ambiguous situations. Following instruction types exist in NIE:
 
-[Departure Instruction](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Departure%20Instruction/Departure_Instruction.md)
+[Departure Instruction](./Departure%20Instruction/Departure_Instruction.md)
 
 [Turn Instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Turn%20Instructions/Turn_Instructions.md)
 
