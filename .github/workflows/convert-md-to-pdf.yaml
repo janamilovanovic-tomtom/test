@@ -1,8 +1,26 @@
 name: Export UX Spec to PDF
 
 on:
-  workflow_dispatch
+  workflow_call:
+    inputs:
+      package_version:
+        description: The version of the conan package to generate the documentation for
+        required: true
+        type: string
+      src_dir:
+        description: root of path of Markdown files to recursively build HTML from
+        required: true
+        type: string
+      build_dir:
+        description: root of path to recursively publish static HTML from
+        required: true
+        type: string
 
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 jobs:
   convert:
     runs-on: ubuntu-latest
