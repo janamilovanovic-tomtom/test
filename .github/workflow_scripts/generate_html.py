@@ -46,7 +46,11 @@ def main(src_dir, build_dir):
                 </html>
                 """
 
-                filename = os.path.splitext(file)[0] + '.html'
+                # Check if the file is `new_instruction_engine.md`
+                if file == 'New_Instruction_Engine.md':
+                    filename = 'index.html'
+                else:
+                    filename = os.path.splitext(file)[0] + '.html'
                 with open(os.path.join(output_dir, filename), 'w') as outfile:
                     outfile.write(styled_html)
 
