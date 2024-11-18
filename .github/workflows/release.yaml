@@ -20,9 +20,9 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    uses: ./.github/workflows/asciidoc-to-gh-pages.yaml
+    uses: ./.github/workflows/convert-md-to-pdf.yaml
     with:
-      package_version: '1.1.0'
+      #package_version: '1.1.0'
       src_dir: .
       # Make sure this is outside of the src_dir
       build_dir: doc_build
