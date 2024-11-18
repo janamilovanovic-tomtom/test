@@ -45,6 +45,12 @@ jobs:
       - name: Copy assets
         run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
+      # Step to create a ZIP file of the generated output
+      - name: Create a ZIP file of the output directory
+        run: |
+          cd "${{ inputs.build_dir }}"
+          zip -r ../output.zip .
+
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v4
         with:
