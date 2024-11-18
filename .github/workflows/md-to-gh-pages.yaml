@@ -14,10 +14,10 @@ name: Deploy Markdown to GitHub Pages
 on:
   workflow_call:
     inputs:
-      package_version:
-        description: The version of the conan package to generate the documentation for
-        required: true
-        type: string
+    #  package_version:
+      #  description: The version of the conan package to generate the documentation for
+       # required: true
+       # type: string
       src_dir:
         description: root of path of Markdown files to recursively build HTML from
         required: true
