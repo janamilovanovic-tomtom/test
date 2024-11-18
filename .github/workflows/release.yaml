@@ -25,7 +25,7 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    if: needs.release.outputs.released-version != ''
+    #if: needs.release.outputs.released-version != ''
     uses: ./.github/workflows/md-to-gh-pages.yaml
     with:
      # package_version: ${{ needs.release.outputs.released-version }}
