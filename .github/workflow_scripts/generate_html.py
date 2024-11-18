@@ -9,24 +9,15 @@ def main(src_dir, build_dir):
     for root, dirs, files in os.walk(src_dir):
         for file in files:
             if file.endswith('.md'):
-                # Construct the relative path to the file from the src_dir
                 relative_path = os.path.relpath(root, src_dir)
-                # Create the corresponding directory in the build_dir
                 output_dir = os.path.join(build_dir, relative_path)
                 os.makedirs(output_dir, exist_ok=True)
-
-                # Read the content of the Markdown file
                 with open(os.path.join(root, file), 'r') as infile:
                     content = infile.read()
-
                 content = re.sub(r'\[(.*?)\]\((.+?)(\.md)([?#]?.*?)\)', r'[\1](\2.html\4)', content)
 
-
-
-            # Convert Markdown to HTML
                 html = markdown.markdown(content, extensions=['tables'])
 
-                # Add CSS for table borders
                 styled_html = f"""
                 <!DOCTYPE html>
                 <html lang="en">
@@ -55,14 +46,12 @@ def main(src_dir, build_dir):
                 </html>
                 """
 
-                # Write the HTML content to the corresponding output file
                 filename = os.path.splitext(file)[0] + '.html'
                 with open(os.path.join(output_dir, filename), 'w') as outfile:
                     outfile.write(styled_html)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: generate_html.py <src_dir> <build_dir>")
         sys.exit(1)
 
     src_dir = sys.argv[1]
