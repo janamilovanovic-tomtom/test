@@ -8,51 +8,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up environment
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y librsvg2-bin zip python3-pip
-          # Install Node.js
-          curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          # Install mdpdf
-          npm install -g mdpdf
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
+      - name: Install dependencies
+        run: pip install markdown
 
-      - name: Update Markdown Links to PDF
-        run: |
-          echo "Updating Markdown links to PDF..."
-          python3 .github/workflows/update_links.py
+      - name: Generate HTML from Markdown
+        run: python3 .github/workflow_scripts/generate_html.py "${{ inputs.src_dir }}" "${{ inputs.build_dir }}"
 
-      - name: Convert Markdown to PDF
-        run: |
-          echo "Converting Markdown files to PDFs..."
-          INPUT_DIR="."
-          OUTPUT_DIR="output"
-          
-          mkdir -p "$OUTPUT_DIR"
-          
-          find "$INPUT_DIR" -name "*.md" ! -name "README.md" | while read -r INPUT_FILE; do
-              RELATIVE_PATH=$(dirname "${INPUT_FILE#./}")
-              mkdir -p "$OUTPUT_DIR/$RELATIVE_PATH"
-          
-              OUTPUT_FILE="$OUTPUT_DIR/${INPUT_FILE%.md}.pdf"
-              if mdpdf --timeout 120000 "$INPUT_FILE" -o "$OUTPUT_FILE"; then
-                  echo "Converted $INPUT_FILE to $OUTPUT_FILE"
-              else
-                  echo "Failed to convert $INPUT_FILE"
-              fi
-              echo "Converted $INPUT_FILE to $OUTPUT_FILE"
-          done
-          
-          # Create ZIP file with all PDFs
-          zip -r "${OUTPUT_DIR}.zip" "$OUTPUT_DIR"
+      - name: Fix ownership of HTML files
+        run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
+
+      - name: Copy assets
+        run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: nie_ux_spec
+          name: "${{ inputs.build_dir }}"
           path: output.zip
