@@ -12,7 +12,7 @@ jobs:
         env:
           CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
-          PAGE_ID: '367269077'
+          PAGE_ID: '409764067'
           CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
         run: |
           # Update the page content with simple text
@@ -20,7 +20,7 @@ jobs:
               -H 'Content-Type: application/json' \
               -d '{
                 "version": {
-                  "number": 2
+                  "number": 27
                 },
                 "title": "Hello",
                 "type": "page",
