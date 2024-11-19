@@ -1,4 +1,4 @@
-name: Upload Simple Text to Confluence
+name: Upload ZIP Archive to Confluence
 
 on:
   workflow_dispatch:
@@ -8,6 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Upload to Confluence
         env:
           CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
@@ -15,19 +18,8 @@ jobs:
           PAGE_ID: '409764067'
           CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
         run: |
-          # Update the page content with simple text
-          curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X PUT "$CONFLUENCE_URL/$PAGE_ID" \
-              -H 'Content-Type: application/json' \
-              -d '{
-                "version": {
-                  "number": 2
-                },
-                "title": "Hello",
-                "type": "page",
-                "body": {
-                  "storage": {
-                    "value": "<p>This is a simple text update to the Confluence page!</p>",
-                    "representation": "storage"
-                  }
-                }
-              }'
+          # Upload the ZIP file from the repository
+          curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X POST "$CONFLUENCE_URL/$PAGE_ID/child/attachment" \
+              -H 'X-Atlassian-Token: no-check' \
+              -F "file=./archive.zip" \
+              -H 'Content-Type: application/zip'
