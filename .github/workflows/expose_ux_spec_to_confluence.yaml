@@ -22,7 +22,7 @@ jobs:
           # Upload the ZIP file from the repository
           response=$(curl -s -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X POST "$CONFLUENCE_URL/$PAGE_ID/child/attachment" \
               -H 'X-Atlassian-Token: no-check' \
-              -F "file=@path/to/your/archive.zip" \
+              -F "file=./archive.zip" \
               -H 'Content-Type: application/zip')
 
           # Extract the attachment ID and URL from the response
