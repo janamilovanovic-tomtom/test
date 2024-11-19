@@ -12,6 +12,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Upload to Confluence
+        id: upload
         env:
           CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
@@ -19,7 +20,28 @@ jobs:
           CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
         run: |
           # Upload the ZIP file from the repository
-          curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X POST "$CONFLUENCE_URL/$PAGE_ID/child/attachment" \
+          response=$(curl -s -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X POST "$CONFLUENCE_URL/$PAGE_ID/child/attachment" \
               -H 'X-Atlassian-Token: no-check' \
-              -F "file=./archive.zip" \
-              -H 'Content-Type: application/zip'
+              -F "file=@path/to/your/archive.zip" \
+              -H 'Content-Type: application/zip')
+
+          # Extract the attachment ID and URL from the response
+          attachment_id=$(echo "$response" | jq -r '.results[0].id')
+          attachment_url="https://tomtom.atlassian.net/wiki/download/attachments/$PAGE_ID/archive.zip"
+
+          # Update the page content to include a link to the ZIP file
+          curl -u "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" -X PUT "$CONFLUENCE_URL/$PAGE_ID" \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "version": {
+                  "number": 2
+                },
+                "title": "Hello",
+                "type": "page",
+                "body": {
+                  "storage": {
+                    "value": "<p>Download the ZIP file <a href=\"'"$attachment_url"'\">here</a>.</p>",
+                    "representation": "storage"
+                  }
+                }
+              }'
