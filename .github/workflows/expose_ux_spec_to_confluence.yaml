@@ -18,7 +18,7 @@ jobs:
 
           - name: Convert Markdown to HTML
             run: |
-              pandoc ./../../New_Instruction_Engine.md -f markdown -t html -o output.html
+              pandoc ./New_Instruction_Engine.md -f markdown -t html -o output.html
 
           - name: Upload to Confluence
             env:
