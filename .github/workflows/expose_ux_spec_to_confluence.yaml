@@ -1,7 +1,7 @@
 name: Upload Markdown to Confluence
 
 on:
-workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   upload_to_confluence:
