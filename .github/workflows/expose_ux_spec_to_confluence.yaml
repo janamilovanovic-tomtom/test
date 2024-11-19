@@ -34,7 +34,7 @@ jobs:
               -H 'Content-Type: application/json' \
               -d '{
                 "version": {
-                  "number": 2
+                  "number": 3
                 },
                 "title": "Hello",
                 "type": "page",
