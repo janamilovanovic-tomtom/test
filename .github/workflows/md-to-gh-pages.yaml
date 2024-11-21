@@ -72,6 +72,12 @@ jobs:
       # Install wkhtmltopdf
       - name: Install wkhtmltopdf
         run: sudo apt-get install -y wkhtmltopdf
+        
+      - name: Install necessary fonts and packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-dejavu fonts-liberation
+
 
       - name: Convert HTML to PDF
         run: |
