@@ -73,15 +73,15 @@ jobs:
       - name: Install wkhtmltopdf
         run: sudo apt-get install -y wkhtmltopdf
 
-      # Convert HTML to PDF
       - name: Convert HTML to PDF
         run: |
-          echo "Listing HTML files in ${inputs.build_dir}..."
+          echo "Listing HTML files in ${{ inputs.build_dir }}..."
           find "${{ inputs.build_dir }}" -type f -name "*.html" | while read html_file; do
             echo "Processing: $html_file"
             output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
             wkhtmltopdf "$html_file" "$output_pdf"
           done
+
 
       # Create a zip archive of PDFs
       - name: Create a zip archive of PDFs
