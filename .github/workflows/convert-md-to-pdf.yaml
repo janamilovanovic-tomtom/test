@@ -33,7 +33,7 @@ jobs:
              echo "Current directory: $(pwd)"
              echo "Processing file: $INPUT_FILE"
              OUTPUT_FILE="${INPUT_FILE%.md}.pdf"
-             pandoc "$INPUT_FILE" -o "$OUTPUT_DIR/$(basename $OUTPUT_FILE)" --pdf-engine=xelatex --resource-path="Customer_specific_designs-HCP3,STL/NIE_023-NIP_in_Cluster(STL)/images"
+             pandoc "$INPUT_FILE" -o "$OUTPUT_DIR/$(basename $OUTPUT_FILE)" --pdf-engine=xelatex --resource-path=./Customer_specific_designs-HCP3,STL/NIE_023-NIP_in_Cluster(STL)/images
              echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
           done
           
