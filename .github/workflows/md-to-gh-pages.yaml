@@ -78,11 +78,29 @@ jobs:
           pip install pdfkit
           sudo apt-get update && sudo apt-get install -y wkhtmltopdf
 
+      # Loop through each HTML file in the 'build_dir2' and convert to PDF in 'output_pdf_dir'
       - name: Convert HTML to PDF
         run: |
-          python3 .github/workflow_scripts/new.py "${{ inputs.src_dir }}" "${{ inputs.build_dir2 }}"
+          # Get the list of all HTML files in the 'inputs.build_dir2'
+          files=$(find "${{ inputs.build_dir}}" -name "*.html")
+          
+          # Loop through each HTML file
+          for file in $files; do
+            # Generate the output path for the PDF
+            output="${{ inputs.output_pdf_dir2 }}/$(basename "${file%.html}.pdf")"
+          
+            # Create the output directory if it doesn't exist
+            mkdir -p "$(dirname "$output")"
+          
+            # Convert the HTML to PDF using html-to-pdf-action
+            echo "Converting $file to $output"
+            uses: fifsky/html-to-pdf-action@master
+            with:
+              htmlFile: $file
+              outputFile: $output
+              pdfOptions: '{"format": "A4", "margin": {"top": "10mm", "left": "10mm", "right": "10mm", "bottom": "10mm"}}'
 
-     
+          done
 
       # Upload the ZIP file as an artifact
       - name: Upload PDF ZIP artifact
