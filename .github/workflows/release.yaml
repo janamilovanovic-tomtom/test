@@ -1,0 +1,28 @@
+# Copyright (C) 2023 TomTom NV. All rights reserved.
+
+---
+
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency: ${{ github.ref }}
+
+jobs:
+
+  asciidoc:
+    name: Deploy architecture documentation to GitHub Pages
+    secrets: inherit
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/md-to-gh-pages.yaml
+    with:
+      src_dir: .
+      # Make sure this is outside of the src_dir
+      build_dir: ../doc_build
