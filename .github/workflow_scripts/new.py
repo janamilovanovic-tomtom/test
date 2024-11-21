@@ -37,10 +37,17 @@ def convert_html_to_pdf(html_dir, pdf_dir):
                 # Zameni apsolutne linkove relativnim (opcionalno, ako je potrebno)
                 updated_html = html_content.replace('file:///', '')
 
-                # Privremena datoteka za modifikovan HTML
+
+                updated_html = re.sub(r'\[(.*?)\]\((.+?)(\.html)([?#]?.*?)\)', r'[\1](\2.pdf\4)', updated_html)
+
+
+            # Privremena datoteka za modifikovan HTML
                 temp_html_path = input_path + ".temp.html"
                 with open(temp_html_path, 'w', encoding='utf-8') as temp_file:
                     temp_file.write(updated_html)
+
+
+
 
                 # Generiši PDF iz privremene HTML datoteke
                 pdfkit.from_file(temp_html_path, output_path, options=options)
