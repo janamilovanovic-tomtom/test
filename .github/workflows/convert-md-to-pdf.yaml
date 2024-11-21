@@ -21,6 +21,14 @@ jobs:
           # Install mdpdf
           npm install -g mdpdf
 
+      - name: Update links in Markdown files
+        run: |
+          # Replace links pointing to .md files with .pdf equivalents
+          for INPUT_FILE in $(find . -name "*.md"); do
+            echo "Updating links in $INPUT_FILE"
+            sed -i 's|\]\(([^()]*)\.md\)|](\1.pdf)|g' "$INPUT_FILE"
+          done
+
       - name: Convert Markdown to PDF
         run: |
           OUTPUT_DIR="nie_ux_spec"
@@ -33,7 +41,7 @@ jobs:
              echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
           done
           
-           zip -r "nie_ux_spec.zip" "$OUTPUT_DIR"
+          zip -r "nie_ux_spec.zip" "$OUTPUT_DIR"
 
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v4
