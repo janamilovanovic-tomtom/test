@@ -70,7 +70,7 @@ jobs:
       #  uses: actions/deploy-pages@v4
         
       - name: Create ZIP Archive
-        run: zip -r ux_spec.zip "${{ inputs.build_dir }}/Region specific designs"
+        run: zip -r ux_spec1.zip "${{ inputs.build_dir }}/Region specific designs"
         
       - name: Upload ZIP to Confluence
         env:
@@ -80,6 +80,6 @@ jobs:
           CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content'
         run: |
           curl -u "${CONFLUENCE_USER}:${CONFLUENCE_TOKEN}" \
-               -F "file=@ux_spec.zip" \
+               -F "file=@ux_spec1.zip" \
                -H "X-Atlassian-Token: no-check" \
                "${CONFLUENCE_URL}/${PAGE_ID}/child/attachment"
