@@ -51,11 +51,11 @@ jobs:
       - name: Convert Markdown files to PDF
         uses: s4u/mdpdf-action@v1
         with:
-          folder: './docs'  # Putanja do foldera sa Markdown fajlovima
-          output_folder: './output'  # Folder gde će PDF biti sačuvani
+          folder: '.'  # Putanja do foldera sa Markdown fajlovima
+          output_folder: 'output'  # Folder gde će PDF biti sačuvani
 
       - name: Upload PDFs
         uses: actions/upload-artifact@v4
         with:
           name: pdf-files
-          path: './output/*.pdf'
+          path: 'output/*.pdf'
