@@ -82,33 +82,11 @@ jobs:
         run: |
           python3 .github/workflow_scripts/new.py "${{ inputs.src_dir }}" "${{ inputs.build_dir2 }}"
 
-      - name: List generated PDF files
-        run: |
-          echo "Contents of PDF output directory:"
-          ls -lh "${{ inputs.build_dir2 }}"
-          
-
-      - name: Fix permissions
-        run: chmod -R 755 "${{ inputs.build_dir2 }}"
-
-      - name: Debug ZIP creation
-        run: |
-          pdf_output_dir="${{ inputs.build_dir2 }}"
-          zip_output="pdf_output.zip"
-          echo "Zipping files from $pdf_output_dir into $zip_output"
-          zip -r "$zip_output" "$pdf_output_dir" || echo "Failed to zip files"
-          echo "Listing ZIP content:"
-
-
-
-      # Verify that the ZIP file exists
-      - name: List files to verify ZIP file
-        run: |
-          ls -lh "pdf_output.zip"
+     
 
       # Upload the ZIP file as an artifact
       - name: Upload PDF ZIP artifact
         uses: actions/upload-artifact@v4
         with:
           name: pdf-files
-          path: "pdf_output.zip"
+          path: ${{ inputs.build_dir2 }}
