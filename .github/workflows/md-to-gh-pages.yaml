@@ -85,7 +85,7 @@ jobs:
           find "${{ inputs.build_dir }}" -type f -name "*.html" | while read html_file; do
             echo "Processing: $html_file"
             output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
-            wkhtmltopdf --disable-smart-shrinking --enable-local-file-access "$html_file" "$output_pdf"
+            wkhtmltopdf --disable-smart-shrinking --enable-local-file-access --no-images --disable-gpu "$html_file" "$output_pdf"
           done
 
 
