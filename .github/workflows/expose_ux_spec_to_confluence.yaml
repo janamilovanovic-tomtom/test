@@ -21,7 +21,7 @@ jobs:
           CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content'
         run: |
           curl -u "${CONFLUENCE_USER}:${CONFLUENCE_TOKEN}" \
-               -F "file=@archive.zip" \
+               -F "file=@ux_spec.zip" \
                -H "X-Atlassian-Token: no-check" \
                "${CONFLUENCE_URL}/${PAGE_ID}/child/attachment"
 
@@ -36,7 +36,7 @@ jobs:
           response=$(curl -s -u "${CONFLUENCE_USER}:${CONFLUENCE_TOKEN}" \
                           "${CONFLUENCE_URL}/${PAGE_ID}/child/attachment")
           echo "Response: $response"
-          if echo "$response" | grep -q "archive.zip"; then
+          if echo "$response" | grep -q "ux_spec.zip"; then
             echo "ZIP archive is successfully uploaded!"
           else
             echo "ZIP archive not found!"
