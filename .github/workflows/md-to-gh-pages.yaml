@@ -71,8 +71,11 @@ jobs:
 
       # Install wkhtmltopdf
       - name: Install wkhtmltopdf
-        run: sudo apt-get install -y wkhtmltopdf
-        
+        run: sudo apt-get install -y wkhtmltopdf 
+            |
+            sudo apt-get install -y renderer1 libxml6 FreeType6 configurability1
+
+
       - name: Install necessary fonts and packages
         run: |
           sudo apt-get update
@@ -85,7 +88,7 @@ jobs:
           find "${{ inputs.build_dir }}" -type f -name "*.html" | while read html_file; do
             echo "Processing: $html_file"
             output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
-            wkhtmltopdf --disable-smart-shrinking --enable-local-file-access --no-images --disable-gpu "$html_file" "$output_pdf"
+            wkhtmltopdf --disable-smart-shrinking --enable-local-file-access --no-images "$html_file" "$output_pdf"
           done
 
 
