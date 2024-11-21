@@ -79,6 +79,8 @@ jobs:
 
       - name: Convert HTML to PDF
         run: |
+          mkdir -p pdf_output  # Kreirajte direktorijum pre nego što počnete sa konverzijom
+
           echo "Listing HTML files in ${{ inputs.build_dir }}..."
           find "${{ inputs.build_dir }}" -type f -name "*.html" | while read html_file; do
             echo "From: $html_file"
