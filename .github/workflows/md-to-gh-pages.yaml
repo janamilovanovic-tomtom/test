@@ -73,36 +73,20 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: change .html to .pdf
-        run: python3 .github/workflow_scripts/new.py "${{ inputs.build_dir }}" "${{ inputs.build_dir2 }}"
-
-
-      # Install wkhtmltopdf and required dependencies
-      - name: Install wkhtmltopdf and Qt libraries
+      - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wkhtmltopdf
-          sudo apt-get install -y libxrender1 libxext6 libfreetype6 libfontconfig1
-
+          pip install pdfkit
+          sudo apt-get update && sudo apt-get install -y wkhtmltopdf
 
       - name: Convert HTML to PDF
         run: |
-          mkdir -p pdf_output  # Kreirajte direktorijum pre nego što počnete sa konverzijom
-
-          echo "Listing HTML files in ${{ inputs.build_dir2 }}..."
-          find "${{ inputs.build_dir2 }}" -type f -name "*.html" | while read html_file; do
-            echo "From: $html_file"
-            output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
-            echo "To: $output_pdf"
-            wkhtmltopdf --enable-local-file-access --load-error-handling ignore --debug-javascript "$html_file" "$output_pdf"
-            echo "Finshed!"
-          done
+          python scripts/convert_html_to_pdf.py "${{ inputs.src_dir }}" "${{ inputs.build_dir2 }}"
 
 
       # Create a zip archive of PDFs
       - name: Create a zip archive of PDFs
         run: |
-          pdf_output_dir="pdf_output"
+          pdf_output_dir="${{ inputs.build_dir2 }}"
           zip_output="pdf_output.zip"
           echo "Zipping PDF files from $pdf_output_dir into $zip_output"
           zip -r "$zip_output" "$pdf_output_dir"
