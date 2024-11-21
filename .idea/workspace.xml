@@ -41,7 +41,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "git-widget-placeholder": "try__deploy__ex__spec__to__GH__pages",
-    "last_opened_file_path": "/Users/jana.milovanovic/Desktop/test_repo/test/.github/workflows",
+    "last_opened_file_path": "/Users/jana.milovanovic/Desktop/test_repo/test",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -53,8 +53,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/.github/workflows" />
       <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/.github/workflows" />
       <recent name="$PROJECT_DIR$/.github/workflow_scripts" />
       <recent name="$PROJECT_DIR$/.github" />
       <recent name="$PROJECT_DIR$/documentation" />
@@ -152,7 +152,7 @@
       <workItem from="1728903144475" duration="37469000" />
       <workItem from="1729614310633" duration="1897000" />
       <workItem from="1731058852880" duration="4607000" />
-      <workItem from="1731399221057" duration="69254000" />
+      <workItem from="1731399221057" duration="69763000" />
     </task>
     <task id="LOCAL-00001" summary="test commit">
       <option name="closed" value="true" />

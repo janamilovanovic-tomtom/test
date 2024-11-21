@@ -78,9 +78,11 @@ jobs:
         run: |
           echo "Listing HTML files in ${{ inputs.build_dir }}..."
           find "${{ inputs.build_dir }}" -type f -name "*.html" | while read html_file; do
-            echo "Processing: $html_file"
+            echo "From: $html_file"
             output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
+            echo "To: $output_pdf"
             wkhtmltopdf --enable-local-file-access "$html_file" "$output_pdf"
+            echo "Finshed!"
           done
 
 
