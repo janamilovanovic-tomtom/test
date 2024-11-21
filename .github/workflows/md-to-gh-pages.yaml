@@ -82,12 +82,12 @@ jobs:
       - name: Convert HTML to PDF
         run: |
           # Get the list of all HTML files in the 'inputs.build_dir2'
-          files=$(find "${{ inputs.build_dir2 }}" -name "*.html")
+          files=$(find "${{ inputs.build_dir }}" -name "*.html")
           
           # Loop through each HTML file
           for file in $files; do
             # Generate the output path for the PDF
-            output="${{ inputs.output_pdf_dir }}/$(basename "${file%.html}.pdf")"
+            output="${{ inputs.build_dir2 }}/$(basename "${file%.html}.pdf")"
           
             # Create the output directory if it doesn't exist
             mkdir -p "$(dirname "$output")"
