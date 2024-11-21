@@ -22,6 +22,7 @@ jobs:
         run: |
           curl -u "${CONFLUENCE_USER}:${CONFLUENCE_TOKEN}" \
                -F "file=@archive.zip" \
+               -H "X-Atlassian-Token: no-check" \
                "${CONFLUENCE_URL}/${PAGE_ID}/child/attachment"
 
       # Step 3: Verify ZIP Upload
