@@ -86,6 +86,10 @@ jobs:
         run: |
           echo "Contents of PDF output directory:"
           ls -lh "${{ inputs.build_dir2 }}"
+          
+
+      - name: Fix permissions
+        run: chmod -R 755 "${{ inputs.build_dir2 }}"
 
       - name: Debug ZIP creation
         run: |
@@ -94,7 +98,7 @@ jobs:
           echo "Zipping files from $pdf_output_dir into $zip_output"
           zip -r "$zip_output" "$pdf_output_dir" || echo "Failed to zip files"
           echo "Listing ZIP content:"
-          unzip -l "$zip_output"
+
 
 
       # Verify that the ZIP file exists
