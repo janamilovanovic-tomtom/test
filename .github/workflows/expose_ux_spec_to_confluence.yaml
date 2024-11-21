@@ -8,30 +8,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Upload to Confluence
-        id: upload
+      # Step 2: Upload to Confluence
+      - name: Upload ZIP to Confluence
         env:
           CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
           CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           PAGE_ID: '409764067'
-          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
+          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content'
         run: |
-            curl -u "${CONFLUENCE_USERNAME}:${CONFLUENCE_API_TOKEN}" \
-                 -F "file=archive.zip" \
-                 "${CONFLUENCE_URL}/rest/api/content/{PAGE_ID}/child/attachment"
-          
+          curl -u "${CONFLUENCE_USER}:${CONFLUENCE_TOKEN}" \
+               -F "file=@archive.zip" \
+               "${CONFLUENCE_URL}/${PAGE_ID}/child/attachment"
+
+      # Step 3: Verify ZIP Upload
       - name: Verify ZIP Upload
         env:
-          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
+          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content'
           PAGE_ID: '409764067'
-          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
           CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
         run: |
           response=$(curl -s -u "${CONFLUENCE_USER}:${CONFLUENCE_TOKEN}" \
-                          "${CONFLUENCE_URL}/rest/api/content/{PAGE_ID}/child/attachment")
+                          "${CONFLUENCE_URL}/${PAGE_ID}/child/attachment")
           echo "Response: $response"
           if echo "$response" | grep -q "archive.zip"; then
             echo "ZIP archive is successfully uploaded!"
