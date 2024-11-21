@@ -84,7 +84,7 @@ jobs:
             echo "From: $html_file"
             output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
             echo "To: $output_pdf"
-            wkhtmltopdf --enable-local-file-access "$html_file" "$output_pdf"
+            wkhtmltopdf --enable-local-file-access --load-error-handling ignore --debug-javascript "$html_file" "$output_pdf"
             echo "Finshed!"
           done
 
