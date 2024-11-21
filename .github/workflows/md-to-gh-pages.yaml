@@ -70,7 +70,7 @@ jobs:
       #  uses: actions/deploy-pages@v4
         
       - name: Create ZIP Archive
-        run: zip -r ux_spec.zip "${{ inputs.build_dir }}"/Region specific designs
+        run: zip -r ux_spec.zip "${{ inputs.build_dir }}/Region specific designs"
         
       - name: Upload ZIP to Confluence
         env:
