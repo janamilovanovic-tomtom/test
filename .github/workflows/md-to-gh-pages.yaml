@@ -87,13 +87,15 @@ jobs:
           echo "Contents of PDF output directory:"
           ls -lh "${{ inputs.build_dir2 }}"
 
-      # Create a zip archive of PDFs
-      - name: Create a zip archive of PDFs
+      - name: Debug ZIP creation
         run: |
           pdf_output_dir="${{ inputs.build_dir2 }}"
           zip_output="pdf_output.zip"
-          echo "Zipping PDF files from $pdf_output_dir into $zip_output"
-          zip -r "$zip_output" "$pdf_output_dir"
+          echo "Zipping files from $pdf_output_dir into $zip_output"
+          zip -r "$zip_output" "$pdf_output_dir" || echo "Failed to zip files"
+          echo "Listing ZIP content:"
+          unzip -l "$zip_output"
+
 
       # Verify that the ZIP file exists
       - name: List files to verify ZIP file
