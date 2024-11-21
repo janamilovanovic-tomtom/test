@@ -14,12 +14,7 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin zip
-          # Install Node.js
-          curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          # Install mdpdf
-          npm install -g mdpdf
+          sudo apt-get install -y pandoc texlive-xetex zip
 
       - name: Update links in Markdown files
         run: |
@@ -29,7 +24,7 @@ jobs:
             sed -i 's|\]\(([^()]*)\.md\)|](\1.pdf)|g' "$INPUT_FILE"
           done
 
-      - name: Convert Markdown to PDF
+      - name: Convert Markdown to PDF using Pandoc
         run: |
           OUTPUT_DIR="nie_ux_spec"
           mkdir -p "$OUTPUT_DIR"
@@ -37,7 +32,7 @@ jobs:
           for INPUT_FILE in $(find . -name "*.md" ! -name "README.md"); do
              echo "Processing file: $INPUT_FILE"
              OUTPUT_FILE="${INPUT_FILE%.md}.pdf"
-             mdpdf "$INPUT_FILE" && mv "$OUTPUT_FILE" "$OUTPUT_DIR/"
+             pandoc "$INPUT_FILE" -o "$OUTPUT_DIR/$(basename $OUTPUT_FILE)" --pdf-engine=xelatex
              echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
           done
           
