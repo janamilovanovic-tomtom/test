@@ -82,6 +82,10 @@ jobs:
         run: |
           python3 .github/workflow_scripts/new.py "${{ inputs.src_dir }}" "${{ inputs.build_dir2 }}"
 
+      - name: List generated PDF files
+        run: |
+          echo "Contents of PDF output directory:"
+          ls -lh "${{ inputs.build_dir2 }}"
 
       # Create a zip archive of PDFs
       - name: Create a zip archive of PDFs
