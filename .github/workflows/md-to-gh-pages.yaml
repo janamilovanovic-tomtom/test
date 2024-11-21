@@ -22,6 +22,10 @@ on:
         description: root of path to recursively publish static HTML from
         required: true
         type: string
+      build_dir2:
+        description: root of path to recursively publish static HTML from
+        required: true
+        type: string
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -69,6 +73,10 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: change .html to .pdf
+        run: python3 .github/workflow_scripts/new.py "${{ inputs.build_dir }}" "${{ inputs.build_dir2 }}"
+
+
       # Install wkhtmltopdf and required dependencies
       - name: Install wkhtmltopdf and Qt libraries
         run: |
@@ -81,8 +89,8 @@ jobs:
         run: |
           mkdir -p pdf_output  # Kreirajte direktorijum pre nego što počnete sa konverzijom
 
-          echo "Listing HTML files in ${{ inputs.build_dir }}..."
-          find "${{ inputs.build_dir }}" -type f -name "*.html" | while read html_file; do
+          echo "Listing HTML files in ${{ inputs.build_dir2 }}..."
+          find "${{ inputs.build_dir2 }}" -type f -name "*.html" | while read html_file; do
             echo "From: $html_file"
             output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
             echo "To: $output_pdf"

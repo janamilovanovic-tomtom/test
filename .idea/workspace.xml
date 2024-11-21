@@ -33,6 +33,7 @@
   "keyToString": {
     "Python.generate_html.executor": "Run",
     "Python.s.executor": "Run",
+    "Python.script.executor": "Run",
     "Python.skripta.executor": "Run",
     "RunOnceActivity.RadMigrateCodeStyle": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
@@ -65,7 +66,7 @@
       <recent name="$PROJECT_DIR$/file1" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.skripta">
+  <component name="RunManager" selected="Python.script">
     <configuration name="generate_html" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="test" />
       <option name="ENV_FILES" value="" />
@@ -110,6 +111,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="script" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="test" />
+      <option name="ENV_FILES" value=". jana" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/script.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="skripta" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="test" />
       <option name="ENV_FILES" value="" />
@@ -134,6 +157,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.script" />
         <item itemvalue="Python.skripta" />
         <item itemvalue="Python.s" />
         <item itemvalue="Python.generate_html" />
@@ -152,7 +176,7 @@
       <workItem from="1728903144475" duration="37469000" />
       <workItem from="1729614310633" duration="1897000" />
       <workItem from="1731058852880" duration="4607000" />
-      <workItem from="1731399221057" duration="72145000" />
+      <workItem from="1731399221057" duration="73586000" />
     </task>
     <task id="LOCAL-00001" summary="test commit">
       <option name="closed" value="true" />
