@@ -20,7 +20,7 @@ def main(src_dir, build_dir):
                 filename = os.path.splitext(file)[0] + '.html'
 
                 with open(os.path.join(output_dir, filename), 'w') as outfile:
-                    outfile.write(styled_html)
+                    outfile.write(content)
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
