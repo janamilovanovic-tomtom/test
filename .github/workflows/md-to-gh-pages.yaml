@@ -80,7 +80,7 @@ jobs:
 
       - name: Convert HTML to PDF
         run: |
-          python scripts/convert_html_to_pdf.py "${{ inputs.src_dir }}" "${{ inputs.build_dir2 }}"
+          python3 .github/workflow_scripts/new.py "${{ inputs.src_dir }}" "${{ inputs.build_dir2 }}"
 
 
       # Create a zip archive of PDFs
