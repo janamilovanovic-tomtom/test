@@ -85,21 +85,22 @@ jobs:
             wkhtmltopdf "$html_file" "$output_pdf"
           done
 
-      # Create a zip archive of all the PDFs in the 'pdf_output' folder
+      # Create a zip archive of PDFs
       - name: Create a zip archive of PDFs
         run: |
-          # Define the output directory for the PDFs and the output zip file
           pdf_output_dir="${{ inputs.build_dir }}/pdf_output"
           zip_output="${{ inputs.build_dir }}/pdf_output.zip"
-
-          # Create the ZIP file containing all PDFs
           echo "Zipping PDF files from $pdf_output_dir into $zip_output"
           zip -r "$zip_output" "$pdf_output_dir"
 
+      # Verify that the ZIP file exists
+      - name: List files to verify ZIP file
+        run: |
+          ls -lh "${{ inputs.build_dir }}/pdf_output.zip"
 
       # Upload the ZIP file as an artifact
       - name: Upload PDF ZIP artifact
         uses: actions/upload-artifact@v3
         with:
           name: pdf-files
-          path: "${{ github.workspace }}/doc_build/pdf_output.zip"
+          path: "${{ inputs.build_dir }}/pdf_output.zip"
