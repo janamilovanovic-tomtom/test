@@ -8,7 +8,7 @@ def main(src_dir, build_dir):
 
     for root, dirs, files in os.walk(src_dir):
         for file in files:
-            if file.endswith('.md'):
+            if file.endswith('.html'):
                 relative_path = os.path.relpath(root, src_dir)
                 output_dir = os.path.join(build_dir, relative_path)
                 os.makedirs(output_dir, exist_ok=True)
