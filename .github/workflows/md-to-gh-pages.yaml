@@ -57,29 +57,44 @@ jobs:
       - name: Copy assets
         run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
-   #   - name: Setup GitHub Pages
-    #    uses: actions/configure-pages@v5
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
 
-   #   - name: Upload GitHub Pages artifact
-    #    uses: actions/upload-pages-artifact@v3
-     #   with:
-      #    path: "${{ inputs.build_dir }}"
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "${{ inputs.build_dir }}"
 
-    #  - name: Deploy to GitHub Pages
-     #   id: deployment
-      #  uses: actions/deploy-pages@v4
-        
-      - name: Create ZIP Archive
-        run: zip -r ux_spec1.zip "${{ inputs.build_dir }}/Region specific designs"
-        
-      - name: Upload ZIP to Confluence
-        env:
-          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
-          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
-          PAGE_ID: '409764067'
-          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # Install wkhtmltopdf
+      - name: Install wkhtmltopdf
+        run: sudo apt-get install -y wkhtmltopdf
+
+      # Convert HTML to PDF
+      - name: Convert HTML to PDF
         run: |
-          curl -u "${CONFLUENCE_USER}:${CONFLUENCE_TOKEN}" \
-               -F "file=@ux_spec1.zip" \
-               -H "X-Atlassian-Token: no-check" \
-               "${CONFLUENCE_URL}/${PAGE_ID}/child/attachment"
+          # Create a new directory to store the PDFs
+          mkdir -p "${{ inputs.build_dir }}/pdf_output"
+          
+          # Convert each HTML file in the build_dir to a PDF and save in the new pdf_output directory
+          for html_file in "${{ inputs.build_dir }}"/*.html; do
+            output_pdf="${{ inputs.build_dir }}/pdf_output/$(basename "$html_file" .html).pdf"
+            wkhtmltopdf "$html_file" "$output_pdf"
+          done
+
+      # Create a zip archive containing all the PDFs
+      - name: Zip PDF files
+        run: |
+          # Create a zip archive of all the PDFs in the 'pdf_output' folder
+          cd "${{ inputs.build_dir }}/pdf_output"
+          zip -r "${{ inputs.build_dir }}/pdf_output.zip" .
+
+      # Upload the ZIP file as an artifact
+      - name: Upload PDF ZIP artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: pdf-files
+          path: "${{ inputs.build_dir }}/pdf_output.zip"
