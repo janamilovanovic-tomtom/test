@@ -1,25 +1,42 @@
-name: Upload ZIP Archive to Confluence
+name: Upload ZIP to Confluence and Verify
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  upload_to_confluence:
+  upload-and-verify:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      # Step 1: Checkout Code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Upload to Confluence
-        id: upload
+      # Step 2: Upload ZIP Archive to Confluence
+      - name: Upload ZIP to Confluence
         env:
-          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
-          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
-          PAGE_ID: '409764067'
-          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content/'
+          CONFLUENCE_URL: ${{ secrets.CONFLUENCE_URL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
         run: |
-            curl -u "${CONFLUENCE_USERNAME}:${CONFLUENCE_API_TOKEN}" \
-                 -F "file=@archive.zip" \
-                 "${CONFLUENCE_URL}/rest/api/content/{PAGE_ID}/child/attachment"
-       
+          curl -u "${CONFLUENCE_USERNAME}:${CONFLUENCE_API_TOKEN}" \
+               -F "file=@./archive.zip" \
+               "${CONFLUENCE_URL}/rest/api/content/${{ secrets.CONFLUENCE_PAGE_ID }}/child/attachment"
+
+      # Step 3: Verify ZIP Upload
+      - name: Verify ZIP Upload
+        env:
+          CONFLUENCE_URL: ${{ secrets.CONFLUENCE_URL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
+          CONFLUENCE_USERNAME: ${{ secrets.CONFLUENCE_USERNAME }}
+        run: |
+          response=$(curl -s -u "${CONFLUENCE_USERNAME}:${CONFLUENCE_API_TOKEN}" \
+                          "${CONFLUENCE_URL}/rest/api/content/${{ secrets.CONFLUENCE_PAGE_ID }}/child/attachment")
+          echo "Response: $response"
+          if echo "$response" | grep -q "archive.zip"; then
+            echo "ZIP archive is successfully uploaded!"
+          else
+            echo "ZIP archive not found!"
+            exit 1
+          fi
