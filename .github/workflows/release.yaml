@@ -26,4 +26,4 @@ jobs:
       src_dir: .
       # Make sure this is outside of the src_dir
       build_dir: ../doc_build
-      build_dir2: ../doc_build2
+      build_dir2: doc_build2
