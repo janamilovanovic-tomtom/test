@@ -81,7 +81,7 @@ jobs:
           mkdir -p "pdf_output"
           
           # Convert each HTML file in the build_dir to a PDF and save in the new pdf_output directory
-          for html_file in "${{ inputs.build_dir }}"/*.html; do
+           for html_file in "${{ inputs.build_dir }}/**/*.html"; do
             echo $html_file
             output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
             wkhtmltopdf "$html_file" "$output_pdf"
