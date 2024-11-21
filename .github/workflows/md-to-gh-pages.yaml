@@ -102,4 +102,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: pdf-files
-          path: "${{ inputs.build_dir }}/pdf_output.zip"
+          path: "${{ github.workspace }}/doc_build/pdf_output.zip"
