@@ -1,6 +1,7 @@
 import os
 import pdfkit
 import sys
+import re
 
 def convert_html_to_pdf(html_dir, pdf_dir):
     """
