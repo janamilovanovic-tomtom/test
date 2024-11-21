@@ -76,6 +76,7 @@ jobs:
       # Convert HTML to PDF
       - name: Convert HTML to PDF
         run: |
+          ls -al "${{ inputs.build_dir }}"
           # Create a new directory to store the PDFs
           mkdir -p "pdf_output"
           
