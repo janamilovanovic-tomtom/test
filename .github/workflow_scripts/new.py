@@ -26,4 +26,4 @@ def convert_html_to_pdf(html_dir, pdf_dir):
 if __name__ == "__main__":
     src_dir = sys.argv[1]
     build_dir = sys.argv[2]
-    main(src_dir, build_dir)
+    convert_html_to_pdf(src_dir, build_dir)
