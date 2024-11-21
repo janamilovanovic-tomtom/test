@@ -49,62 +49,12 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install dependencies
-        run: pip install markdown
-
-      - name: Generate HTML from Markdown
-        run: python3 .github/workflow_scripts/generate_html.py "${{ inputs.src_dir }}" "${{ inputs.build_dir }}"
-
-      - name: Fix ownership of HTML files
-        run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
-
-      - name: Copy assets
-        run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
-
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Build
+        uses: docascod/actions-build@1.0
         with:
-          path: "${{ inputs.build_dir }}"
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Install dependencies
-        run: |
-          pip install pdfkit
-          sudo apt-get update && sudo apt-get install -y wkhtmltopdf
-
-      # Loop through each HTML file in the 'inputs.build_dir2' and convert to PDF in 'output_pdf_dir'
-      - name: Convert HTML files to PDFs
-        run: |
-          # Get the list of all HTML files in the 'inputs.build_dir2'
-          files=$(find "${{ inputs.build_dir}}" -name "*.html")
-          
-          # Loop through each HTML file
-          for file in $files; do
-            # Generate the output path for the PDF
-            output="${{ inputs.build_dir2 }}/$(basename "${file%.html}.pdf")"
-          
-            # Create the output directory if it doesn't exist
-            mkdir -p "$(dirname "$output")"
-          
-            # Convert the HTML to PDF using html-to-pdf-action
-            echo "Converting $file to $output"
-            uses: fifsky/html-to-pdf-action@master
-            with:
-              htmlFile: $file
-              outputFile: $output
-              pdfOptions: '{"format": "A4", "margin": {"top": "10mm", "left": "10mm", "right": "10mm", "bottom": "10mm"}}'
-          
-          done
-
-      # Upload the ZIP file as an artifact
-      - name: Upload PDF ZIP artifact
-        uses: actions/upload-artifact@v4
+          sources: '*.md'
+      - name: Publish
+        uses: actions/upload-artifact@v2
         with:
-          name: pdf-files
-          path: ${{ inputs.build_dir2 }}
+          path: build/*.pdf
+
