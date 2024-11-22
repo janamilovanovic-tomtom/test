@@ -14,26 +14,31 @@ jobs:
       - name: Set up environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y librsvg2-bin zip
-          # Install Node.js
-          curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          # Install mdpdf
-          npm install -g mdpdf
+          sudo apt-get install -y pandoc texlive-xetex zip
 
-      - name: Convert Markdown to PDF
+      - name: Update links in Markdown files
+        run: |
+          # Replace links pointing to .md files with .pdf equivalents
+          for INPUT_FILE in $(find . -name "*.md"); do
+            echo "Updating links in $INPUT_FILE"
+            sed -i 's|\]\(([^()]*)\.md\)|](\1.pdf)|g' "$INPUT_FILE"
+          done
+
+      - name: Convert Markdown to PDF using Pandoc
         run: |
           OUTPUT_DIR="nie_ux_spec"
           mkdir -p "$OUTPUT_DIR"
           
           for INPUT_FILE in $(find . -name "*.md" ! -name "README.md"); do
+             echo "Current directory: $(pwd)"
              echo "Processing file: $INPUT_FILE"
              OUTPUT_FILE="${INPUT_FILE%.md}.pdf"
-             mdpdf "$INPUT_FILE" && mv "$OUTPUT_FILE" "$OUTPUT_DIR/"
+             pandoc "$INPUT_FILE" -o "$OUTPUT_DIR/$(basename $OUTPUT_FILE)" --pdf-engine=xelatex   --css styles.css --resource-path=./Customer_specific_designs-HCP3,STL/NIE_023-NIP_in_Cluster
+
              echo "Conversion of $INPUT_FILE completed. Output file: $OUTPUT_FILE"
           done
           
-           zip -r "nie_ux_spec.zip" "$OUTPUT_DIR"
+          zip -r "nie_ux_spec.zip" "$OUTPUT_DIR"
 
       - name: Upload PDF ZIP
         uses: actions/upload-artifact@v4

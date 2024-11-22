@@ -7,7 +7,7 @@ name: Release
 on:
   push:
     branches:
-      - main
+      - fix_pdfs
   workflow_dispatch:
 
 concurrency: ${{ github.ref }}
@@ -26,3 +26,4 @@ jobs:
       src_dir: .
       # Make sure this is outside of the src_dir
       build_dir: ../doc_build
+      build_dir2: doc_build2
