@@ -34,15 +34,11 @@ jobs:
       - name: Install Pandoc
         run: sudo apt-get install pandoc
 
-      - name: List Markdown files
-        run: ls "${{ inputs.src_dir }}"/*.md
-
       - name: Convert Markdown to PDF
         run: |
           mkdir pdfs
-          for file in "${{ inputs.src_dir }}"/*.md; do
-            pandoc -s "$file" -o "pdfs/$(basename "${file%.md}.pdf")" --pdf-engine=xelatex
-          done
+          find "${{ inputs.src_dir }}" -name "*.md" -exec pandoc -s {} -o "pdfs/$(basename {} .md).pdf" --pdf-engine=xelatex \;
+
 
       - name: Archive PDFs
         uses: actions/upload-artifact@v3
