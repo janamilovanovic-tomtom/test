@@ -34,11 +34,6 @@ jobs:
       - name: Install Pandoc
         run: sudo apt-get install pandoc
 
-      - name: Update Markdown Links
-        run: |
-          find "${{ inputs.src_dir }}" -name "*.md" | while read -r file; do
-            sed -i 's|\(]\(.*\)(\.\*\)\.md|]\2.pdf|g' "$file"
-          done
 
       - name: Install LaTeX packages
         run: sudo apt-get install texlive-xetex
@@ -46,6 +41,7 @@ jobs:
       - name: Convert Markdown to PDF
         run: |
             find "${{ inputs.src_dir }}" -name "*.md" | while read -r file; do
+              sed -i 's|\(]\(.*\)(\.\*\)\.md|]\2.pdf|g' "$file"
               output_dir="pdfs/$(dirname "$file" | sed "s|${{ inputs.src_dir }}/||")"
               mkdir -p "$output_dir"
               output_file="$output_dir/$(basename "$file" .md).pdf"
