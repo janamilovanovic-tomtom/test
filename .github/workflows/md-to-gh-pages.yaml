@@ -34,10 +34,8 @@ jobs:
       - name: Install Pandoc
         run: sudo apt-get install pandoc
 
-
-      - name: Install LaTeX packages
-        run: sudo apt-get install texlive-pdflatex
-
+      - name: Install TeX Live (including pdflatex)
+        run: sudo apt-get install -y texlive
 
 
       - name: Convert Markdown to PDF
