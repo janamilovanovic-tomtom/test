@@ -26,7 +26,7 @@ def update_pdf_links(input_pdf_path, output_pdf_path):
 
 # Example usage
 def main():
-    pdf_files = ['a.pdf', 'NIE_023_NIP_in_Cluster.pdf']  # List your PDF files
+    pdf_files = ['a.pdf', 'b.pdf']  # List your PDF files
     for pdf_file in pdf_files:
         update_pdf_links(pdf_file, f'updated_{pdf_file}')
 
