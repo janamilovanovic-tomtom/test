@@ -37,10 +37,9 @@ jobs:
       - name: Install TeX Live (including pdflatex)
         run: sudo apt-get install -y texlive
 
-
-      - name: Convert Markdown to PDF
+      - name: Convert html to PDF
         run: |
-            find "${{ inputs.src_dir }}" -name "*.md" | while read -r file; do
+            find "${{ inputs.src_dir }}" -name "*.html" | while read -r file; do
               output_dir="pdfs/$(dirname "$file" | sed "s|${{ inputs.src_dir }}/||")"
               mkdir -p "$output_dir"
               output_file="$output_dir/$(basename "$file" .md).pdf"

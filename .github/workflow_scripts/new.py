@@ -1,69 +1,34 @@
 import os
-import pdfkit
-import sys
-import re
+import PyPDF2
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
-def convert_html_to_pdf(html_dir, pdf_dir):
-    """
-    Converts HTML files to PDF files, preserving relative links in the HTML.
-    """
-    # Kreiraj izlazni direktorijum za PDF fajlove
-    os.makedirs(pdf_dir, exist_ok=True)
+def update_pdf_links(input_pdf_path, output_pdf_path):
+    with open(input_pdf_path, 'rb') as input_file:
+        reader = PyPDF2.PdfReader(input_file)
 
-    # Opcije za pdfkit
-    options = {
-        "enable-local-file-access": True,  # Omogući lokalni pristup fajlovima
-        "no-pdf-compression": True,       # Sprečava dodatne promene PDF-a
-    }
+        # Create a new PDF to write the modified content
+        c = canvas.Canvas(output_pdf_path, pagesize=letter)
 
-    for root, dirs, files in os.walk(html_dir):
-        for file in files:
-            if file.endswith(".html"):
-                # Ulazna putanja do HTML fajla
-                input_path = os.path.join(root, file)
+        for page in reader.pages:
+            page_content = page.extract_text()
+            if page_content:
+                # Replace links from '.md' to '.pdf'
+                modified_content = page_content.replace('.md', '.pdf')
 
-                # Relativna putanja za strukturu direktorijuma
-                relative_path = os.path.relpath(input_path, html_dir)
+                # Write the modified content to the new PDF
+                # This assumes a simple one-line layout; adjust as necessary
+                c.drawString(100, 750, modified_content)  # Adjust the position as needed
+                c.showPage()  # End the current page and start a new one
 
-                # Izlazna putanja za PDF fajl
-                output_path = os.path.join(pdf_dir, os.path.splitext(relative_path)[0] + ".pdf")
+        # Save the new PDF
+        c.save()
 
-                # Kreiraj direktorijum za izlaz ako ne postoji
-                os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-                # Izmena HTML-a u memoriji pre generisanja PDF-a
-                with open(input_path, 'r', encoding='utf-8') as html_file:
-                    html_content = html_file.read()
-
-                # Zameni apsolutne linkove relativnim (opcionalno, ako je potrebno)
-                updated_html = html_content.replace('file:///', '')
-
-
-                updated_html = re.sub(r'\[(.*?)\]\((.+?)(\.html)([?#]?.*?)\)', r'[\1](\2.pdf\4)', updated_html)
-
-
-            # Privremena datoteka za modifikovan HTML
-                temp_html_path = input_path + ".temp.html"
-                with open(temp_html_path, 'w', encoding='utf-8') as temp_file:
-                    temp_file.write(updated_html)
-
-
-
-
-                # Generiši PDF iz privremene HTML datoteke
-                pdfkit.from_file(temp_html_path, output_path, options=options)
-
-                # Ukloni privremenu datoteku
-                os.remove(temp_html_path)
-
-    print(f"PDF files generated in {pdf_dir}")
+# Example usage
+def main():
+    pdf_files = ['a.pdf', 'NIE_023_NIP_in_Cluster.pdf']  # List your PDF files
+    for pdf_file in pdf_files:
+        update_pdf_links(pdf_file, f'updated_{pdf_file}')
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python script.py <source_directory> <output_directory>")
-        sys.exit(1)
-
-    src_dir = sys.argv[1]
-    build_dir = sys.argv[2]
-
-    convert_html_to_pdf(src_dir, build_dir)
+    main()

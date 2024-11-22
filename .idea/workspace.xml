@@ -10,6 +10,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3277222-c0ae-43a7-8ab8-0ba481342f6a" name="Changes" comment="test commit">
+      <change afterPath="$PROJECT_DIR$/new.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.github/workflow_scripts/new.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.github/workflows/md-to-gh-pages.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/md-to-gh-pages.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Customer_specific_designs-HCP3,STL/NIE_023-NIP_in_Cluster/NIE_023_NIP_in_Cluster.md" beforeDir="false" afterPath="$PROJECT_DIR$/Customer_specific_designs-HCP3,STL/NIE_023-NIP_in_Cluster/NIE_023_NIP_in_Cluster.md" afterDir="false" />
@@ -65,6 +67,7 @@
       <recent name="$PROJECT_DIR$/documentation" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/.github/workflow_scripts" />
       <recent name="$PROJECT_DIR$/file2" />
       <recent name="$PROJECT_DIR$/file1" />
@@ -181,7 +184,7 @@
       <workItem from="1729614310633" duration="1897000" />
       <workItem from="1731058852880" duration="4607000" />
       <workItem from="1731399221057" duration="74607000" />
-      <workItem from="1732228316823" duration="13943000" />
+      <workItem from="1732228316823" duration="15240000" />
     </task>
     <task id="LOCAL-00001" summary="test commit">
       <option name="closed" value="true" />
