@@ -50,4 +50,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: pdf-artifacts
-          path: pdfs/*.pdf
+          path: pdfs
