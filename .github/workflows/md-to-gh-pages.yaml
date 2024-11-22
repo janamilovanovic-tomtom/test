@@ -38,11 +38,7 @@ jobs:
       - name: Install LaTeX packages
         run: sudo apt-get install texlive-xetex
 
-      - name: Update Markdown Links
-        run: |
-          find "${{ inputs.src_dir }}" -name "*.md" | while read -r file; do
-            sed -i 's|\[\([^]]*\)\](\([^)]*\)\.md|\[\1\](\2.pdf|g' "$file"
-          done
+
 
       - name: Convert Markdown to PDF
         run: |
