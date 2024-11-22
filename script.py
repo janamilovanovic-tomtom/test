@@ -1,27 +1,34 @@
-import os
-import pdfkit
+import fitz  # PyMuPDF
 
-def convert_html_to_pdf(html_dir, pdf_dir):
-    # Kreiraj izlazni direktorijum za PDF
-    os.makedirs(pdf_dir, exist_ok=True)
+# Otvorite PDF fajl
+doc = fitz.open("a.pdf")
 
-    options = {
-        "enable-local-file-access": True,  # Omogući lokalni pristup fajlovima
-    }
+# Prolazak kroz sve stranice u PDF-u
+for page_num in range(len(doc)):
+    page = doc.load_page(page_num)
 
-    for root, dirs, files in os.walk(html_dir):
-        for file in files:
-            if file.endswith(".html"):
-                input_path = os.path.join(root, file)
-                relative_path = os.path.relpath(input_path, html_dir)
-                output_path = os.path.join(pdf_dir, os.path.splitext(relative_path)[0] + ".pdf")
+    # Pronađite sve linkove na stranici
+    links = page.get_links()
 
-                os.makedirs(os.path.dirname(output_path), exist_ok=True)
-                pdfkit.from_file(input_path, output_path, options=options)
+    # Prolazak kroz sve linkove i zamena URL-ova
+    for link in links:
+        print("1")
+        print(link)
+        if 'file' in link:
+            print("2")
+            uri = link['file']
+            # Proverite da li link počinje sa file:///home/runner/work/test/test/
+            if uri.startswith("/home/runner/work/test/test/"):
+                print("yes")
+                # Zamenite ga sa ./ (relativni link)
+                new_uri = uri.replace("/home/runner/work/test/test/", "./")
+                # Modifikujte link direktno
+                link['file'] = new_uri
 
-    print(f"PDF files generated in {pdf_dir}")
+                # Ponovo postavite link sa novim uri
 
-if __name__ == "__main__":
-    html_dir = "."  # Putanja do HTML fajlova
-    pdf_dir = "./pdf_output"  # Putanja do PDF fajlova
-    convert_html_to_pdf(html_dir, pdf_dir)
+                print(link)
+                page.update_link(link)
+
+# Sačuvajte izmenjeni PDF
+doc.save("a1.pdf")

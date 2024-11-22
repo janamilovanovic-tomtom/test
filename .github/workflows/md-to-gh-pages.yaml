@@ -7,10 +7,6 @@ name: Deploy Markdown to GitHub Pages
 # Docs: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-with-a-custom-github-actions-workflow
 # To enable gh-pages: https://pages.github.com/
 #   goto:
-#    - repo settings
-#    - Pages
-#    - Build and deployment -> Source: select GitHub Actions
-
 on:
   workflow_call:
     inputs:
@@ -27,7 +23,6 @@ on:
         required: true
         type: string
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -45,36 +40,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
+      - name: Install Pandoc
+        run: sudo apt-get install pandoc
 
-      - name: Install dependencies
-        run: pip install markdown
-
-      # Install wkhtmltopdf and required dependencies
-      - name: Install wkhtmltopdf and Qt libraries
+      - name: Convert Markdown to PDF
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wkhtmltopdf
-          sudo apt-get install -y libxrender1 libxext6 libfreetype6 libfontconfig1
-
-
-      - name: Convert HTML to PDF
-        run: |
-          mkdir -p pdf_output  # Kreirajte direktorijum pre nego što počnete sa konverzijom
-
-          echo "Listing HTML files in $"
-          find . -type f -name "*.html" | while read html_file; do
-            echo "From: $html_file"
-            output_pdf="pdf_output/$(basename "$html_file" .html).pdf"
-            echo "To: $output_pdf"
-            wkhtmltopdf --enable-local-file-access  "$html_file" "$output_pdf"
-            echo "Finshed!"
+          mkdir pdfs
+          for file in "${{ inputs.src_dir }}"/*.md; do
+            pandoc -s "$file" -o "pdfs/$(basename "${file%.md}.pdf")" --pdf-engine=xelatex
           done
 
-      # Upload the ZIP file as an artifact
-      - name: Upload PDF ZIP artifact
-        uses: actions/upload-artifact@v3
+      - name: Archive PDFs
+        uses: actions/upload-artifact@v4
         with:
-          path: pdf_output
+          name: pdf-artifacts
+          path: pdfs/*.pdf
