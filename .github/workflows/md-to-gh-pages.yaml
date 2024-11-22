@@ -1,12 +1,3 @@
-# Copyright (C) 2022 TomTom NV. All rights reserved.
-
----
-
-name: Deploy Markdown to GitHub Pages
-# Publishes to: http://username.github.io/repository.
-# Docs: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-with-a-custom-github-actions-workflow
-# To enable gh-pages: https://pages.github.com/
-#   goto:
 on:
   workflow_call:
     inputs:
@@ -43,6 +34,9 @@ jobs:
       - name: Install Pandoc
         run: sudo apt-get install pandoc
 
+      - name: List Markdown files
+        run: ls "${{ inputs.src_dir }}"/*.md
+
       - name: Convert Markdown to PDF
         run: |
           mkdir pdfs
@@ -51,7 +45,7 @@ jobs:
           done
 
       - name: Archive PDFs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
           name: pdf-artifacts
           path: pdfs/*.pdf
