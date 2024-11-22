@@ -7,6 +7,9 @@
 Introduction
 ============
 
+
+
+
 Border crossing is not an Instruction technically - it is a informative message informing driver about the fact of crossing country borders.
 
 Location
