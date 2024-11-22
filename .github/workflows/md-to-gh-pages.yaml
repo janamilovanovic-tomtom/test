@@ -45,7 +45,7 @@ jobs:
           done
 
       - name: Archive PDFs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pdf-artifacts
           path: pdfs/*.pdf
