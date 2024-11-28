@@ -1,8 +1,9 @@
 name: Upload ZIP to OneDrive
 
 on:
-  workflow_dispatch:
-
+  push:
+    branches:
+      - main  # ili tvoja željena grana
 
 jobs:
   upload:
@@ -28,7 +29,27 @@ jobs:
 
       - name: Upload to OneDrive
         run: |
-          curl -X PUT "https://graph.microsoft.com/v1.0/me/drive/root:/archive.zip/content" \
+          # Create an upload session
+          upload_session=$(curl -X POST "https://graph.microsoft.com/v1.0/me/drive/root:/Shared%20Documents/nie-ux-spec/archive.zip:/createUploadSession" \
           -H "Authorization: Bearer ${{ steps.get_token.outputs.token }}" \
-          -H "Content-Type: application/zip" \
-          --data-binary @archive.zip
+          -H "Content-Type: application/json" \
+          -d '{"item": {"@microsoft.graph.conflictBehavior": "replace"}}')
+
+          upload_url=$(echo $upload_session | jq -r '.uploadUrl')
+
+          # Upload the file in chunks
+          file_size=$(stat -c%s "archive.zip")
+          chunk_size=3276800  # 3.2 MB
+          offset=0
+
+          while [ $offset -lt $file_size ]; do
+            end=$((offset + chunk_size))
+            if [ $end -gt $file_size ]; then
+              end=$file_size
+            fi
+            curl -X PUT "$upload_url" \
+              -H "Content-Length: $((end - offset))" \
+              -H "Content-Range: bytes $offset-$((end - 1))/$file_size" \
+              --data-binary @<(dd if=archive.zip bs=1 skip=$offset count=$((end - offset)))
+            offset=$end
+          done
