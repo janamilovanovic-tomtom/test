@@ -7,7 +7,9 @@
 **What is Mandatory turn?**
 ---------------------------
 
-Usual manoeuvres assume several possibilities for a turn, however there are situations when only one outcome is actually possible. This is due to the fact that alternative outcomes are blocked by traffic signs. Mandatory turn is instruction is used when there is only one possible outcome of the manoeuvre and driver needs to follow the manoeuvre anyway following driving rules or physical road. In such cases instruction is replaced by the **"follow the road to** _**<direction of="" turn="">**_. 
+Usu
+
+al manoeuvres assume several possibilities for a turn, however there are situations when only one outcome is actually possible. This is due to the fact that alternative outcomes are blocked by traffic signs. Mandatory turn is instruction is used when there is only one possible outcome of the manoeuvre and driver needs to follow the manoeuvre anyway following driving rules or physical road. In such cases instruction is replaced by the **"follow the road to** _**<direction of="" turn="">**_. 
 
 **Conditions for Mandatory turn**
 ---------------------------------
