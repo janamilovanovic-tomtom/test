@@ -24,7 +24,7 @@ jobs:
           SP_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
           SP_TENANT_ID: ${{ secrets.SP_TENANT_ID }}
           SP_SITE_URL: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
-          SP_FOLDER_PATH: 'Shared Documents/nie-ux-spec'
+          SP_FOLDER_PATH: 'Shared%20Documents/nie-ux-spec'
         run: |
           FILE_PATH="README.md"  
           FILE_NAME=$(basename $FILE_PATH)
