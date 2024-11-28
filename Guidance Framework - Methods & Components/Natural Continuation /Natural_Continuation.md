@@ -6,6 +6,8 @@
 Read me first
 =============
 
+
+
 Before reading this document is is recommended to get yourself familiar with the terminology used here: [Motorway Guidance Glossary](https://tomtom.atlassian.net/wiki/spaces/NAV/pages/104678579/Motorway+Guidance+Glossary)
 
 What is Natural Continuation?
