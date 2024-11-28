@@ -17,9 +17,9 @@ jobs:
       - name: SharePoint uploader
         uses: su-dont/share-point-uploader@v2.1
         with:
-          sp_url: https://my.sharepoint.com/:f:/r/sites/docs
-          sp_username: john.doe@sharepoint.com
+          sp_url: https://tomtominternational.sharepoint.com/sites/nav-dx-guidance
+          sp_username: jana.milovanovic@tomtom.com
           sp_password: ${{ secrets.PASSWORD }}
-          sp_folder: /My Documents/My Files
+          sp_folder: /Shared Documents/nie-ux-spec
           sp_file_name: share_point_text.txt
           file: test.txt
