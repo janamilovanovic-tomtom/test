@@ -12,6 +12,9 @@ Audio, or spoken, instructions are the means of Guidance and used in combination
 
 Relevant Documents:
 
+
+
+
 [Instructions Triggering Logic](https://tomtom.atlassian.net/wiki/x/WQFmCQ) - provides definition of how instructions (both audio and visual) are triggered in time.  
 [Instruction Architecture](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20arhitecture/Instruction_architecture.md) - defines in detail Next Instruction Panel (NIP) component which displays visual guidance information which is replicated by Audio Instruction.
 
