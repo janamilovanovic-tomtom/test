@@ -26,7 +26,7 @@ jobs:
           SP_SITE_URL: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
           SP_FOLDER_PATH: 'Shared Documents/nie-ux-spec'
         run: |
-          FILE_PATH="path/to/your/file.txt"  # Relativna putanja do fajla u GH repo
+          FILE_PATH="README.md"  
           FILE_NAME=$(basename $FILE_PATH)
           
           # Dobijanje access tokena
