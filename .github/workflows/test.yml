@@ -1,64 +1,20 @@
-name: Upload ZIP to OneDrive
+name: 'Sharepoint Sync'
 
 on:
-  push:
-    branches:
-      - main  # ili tvoja željena grana
+  workflow_dispatch:
 
 jobs:
-  upload:
+  publish:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+
+      - name: Cloning repo
         uses: actions/checkout@v2
 
-      - name: Create ZIP archive
-        run: zip -r archive.zip .  # Kreira ZIP arhivu svih datoteka u trenutnom direktorijumu
-
-      - name: Get Access Token
-        id: get_token
-        run: |
-          response=$(curl -X POST "https://login.microsoftonline.com/${{ secrets.TENANT_ID }}/oauth2/v2.0/token" \
-          -H "Content-Type: application/x-www-form-urlencoded" \
-          -d "client_id=${{ secrets.CLIENT_ID }}" \
-          -d "scope=https://graph.microsoft.com/.default" \
-          -d "client_secret=${{ secrets.CLIENT_SECRET }}" \
-          -d "grant_type=client_credentials")
-          echo "::set-output name=token::$(echo $response | jq -r .access_token)"
-
-      - name: Create Upload Session
-        id: create_upload_session
-        run: |
-          upload_session=$(curl -X POST "https://graph.microsoft.com/v1.0/me/drive/root:/Shared%20Documents/nie-ux-spec/archive.zip:/createUploadSession" \
-          -H "Authorization: Bearer ${{ steps.get_token.outputs.token }}" \
-          -H "Content-Type: application/json" \
-          -d '{"item": {"@microsoft.graph.conflictBehavior": "replace"}}')
-
-          echo "Upload session response: $upload_session"
-          if [ "$(echo $upload_session | jq -r .error)" != "null" ]; then
-              echo "Failed to create upload session. Error: $(echo $upload_session | jq -r .error.message)"
-              exit 1
-          fi
-
-          upload_url=$(echo $upload_session | jq -r '.uploadUrl')
-          echo "::set-output name=upload_url::$upload_url"
-
-      - name: Upload to OneDrive
-        run: |
-          file_size=$(stat -c%s "archive.zip")
-          chunk_size=3276800  # 3.2 MB
-          offset=0
-
-          while [ $offset -lt $file_size ]; do
-            end=$((offset + chunk_size))
-            if [ $end -gt $file_size ]; then
-              end=$file_size
-            fi
-          
-            curl -X PUT "${{ steps.create_upload_session.outputs.upload_url }}" \
-              -H "Content-Length: $((end - offset))" \
-              -H "Content-Range: bytes $offset-$((end - 1))/$file_size" \
-              --data-binary @<(dd if=archive.zip bs=1 skip=$offset count=$((end - offset)))
-            offset=$end
-          done
+      - name: Publish to Sharepoint
+        uses: obrassard/action-sharepoint-publish@v1.1.1
+        with:
+          site_url: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
+          library_folder: 'Shared Documents/nie-ux-spec'
+          sharepoint_client_id: ${{ secrets.CLIENT_ID }}
+          sharepoint_client_secret: ${{ secrets.CLIENT_SECRET }}
