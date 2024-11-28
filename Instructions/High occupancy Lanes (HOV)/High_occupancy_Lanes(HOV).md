@@ -1,12 +1,12 @@
 
 
-| **Interaction Designer** | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence) |
-|---|---|
-| **Development support** | [Alex Levin](https://tomtom.atlassian.net/wiki/people/63e4cab2614cb4ba5303b527?ref=confluence) |
-| **Visual Designer** | [Georgios Koultouridis](https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence) |
-| PM | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence) |
+| **Interaction Designer** | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence)                                                                                                                |
+|---|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Development support** | [Alex Levin](https://tomtom.atlassian.net/wiki/people/63e4cab2614cb4ba5303b527?ref=confluence)                                                                                                                                     |
+| **Visual Designer** | [Georgios sssKoultouridis](https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence)                                                                                                                       |
+| PM | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence)                                                                                                              |
 | DEV | [User dd444](https://tomtom.atlassian.net/wiki/people/712020:1ccf91fe-75c0-4288-b527-3bcbfb0dd444?ref=confluence) [User 4944b](https://tomtom.atlassian.net/wiki/people/70121:30dcc9c2-9716-4606-81a9-709ec084944b?ref=confluence) |
-| Visual Design Specification | TBD |
+| Visual Design Specification | TBD                                                                                                                                                                                                                                |
 
   
 
