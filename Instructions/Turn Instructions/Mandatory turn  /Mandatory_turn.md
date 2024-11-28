@@ -4,6 +4,8 @@
 | **PM** | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence) |
 | **ENG. OWNER** | [User e12b3](https://tomtom.atlassian.net/wiki/people/712020:c273d0e3-9a2a-456c-ad2f-6f56ca0e12b3?ref=confluence) → please assign |
 
+
+
 **What is Mandatory turn?**
 ---------------------------
 
