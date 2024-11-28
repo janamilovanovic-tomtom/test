@@ -4,6 +4,8 @@ PIC: Example of Next Instruction Panel in the context of Horizon Panel.
 
 
 
+
+
 | **Interaction Designer** | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence) |
 |---|---|
 | **Visual Designer** | [Georgios Koultouridis](https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence) |
