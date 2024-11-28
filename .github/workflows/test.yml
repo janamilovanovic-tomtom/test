@@ -1,20 +1,47 @@
-name: 'Sharepoint Sync'
+name: Upload to SharePoint
 
 on:
   workflow_dispatch:
 
+
 jobs:
-  publish:
+  upload:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Cloning repo # This step is required
-        uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install requests
 
-      - name: Publish to Sharepoint
-        uses: obrassard/action-sharepoint-publish@v1.0.1
-        with:
-          site_url: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
-          library_folder: 'Shared Documents/nie-ux-spec'
-          sharepoint_user: ${{ secrets.CLIENT_ID }}
-          sharepoint_password: ${{ secrets.CLIENT_SECRET }}
+      - name: Upload file to SharePoint
+        env:
+          SP_CLIENT_ID: ${{ secrets.SP_CLIENT_ID }}
+          SP_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
+          SP_TENANT_ID: ${{ secrets.SP_TENANT_ID }}
+          SP_SITE_URL: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
+          SP_FOLDER_PATH: 'Shared Documents/nie-ux-spec'
+        run: |
+          FILE_PATH="path/to/your/file.txt"  # Relativna putanja do fajla u GH repo
+          FILE_NAME=$(basename $FILE_PATH)
+          
+          # Dobijanje access tokena
+          TOKEN=$(curl -s -X POST \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=client_credentials" \
+            -d "client_id=$SP_CLIENT_ID" \
+            -d "client_secret=$SP_CLIENT_SECRET" \
+            -d "resource=$SP_SITE_URL" \
+            "https://login.microsoftonline.com/$SP_TENANT_ID/oauth2/token" | jq -r .access_token)
+          
+          # Otpremanje fajla
+          UPLOAD_URL="$SP_SITE_URL/_api/web/getfolderbyserverrelativeurl('$SP_FOLDER_PATH')/files/add(overwrite=true, url='$FILE_NAME')"
+          curl -X POST -H "Authorization: Bearer $TOKEN" \
+            -H "Accept: application/json;odata=verbose" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @"$FILE_PATH" \
+            "$UPLOAD_URL"
