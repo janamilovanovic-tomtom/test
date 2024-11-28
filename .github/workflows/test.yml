@@ -40,8 +40,8 @@ jobs:
             -d "grant_type=client_credentials" \
             -d "client_id=$SP_CLIENT_ID" \
             -d "client_secret=$SP_CLIENT_SECRET" \
-            -d "resource=$SP_SITE_URL" \
-            "https://login.microsoftonline.com/$SP_TENANT_ID/oauth2/token" | jq -r .access_token)
+            -d "scope=https://graph.microsoft.com/.default" \
+            "https://login.microsoftonline.com/$SP_TENANT_ID/oauth2/v2.0/token" | jq -r .access_token)
 
           # Provera da li je token uspešno dobijen
           if [ -z "$TOKEN" ]; then
