@@ -9,7 +9,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3277222-c0ae-43a7-8ab8-0ba481342f6a" name="Changes" comment="test commit" />
+    <list default="true" id="b3277222-c0ae-43a7-8ab8-0ba481342f6a" name="Changes" comment="test commit">
+      <change beforePath="$PROJECT_DIR$/.github/CODEOWNERS" beforeDir="false" afterPath="$PROJECT_DIR$/.github/CODEOWNERS" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -41,7 +43,7 @@
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "dfsdf",
+    "git-widget-placeholder": "sdhsd",
     "last_opened_file_path": "/Users/jana.milovanovic/Desktop/test_repo/test",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -179,7 +181,7 @@
       <workItem from="1731058852880" duration="4607000" />
       <workItem from="1731399221057" duration="74607000" />
       <workItem from="1732228316823" duration="20023000" />
-      <workItem from="1732787263029" duration="4976000" />
+      <workItem from="1732787263029" duration="5140000" />
     </task>
     <task id="LOCAL-00001" summary="test commit">
       <option name="closed" value="true" />
