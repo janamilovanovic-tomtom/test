@@ -27,17 +27,25 @@ jobs:
           -d "grant_type=client_credentials")
           echo "::set-output name=token::$(echo $response | jq -r .access_token)"
 
-      - name: Upload to OneDrive
+      - name: Create Upload Session
+        id: create_upload_session
         run: |
-          # Create an upload session
           upload_session=$(curl -X POST "https://graph.microsoft.com/v1.0/me/drive/root:/Shared%20Documents/nie-ux-spec/archive.zip:/createUploadSession" \
           -H "Authorization: Bearer ${{ steps.get_token.outputs.token }}" \
           -H "Content-Type: application/json" \
           -d '{"item": {"@microsoft.graph.conflictBehavior": "replace"}}')
 
-          upload_url=$(echo $upload_session | jq -r '.uploadUrl')
+          echo "Upload session response: $upload_session"
+          if [ "$(echo $upload_session | jq -r .error)" != "null" ]; then
+              echo "Failed to create upload session. Error: $(echo $upload_session | jq -r .error.message)"
+              exit 1
+          fi
 
-          # Upload the file in chunks
+          upload_url=$(echo $upload_session | jq -r '.uploadUrl')
+          echo "::set-output name=upload_url::$upload_url"
+
+      - name: Upload to OneDrive
+        run: |
           file_size=$(stat -c%s "archive.zip")
           chunk_size=3276800  # 3.2 MB
           offset=0
@@ -47,7 +55,8 @@ jobs:
             if [ $end -gt $file_size ]; then
               end=$file_size
             fi
-            curl -X PUT "$upload_url" \
+          
+            curl -X PUT "${{ steps.create_upload_session.outputs.upload_url }}" \
               -H "Content-Length: $((end - offset))" \
               -H "Content-Range: bytes $offset-$((end - 1))/$file_size" \
               --data-binary @<(dd if=archive.zip bs=1 skip=$offset count=$((end - offset)))
