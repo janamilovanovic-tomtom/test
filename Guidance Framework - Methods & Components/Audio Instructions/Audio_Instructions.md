@@ -8,6 +8,10 @@
 Introduction
 ============
 
+
+
+
+
 Audio, or spoken, instructions are the means of Guidance and used in combination with Visual Instructions to provide complete guidance experience. Audio instructions have benefits of not requiring driver's visual attention on a screen in order to navigate, which reduces the risk of driver distraction.  Audio instructions aim to guide the driver even if he doesn't see visual instruction (for example when infotainment system is used). Audio instruction work in sync with visual and dynamic information dictated by audio (such as distance) should be in sync  with visual. 
 
 Relevant Documents:
