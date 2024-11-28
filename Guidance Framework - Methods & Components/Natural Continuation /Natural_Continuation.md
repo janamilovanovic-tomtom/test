@@ -4,6 +4,8 @@
 | **ENG OWNER** | [Maksym Osadchuk](https://tomtom.atlassian.net/wiki/people/712020:fb261b5b-de23-442e-854b-8b08f3e29b6f?ref=confluence) |
 
 Read me first
+
+
 =============
 
 Before reading this document is is recommended to get yourself familiar with the terminology used here: [Motorway Guidance Glossary](https://tomtom.atlassian.net/wiki/spaces/NAV/pages/104678579/Motorway+Guidance+Glossary)
