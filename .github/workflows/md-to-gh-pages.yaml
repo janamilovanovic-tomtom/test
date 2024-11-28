@@ -61,7 +61,16 @@ jobs:
         run: zip -r my_archive.zip "${{ inputs.build_dir }}"/
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: my-archive
           path: my_archive.zip
+
+      - name: Publish to Sharepoint
+        uses: obrassard/action-sharepoint-publish@v1.1.1
+        with:
+            site_url: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
+            library_folder: 'Shared Documents/nie-ux-spec'
+            sharepoint_client_id: ${{ secrets.CLIENTID }}
+            sharepoint_client_secret: ${{ secrets.CLIENTSECRET }}
+            file: 'my_archive.zip'
