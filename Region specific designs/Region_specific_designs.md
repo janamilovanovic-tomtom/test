@@ -8,9 +8,9 @@ Special instructions formatting
 Special Audio instructions  
 Special Naming conventions
 
-[Korea Regional Deviations](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Region%20specific%20designs/Korea/Korea.md)
+[Korea Regional Deviations](./Korea/Korea.md)
 
-[Japan](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Region%20specific%20designs/Japan/Japan.md)
+[Japan](./Japan/Japan.md)
 
 UK
 

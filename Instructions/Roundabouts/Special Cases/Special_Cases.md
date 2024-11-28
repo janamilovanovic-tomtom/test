@@ -6,7 +6,7 @@
 Introduction
 ============
 
-This page defines corner cases and deviations from [Generic Roundabout Instruction](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Roundabouts/Generic%20Roundabout%20Instruction/Generic_Roundabout_Instruction.md) design.
+This page defines corner cases and deviations from [Generic Roundabout Instruction](./../Generic%20Roundabout%20Instruction/Generic_Roundabout_Instruction.md) design.
 
 Deviations inside the roundabout
 ================================

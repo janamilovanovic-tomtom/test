@@ -44,7 +44,7 @@ refers to a _TBD_
 | **Road Geometry** | ![](images/157711143.png)                                                                                                                                                                                                                                                                              | ![](images/157711144.png) |
 | **Visual Instruction** | ![](images/157711142.png) Visual design must be reviewed                                                                                                                                                                                                                                                                    |  |
 | **Audio Instruction** | In 600m turn right into the tunnel                                                                                                                                                                                                                                                                                             |  |
-| **Audio Template** | **\[distance] \[action]\[direction]\[pointer]**<br/><br/>Note: this is just an example of all the possible combinations that this pointer can have.<br/><br/>See [NIE\_003 \- Audio Instructions](https://tomtom.atlassian.net/wiki/display/FlaminGO/NIE_003+-+Audio+Instructions?src=contextnavpagetreemode) for further details                  |
+| **Audio Template** | **\[distance] \[action]\[direction]\[pointer]**<br/><br/>Note: this is just an example of all the possible combinations that this pointer can have.<br/><br/>See [NIE\_003 \- Audio Instructions](../../Audio%20Instructions/Audio_Instructions.md) for further details                  |
 
   
 

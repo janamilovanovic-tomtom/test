@@ -33,13 +33,13 @@ Specific usage of SLG is defined by instruction type, therefore it is worth to c
 
 [Turn Instruction](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157679963)
 
-[Roundabout Instruction](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Roundabouts/Roundabouts.md)
+[Roundabout Instruction](./../../Instructions/Roundabouts/Roundabouts.md)
 
-[HOV instruction](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/High%20occupancy%20Lanes%20(HOV)%20%20/High_occupancy_Lanes(HOV).md)
+[HOV instruction](./../../Instructions/High%20occupancy%20Lanes%20(HOV)/High_occupancy_Lanes(HOV).md)
 
-[Forks &amp; Exit instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits%20%20/Furcations-Bifurkations_Trifurcation_Exits.md). 
+[Forks &amp; Exit instructions](./../../Instructions/Furcations%20-%20%20Bifurcations,%20Trifurcations,%20Exits/Furcations-Bifurcations_Trifurcations_Exits.md). 
 
-Additionally, it is important to mention [Interim Exit scenario](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits%20%20/Interim%20Exit%20Scenario%20%20/Interim_Exit_Scenario.md) where LG plays critical role.
+Additionally, it is important to mention [Interim Exit scenario](./../../Instructions/Furcations%20-%20%20Bifurcations,%20Trifurcations,%20Exits/Interim%20Exit%20Scenario/Interim_Exit_Scenario.md) where LG plays critical role.
 
 Visualisation of SLG
 ====================
@@ -122,8 +122,8 @@ EALG can used for all major Instruction types: Turns, Bears, Continue straight b
 Exact logic for EALG usage is dependant on the manoeuvre type, therefore rules defining usage of AALG and EALG are defined individually per instruction type: 
 
 [NIE\_011 - Turn manoeuvres overview](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157679963)  
-[NIE\_013 - Forks Instructions (Bifurkations, Trifurcation, Exits)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits%20%20/Furcations-Bifurkations_Trifurcation_Exits.md)  
-[NIE\_010 - Roundabouts](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Roundabouts/Roundabouts.md)
+[NIE\_013 - Forks Instructions (Bifurcations, Trifurcations, Exits)](./../../Instructions/Furcations%20-%20%20Bifurcations,%20Trifurcations,%20Exits/Furcations-Bifurcations_Trifurcations_Exits.md)  
+[NIE\_010 - Roundabouts](./../../Instructions/Roundabouts/Roundabouts.md)
 
 Strings
 =======
@@ -171,7 +171,7 @@ Most prominent competitors, (Google Map, Waze, Apple Maps) use different method 
 
 ### Manoeuvre path optimisation
 
-For serial manoeuvres (which we handle by Chain instructions) optimised manoeuvre path could be different from possible path. In other words, in order to complete the passage with minimal amount of lane changes, only specific lanes should be used. The algorithm of selection of such lanes called _**Manoeuvre path optimisation**_. This method is defined in details here: [NIE\_027 - Lane Level Guidance (LLG)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Lane_Level_Guidance(LLG_LLN).md)
+For serial manoeuvres (which we handle by Chain instructions) optimised manoeuvre path could be different from possible path. In other words, in order to complete the passage with minimal amount of lane changes, only specific lanes should be used. The algorithm of selection of such lanes called _**Manoeuvre path optimisation**_. This method is defined in details here: [NIE\_027 - Lane Level Guidance (LLG)](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Lane_Level_Guidance(LLG_LLN).md)
 
 / END OF DOCUMENT
 =================

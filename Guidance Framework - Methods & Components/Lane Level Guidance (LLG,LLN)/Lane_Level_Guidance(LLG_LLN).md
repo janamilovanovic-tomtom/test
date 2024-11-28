@@ -46,13 +46,13 @@ Following terminology is used throughout this topic.
 Further topics
 ==============
 
-[LLG Sessions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/LLG%20Sessions/LLG_Sessions.md)
+[LLG Sessions](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/LLG%20Sessions/LLG_Sessions.md)
 
-[Recommended Lanes](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Recommended%20Lanes/Recommended_Lanes.md)
+[Recommended Lanes](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Recommended%20Lanes/Recommended_Lanes.md)
 
-[Audible Lane Guidance](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Audible%20Lane%20Guidance/Audible_Lane_Guidance.md)  
+[Audible Lane Guidance](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Audible%20Lane%20Guidance/Audible_Lane_Guidance.md)  
 
-[Lane Visualisation](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Lane%20Visualisation/Lane_Visualisation.md) 
+[Lane Visualisation](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Lane%20Visualisation/Lane_Visualisation.md) 
 
 \-
 

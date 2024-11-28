@@ -1,41 +1,43 @@
-| **Interaction Designer** | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence) |
-|---|---|
-| **PM** | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence) |
+| **Position**             | Contributor(s)                                                                                                        |
+|:-------------------------|:----------------------------------------------------------------------------------------------------------------------|
+| **OWNER**            | [Dennis Jakobsen](https://tomtom.atlassian.net/wiki/people/712020:c273d0e3-9a2a-456c-ad2f-6f56ca0e12b3?ref=confluence)|
+| **Interaction Designer** | [Alexey Opokin](https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence)   |
+| **PM**                   | [Joost Pennings](https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence) |
 
 NIE Framework
 =============
 
 Instruction engine is build on foundation of components, methods and map data. Components include visual and audio based interfaces. Methods include design patterns that control those components. There are following methods and components defined in NIE:  
 
-[Instruction architecture](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20arhitecture/Instruction_architecture.md)
+[Instruction architecture](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20architecture/Instruction_architecture.md)
 
-[Next Instruction Panel - NIP](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.md)
+[Next Instruction Panel - NIP](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20Panel%20-%20NIP/Next_Instruction_Panel.md)
 
-[Simple Lane Guidance - SLG](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Simple%20Lane%20Guidance%20-%20SLG/Simple_Lane_Guidance.md)
+[Simple Lane Guidance - SLG](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Simple%20Lane%20Guidance%20-%20SLG/Simple_Lane_Guidance.md)
 
-[Lane Level Guidance (LLG/LLN)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Lane_Level_Guidance(LLG_LLN).md)
+[Lane Level Guidance (LLG/LLN)](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Lane_Level_Guidance(LLG_LLN).md)
 
-[Audio Instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20Instructions/Audio_Instructions.md)
+[Audio Instructions](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20Instructions/Audio_Instructions.md)
 
-[Instruction Triggering Logic](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20Triggering%20Logic/Instruction_Triggering_Logic.md)
+[Instruction Triggering Logic](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20Triggering%20Logic/Instruction_Triggering_Logic.md)
 
-[Distance Formatting](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Distance%20Fromatting/Distance_Formatting.md)
+[Distance Formatting](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Distance%20Formatting/Distance_Formatting.md)
 
-[Directional Information (Road names, Road numbers)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Directional%20Information%20-%20Road%20names%2C%20Road%20numbers%2C%20Towards%20/Directional_Information-Road-names_Road-numbers_Towards.md)
+[Directional Information (Road names, Road numbers)](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Directional%20Information%20-%20Road%20names%2C%20Road%20numbers%2C%20Towards/Directional_Information-Road-names_Road-numbers_Towards.md)
 
-[Road Signposts](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Road%20Signposts/Road_Signposts.md)
+[Road Signposts](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Road%20Signposts/Road_Signposts.md)
 
-[Natural Continuation](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Natural%20Continuation%20/Natural_Continuation.md)
+[Natural Continuation](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Natural%20Continuation/Natural_Continuation.md)
 
-[Consecutive manoeuvres (Chain Instructions)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Consecutive%20manoeuvres%20(Chain%20Instructions)/Consecutive_manoeuvres_(Chain_Instructions).md)
+[Consecutive manoeuvres (Chain Instructions)](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Consecutive%20manoeuvres%20(Chain%20Instructions)/Consecutive_manoeuvres_(Chain_Instructions).md)
 
-[Optical Driving Instruction (OFA)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Optical%20Driving%20Instruction%20(OFA)/Optical_Driving_Instruction(OFA).md)
+[Optical Driving Instruction (OFA)](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Optical%20Driving%20Instruction%20(OFA)/Optical_Driving_Instruction(OFA).md)
 
-[Manoeuvre path optimisation](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Manoeuvre%20path%20optimisation/Manoeuvre_path_optimisation.md)
+[Manoeuvre path optimisation](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Manoeuvre%20path%20optimisation/Manoeuvre_path_optimisation.md)
 
-[Audio management](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20management/Audio_management.md)
+[Audio management](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20management/Audio_management.md)
 
-[Landmarks](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks.md)
+[Landmarks](./../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks.md)
 
 Terminology used in this document
 =================================

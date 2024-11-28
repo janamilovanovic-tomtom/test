@@ -154,8 +154,7 @@ The driver would like to see the best possible route and guidance, when he enabl
 
 _Decision to take HOV (for both: separately digitized HOV as well as HOV and non-HOV on the same link):_
 
-*   _stay at least 2miles on HOV lane or link  
-    _
+*   _stay at least 2miles on HOV lane or link_
 *   _entry of highway to entry of HOV lane or link: at least 1 mile_
 *   _exit of HOV lane or link to exit of Highway: at least 2 miles_
 

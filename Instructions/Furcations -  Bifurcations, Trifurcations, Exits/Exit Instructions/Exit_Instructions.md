@@ -85,7 +85,7 @@ www.figma.com
 Country specific variations of exit numbers
 -------------------------------------------
 
-In addition to regional support, we also support variations on country level. Those are captured in this spec: [NIE\_002 - Next Instruction Panel (NIP)#Localisation](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.md)
+In addition to regional support, we also support variations on country level. Those are captured in this spec: [NIE\_002 - Next Instruction Panel (NIP)#Localisation](./../../../Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.md)
 
 under **section 3.1.1 Localisation.**
 

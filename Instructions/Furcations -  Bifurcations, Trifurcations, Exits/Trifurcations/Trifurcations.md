@@ -53,7 +53,7 @@ Manoeuvre arrow for trifurcation consists of 3 branches, one of them being selec
 **Signpost directional information**
 ------------------------------------
 
-Signpost directional information handling is not special for trifurcations and follows standard procedure described here: [NIE\_020 - Road Signposts](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Road%20Signposts/Road_Signposts.md)
+Signpost directional information handling is not special for trifurcations and follows standard procedure described here: [NIE\_020 - Road Signposts](./../../../Guidance%20Framework%20-%20Methods%20%26%20Components/Road%20Signposts/Road_Signposts.md)
 
 Scenarios
 =========

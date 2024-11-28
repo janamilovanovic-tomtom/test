@@ -64,12 +64,12 @@ Scenarios involving conflicting, alternative exits in the same direction
 | 05 | Ambiguous right turn with many alternative outcomes<br/><br/>48\.867842, 2\.281052 | ![](images/267225290.png) | ![](images/267225287.png) | ![](images/267225278.png) | take the right turn, the gentler one to *street name* | There are 3 outcomes to the right direction here, |
 | 06 | Ambiguous sharp right turn with many alternative outcomes<br/><br/>48\.867842, 2\.281052 | ![](images/267225308.png) | ![](images/267225305.png) | ![](images/267225275.png) | take the sharper turn right, to *street name* |  |
 
-REFERENCE: Turn instruction follow generic instruction model defined here: [NIE\_002 - Next Instruction Panel (NIP)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.md)
+REFERENCE: Turn instruction follow generic instruction model defined here: [NIE\_002 - Next Instruction Panel (NIP)](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.md)
 
 Multi-lane Intersections - Audio Instruction Architecture
 =========================================================
 
-In NIE Instruction constructed in a modular way so they can communicate not only simple messages like _**Turn right**_ but more elaborative instructions like _**Bear right to stay on Haupstrasse**_ or _**Use the right two lanes to turn right**_.  In order to allow this we use **components** called **Action** and **Purpose.**  More info about instruction architecture provided here: [NIE\_003 - Audio Instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20Instructions/Audio_Instructions.md)  
+In NIE Instruction constructed in a modular way so they can communicate not only simple messages like _**Turn right**_ but more elaborative instructions like _**Bear right to stay on Haupstrasse**_ or _**Use the right two lanes to turn right**_.  In order to allow this we use **components** called **Action** and **Purpose.**  More info about instruction architecture provided here: [NIE\_003 - Audio Instructions](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20Instructions/Audio_Instructions.md)  
   
 
 **\[action\]** - Describes the immediate action that driver needs to perform: _**turn right, keep left, use the right two lanes**_
@@ -153,13 +153,13 @@ Information posted on this page defines general framework of Turn instruction. T
 
 [NIE\_011.1 - Bear left / right](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157690607/Bear+left+right)
 
-[NIE\_011.6 - Turn Angle representation](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Turn%20Instructions/Angles%20Quantisation%20%20/Angles_Quantisation.md)
+[NIE\_011.6 - Turn Angle representation](./Angles%20Quantisation/Angles_Quantisation.md)
 
-[NIE\_011.5 - Sharp &amp; Sharper Turns](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Turn%20Instructions/Shallow%20and%20Sharp%20Turns%20%20/Shallow_and_Sharp_Turns.md)
+[NIE\_011.5 - Sharp &amp; Sharper Turns](./Shallow%20and%20Sharp%20Turns/Shallow_and_Sharp_Turns.md)
 
-[NIE\_011.4 - Isolated turn](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Turn%20Instructions/Isolated%20turn%20%20/Isolated_turn.md)
+[NIE\_011.4 - Isolated turn](./Isolated%20turn/Isolated_turn.md)
 
-[NIE\_011.3 - Mandatory turn](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Turn%20Instructions/Mandatory%20turn%20%20/Mandatory_turn.md)
+[NIE\_011.3 - Mandatory turn](./Mandatory%20turn/Mandatory_turn.md)
 
-[NIE\_011.2 - Continue Straight](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Turn%20Instructions/Continue%20Straight%20%20/Continue_Straight.md)
+[NIE\_011.2 - Continue Straight](./Continue%20Straight/Continue_Straight.md)
 

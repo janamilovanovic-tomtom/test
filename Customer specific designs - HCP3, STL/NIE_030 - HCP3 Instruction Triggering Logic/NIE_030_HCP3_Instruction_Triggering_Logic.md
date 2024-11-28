@@ -96,7 +96,7 @@ In the table below described all instruction stages with their attributes.
 
   
 
-Note: Triggering point distances in the diagram and table are examples, please refer to [NIE\_029 - HCP3 instruction timing](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Customer%20specific%20designs%20-%20HCP3%2C%20STL/NIE_029%20-%20HCP3%20instruction%20timing/NIE_029_HCP3_instruction_timing.md) for the project values.  
+Note: Triggering point distances in the diagram and table are examples, please refer to [NIE\_029 - HCP3 instruction timing](./../NIE_029%20-%20HCP3%20instruction%20timing/NIE_029_HCP3_instruction_timing.md) for the project values.  
   
 
 Triggering algorithms
@@ -119,7 +119,7 @@ Following diagram depicts scenario of uninterrupted instruction phases on a road
 
 Position of instruction triggering points (0-4) for uninterrupted scenarios is based on the distance to the maneuver.  
 
-Please refer to [NIE\_029 - HCP3 instruction timing](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Customer%20specific%20designs%20-%20HCP3%2C%20STL/NIE_029%20-%20HCP3%20instruction%20timing/NIE_029_HCP3_instruction_timing.md) for the project values.
+Please refer to [NIE\_029 - HCP3 instruction timing](./../NIE_029%20-%20HCP3%20instruction%20timing/NIE_029_HCP3_instruction_timing.md) for the project values.
 
   
 

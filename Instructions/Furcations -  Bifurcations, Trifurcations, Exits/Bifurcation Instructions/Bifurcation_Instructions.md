@@ -17,7 +17,7 @@
 **Introduction to furcations (Bifurcations)**
 =============================================
 
-**furcations (Bifurcations) and Exits** are two types of intersections which don't interrupt traffic flow. Both are found primarily on **Motorways**, but they can also be found on lower road classes that share some properties with Motorways, such as **uninterrupted traffic flows** and **curved road geometry** designed for fast manoeuvre taking. For differentiating **furcations from Exits**, refer to this pages: [furcations Instructions (Bifurkations, Trifurcation, Exits)](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits%20%20/Furcations-Bifurkations_Trifurcation_Exits.md)  
+**furcations (Bifurcations) and Exits** are two types of intersections which don't interrupt traffic flow. Both are found primarily on **Motorways**, but they can also be found on lower road classes that share some properties with Motorways, such as **uninterrupted traffic flows** and **curved road geometry** designed for fast manoeuvre taking. For differentiating **furcations from Exits**, refer to this pages: [furcations Instructions (Bifurcations, Trifurcations, Exits)](./../Furcations-Bifurcations_Trifurcations_Exits.md)  
   
 **TERMINOLOGY:** Term _**furcation**_ here and across the whole specifications is used interchangeably with term _**Bifurcation**_, however, keep in mind that _**furcations**_ also include _**Trifurcations**_.
 
@@ -63,7 +63,7 @@ When providing Guidance at furcation Intersections, we need to pay attention at 
 | 3\.1 | Subset of **\#3** with different lane configuration | ![](images/157718766.png) | **At the furcation...** | **Use the left two lanes to**<br/><br/>REASON: Explicit LG is used for taking a new road | **take*****A9*** | **towards*****Berlin*** |
 | 4 | When only two lanes are available at the entrance of the furcation. | ![](images/157719551.png) | **At the furcation...** | **Keep right to**  <br/><br/>REASON: Approximated LG is used when there are only 2 lanes and choice needs to be made between them | **...** | **...** |
 
-**NOTE:** Scenarios illustrated above describe standalone manoeuvre situations when no, close following manoeuvre is present. Situations involving serial manoeuvres apply MPO - **manoeuvre path optimisation** logic that might output different lane configurations. Details about MPO can be found here: [Manoeuvre path optimisation](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680435/Manoeuvre+path+optimisation)
+**NOTE:** Scenarios illustrated above describe standalone manoeuvre situations when no, close following manoeuvre is present. Situations involving serial manoeuvres apply MPO - **manoeuvre path optimisation** logic that might output different lane configurations. Details about MPO can be found here: [Manoeuvre path optimisation](../../../Guidance%20Framework%20-%20Methods%20&%20Components/Manoeuvre%20path%20optimisation/Manoeuvre_path_optimisation.md)
 
 Directional Lane configuration 
 ===============================

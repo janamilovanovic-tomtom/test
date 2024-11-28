@@ -38,7 +38,7 @@ At any manoeuvre that involves selecting specific lanes, choosing the correct la
 LLG Session triggering based on instruction triggering points
 -------------------------------------------------------------
 
-Every instruction has triggering points (as described [here](https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157679961/Instruction+Triggering+Logic)) Triggering points are measured in relation to Manoeuvre point (or or MAN-S point). For Triggering LLG we use **Main instruction** triggering point.  As a result, the LLG session is activated at 400m - 1300m (depending on road class) distance from the manoeuvre according to Main triggering point definition. The disadvantage of this method - since triggering is not dependant on the lane geometry, it cannot guarantee that all lane configuration change points (LCC) will be embraced in LLG session, however given the significant stretch of the road, it is most likely is going to happen. 
+Every instruction has triggering points (as described [here](../../Instruction%20Triggering%20Logic/Instruction_Triggering_Logic.md)) Triggering points are measured in relation to Manoeuvre point (or or MAN-S point). For Triggering LLG we use **Main instruction** triggering point.  As a result, the LLG session is activated at 400m - 1300m (depending on road class) distance from the manoeuvre according to Main triggering point definition. The disadvantage of this method - since triggering is not dependant on the lane geometry, it cannot guarantee that all lane configuration change points (LCC) will be embraced in LLG session, however given the significant stretch of the road, it is most likely is going to happen. 
 
 | ![](images/157715694.png) |
 |---|

@@ -12,7 +12,7 @@ Distance to the point of next manoeuvre is important components of Instruction i
 As a **Visual distance** displayed permanently in the NIP (1): Distance is shown at the right side of the instruction arrow. This distance can be validated by driver at any time, since its value is constantly updating in real time as vehicle progresses toward the manoeuvre point. 
 
   
-**Audio distance** announcement: Those announcements happen at predefined conditions and remind driver about upcoming manoeuvre. Audio instruction is announced by voice at every _**triggering point**_ ([more info](https://tomtom.atlassian.net/wiki/x/WQFmCQ) about triggering points). Audio announcements correspond to visual distance and must be synchronised. Depending on the distance value, there is distance formatting used.
+**Audio distance** announcement: Those announcements happen at predefined conditions and remind driver about upcoming manoeuvre. Audio instruction is announced by voice at every _**triggering point**_ ([more info](../Instruction%20Triggering%20Logic/Instruction_Triggering_Logic.md) about triggering points). Audio announcements correspond to visual distance and must be synchronised. Depending on the distance value, there is distance formatting used.
 
 Visual Distance formatting in the NIP
 -------------------------------------
@@ -66,20 +66,9 @@ Distance countdown goes to the lowest point of rounded value (5 meters) and then
 
 The value remains empty until next instruction value appears. Sometimes the manoeuvre path is long and it takes time to complete.
 
-| 
-**Close to manouvre**
-
- | 
-
-**During the manoeuvre**
-
- |
+|**Close to manouvre**|**During the manoeuvre**|
 | --- | --- |
-| ![Exit and turn.svg](images/336865756.svg)
-
- | ![wasdwadrwesd.svg](images/337412689.svg)
-
- |
+| ![Exit and turn.svg](images/336865756.svg)| ![wasdwadrwesd.svg](images/337412689.svg)|
 
 Audio announcement distance Rounding
 ------------------------------------

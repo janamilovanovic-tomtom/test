@@ -44,7 +44,7 @@ Landmarks are manifested in Guidance in following ways:
 *   Visualised in the NIP (not all Landmarks)
 *   Landmarks are also rendered on the map (not all Landmarks)
 
-NIE provides [modular Instruction architecture](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Instruction%20arhitecture/Instruction_architecture.md). There is a specific component in this architecture which is reserved for Landmarks - _**Pointer**_. Term _**Landmark**_ and _**Pointer**_ can be used interchangeably, but it is important to clarify, while _**Landmark**_ refers to the real object itself on the road in real world, _**Pointer**_ is a UI element (and audio component) which is pointing to it. 
+NIE provides [modular Instruction architecture](./../Instruction%20architecture/Instruction_architecture.md). There is a specific component in this architecture which is reserved for Landmarks - _**Pointer**_. Term _**Landmark**_ and _**Pointer**_ can be used interchangeably, but it is important to clarify, while _**Landmark**_ refers to the real object itself on the road in real world, _**Pointer**_ is a UI element (and audio component) which is pointing to it. 
 
   
 
@@ -128,10 +128,10 @@ Some types of Landmarks (Traffic Lights) often come in successions, which makes 
 
 To dive into design details of each type of landmark, follow those pages:
 
-1.  [End of the road](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20End%20of%20the%20Road/Landmark_End_of_the_Road.md)
-2.  [Traffic Light](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Traffic%20Light/Landmark_Traffic_Light.md)
-3.  [Bridge](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Bridges/Landmark_Bridges.md)
-4.  [Tunnel](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Tunnels/Landmark_Tunnels.md)
+1.  [End of the road](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20End%20of%20the%20Road/Landmark_End_of_the_Road.md)
+2.  [Traffic Light](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Traffic%20Light/Landmark_Traffic_Light.md)
+3.  [Bridge](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Bridges/Landmark_Bridges.md)
+4.  [Tunnel](./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Tunnels/Landmark_Tunnels.md)
 
   
 

@@ -8,7 +8,7 @@
 **Furcations - Exits, Bifurcations, Trifurcations**
 ===================================================
 
-**Furcation** - is an intersection type where the road splits without interrupting the traffic flow. Furcation is a split in the roadway where one or more lanes of traffic diverge, forming separate roadways that continue in different directions. A Furcation in the road can occur at any point, and it is typically marked with signs or other markers to help drivers navigate the split. Found primarily on [**Motorways**](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits%20%20/Motorways%20%20/Motorways.md), but they can also be found on lower road classes that share some properties with Motorways. (Those properties are: **Uninterrupted traffic flow** at the point of the manoeuvre, **Curved road geometry** designed for fast manoeuvre performance).<br/>
+**Furcation** - is an intersection type where the road splits without interrupting the traffic flow. Furcation is a split in the roadway where one or more lanes of traffic diverge, forming separate roadways that continue in different directions. A Furcation in the road can occur at any point, and it is typically marked with signs or other markers to help drivers navigate the split. Found primarily on [**Motorways**](./Motorways/Motorways.md), but they can also be found on lower road classes that share some properties with Motorways. (Those properties are: **Uninterrupted traffic flow** at the point of the manoeuvre, **Curved road geometry** designed for fast manoeuvre performance).<br/>
 
 **Bifurcation**  - is a Furcation with two outgoing roads. 
 
@@ -50,7 +50,7 @@ There are two major types of exits that is worth to distinguish, since they requ
 Exit Instruction design
 -----------------------
 
-Exit instruction design is covered in this section: [Exit instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits%20%20/Exit%20Instructions/Exit_Instructions.md)
+Exit instruction design is covered in this section: [Exit instructions](./Exit%20Instructions/Exit_Instructions.md)
 
 **Bifurcations**
 ================
@@ -65,7 +65,7 @@ Bifurcation intersections design varies greatly depending on the complexity of t
 Bifurcation Instruction design
 ------------------------------
 
-Bifurcation instruction design is covered in this section: [Bifurcation Instructions](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits%20%20/Bifurcation%20Instructions%20%20/Bifurcation_Instructions.md)
+Bifurcation instruction design is covered in this section: [Bifurcation Instructions](./Bifurcation%20Instructions/Bifurcation_Instructions.md)
 
 **How to differentiate between Bifurcations and Exits?**
 ========================================================
@@ -95,7 +95,7 @@ Bifurcation instruction design is covered in this section: [Bifurcation Instruct
 Trifurcation Instruction design
 -------------------------------
 
-Trifurcation instruction design is covered in this section: [Trifurcations](https://github.com/tomtom-internal/nie-ux-spec/blob/main/Instructions/Furcations%20-%20%20Bifurkations%2C%20Trifurcation%2C%20Exits/Trifurcations%20%20/Trifurcations.md)
+Trifurcation instruction design is covered in this section: [Trifurcations](./Trifurcations/Trifurcations.md)
 
 **\- END OF DOCUMENT -**
 ========================
