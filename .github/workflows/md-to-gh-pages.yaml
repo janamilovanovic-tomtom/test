@@ -57,29 +57,14 @@ jobs:
       - name: Copy assets
         run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
-   #   - name: Setup GitHub Pages
-    #    uses: actions/configure-pages@v5
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
 
-   #   - name: Upload GitHub Pages artifact
-    #    uses: actions/upload-pages-artifact@v3
-     #   with:
-      #    path: "${{ inputs.build_dir }}"
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "${{ inputs.build_dir }}"
 
-    #  - name: Deploy to GitHub Pages
-     #   id: deployment
-      #  uses: actions/deploy-pages@v4
-        
-      - name: Create ZIP Archive
-        run: zip -r ux_spec1.zip "${{ inputs.build_dir }}/Region specific designs"
-        
-      - name: Upload ZIP to Confluence
-        env:
-          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USER }}
-          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_TOKEN }}
-          PAGE_ID: '409764067'
-          CONFLUENCE_URL: 'https://tomtom.atlassian.net/wiki/rest/api/content'
-        run: |
-          curl -u "${CONFLUENCE_USER}:${CONFLUENCE_TOKEN}" \
-               -F "file=@ux_spec1.zip" \
-               -H "X-Atlassian-Token: no-check" \
-               "${CONFLUENCE_URL}/${PAGE_ID}/child/attachment"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

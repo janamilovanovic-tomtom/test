@@ -25,4 +25,4 @@ jobs:
     with:
       src_dir: .
       # Make sure this is outside of the src_dir
-      build_dir: ../doc_build
+      build_dir: doc_build
