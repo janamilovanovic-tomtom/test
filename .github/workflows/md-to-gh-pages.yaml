@@ -61,7 +61,7 @@ jobs:
         run: zip -r my_archive.zip "${{ inputs.build_dir }}"/
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: my-archive
           path: my_archive.zip
