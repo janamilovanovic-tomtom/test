@@ -4,7 +4,10 @@
 | **ENG. OWNER** | [Dennis Jakobsen](https://tomtom.atlassian.net/wiki/people/712020:c273d0e3-9a2a-456c-ad2f-6f56ca0e12b3?ref=confluence) → please define |
 
 Lane Level Guidance Session
-===========================
+=======================
+
+
+====
 
 LLG is in fact a zoomed in view on the map that allows more precise lane guidance in real time. During LLG session Map vie is zoomed in enough to depict individual lanes. Vehicle precise position in regard to lanes is indicated (if provided). Recommended lanes are highlighted. 
 
