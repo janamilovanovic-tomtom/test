@@ -3,11 +3,9 @@ name: Upload to SharePoint
 on:
   workflow_dispatch:
 
-
 jobs:
   upload:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -15,7 +13,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3 python3-pip
+          sudo apt-get install -y python3 python3-pip jq
           pip3 install requests
 
       - name: Upload file to SharePoint
@@ -24,11 +22,18 @@ jobs:
           SP_CLIENT_SECRET: ${{ secrets.SP_CLIENT_SECRET }}
           SP_TENANT_ID: ${{ secrets.SP_TENANT_ID }}
           SP_SITE_URL: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
-          SP_FOLDER_PATH: 'Shared%20Documents/nie-ux-spec'
+          SP_FOLDER_PATH: 'Shared%20Documents/nie-ux-spec' # Razmak je enkodovan kao %20
         run: |
-          FILE_PATH="README.md"  
-          FILE_NAME=$(basename $FILE_PATH)
-          
+          # Definiši putanju do fajla
+          FILE_PATH="README.md"
+          FILE_NAME=$(basename "$FILE_PATH")
+
+          # Provera da li fajl postoji
+          if [ ! -f "$FILE_PATH" ]; then
+            echo "Error: File $FILE_PATH not found!"
+            exit 1
+          fi
+
           # Dobijanje access tokena
           TOKEN=$(curl -s -X POST \
             -H "Content-Type: application/x-www-form-urlencoded" \
@@ -37,9 +42,17 @@ jobs:
             -d "client_secret=$SP_CLIENT_SECRET" \
             -d "resource=$SP_SITE_URL" \
             "https://login.microsoftonline.com/$SP_TENANT_ID/oauth2/token" | jq -r .access_token)
-          
-          # Otpremanje fajla
+
+          # Provera da li je token uspešno dobijen
+          if [ -z "$TOKEN" ]; then
+            echo "Error: Failed to retrieve access token!"
+            exit 1
+          fi
+
+          # Formiranje URL-a za upload
           UPLOAD_URL="$SP_SITE_URL/_api/web/getfolderbyserverrelativeurl('$SP_FOLDER_PATH')/files/add(overwrite=true, url='$FILE_NAME')"
+
+          # Otpremanje fajla
           curl -X POST -H "Authorization: Bearer $TOKEN" \
             -H "Accept: application/json;odata=verbose" \
             -H "Content-Type: application/octet-stream" \
