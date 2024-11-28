@@ -4,6 +4,10 @@
 | Instruction ***Continue straight*** is used in situation when continuation of movement in original direction (straight, without a manoeuvre) is not clear due to a road network complexity, and additional guidance is required in order to go simply straight.<br/><br/>    This instruction should **not be used** if: <br/><br/>  **1\. Straight direction is obvious.** <br/> **2\. Outside of junctions, i.e. when road splits into two or more directions via Fork or Exit.**  <br/>**3\. On straight segments of the road without junctions or forks.**  <br/><br/>  In this document we will define exact conditions for this instruction to happen as well as conditions for it not to happen or being replaced with other instruction. | ![](images/371556791.png) |
 |----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---|
 
+
+
+
+
 **Conditions for the "Continue Straight" Instruction**
 ======================================================
 
