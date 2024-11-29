@@ -42,7 +42,7 @@ jobs:
           response=$(curl -X GET \
             -H "Authorization: Bearer $(cat access_token.txt)" \
             -H "Accept: application/json" \
-            -o "$FILE_PATH" \
+            -o "./README.md" \
             "$DOWNLOAD_URL" -w "%{http_code}")
 
           if [ "$response" -eq 200 ]; then
