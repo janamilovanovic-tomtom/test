@@ -1,43 +1,18 @@
-name: Upload to SharePoint
-
-on:
-  workflow_dispatch:
-
+name: example-file-upload
+on: workflow_dispatch
 jobs:
-  upload:
+  get_report:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y jq
-
-      - name: Upload file to SharePoint
-        env:
-          SP_ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}  # Koristi access token iz tajni
-          SP_SITE_URL: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
-          SP_FOLDER_PATH: 'Shared Documents/nie-ux-spec'  # Razmak nije enkodovan
-        run: |
-          # Definiši putanju do fajla
-          FILE_PATH="README.md"
-          FILE_NAME=$(basename "$FILE_PATH")
-
-          # Provera da li fajl postoji
-          if [ ! -f "$FILE_PATH" ]; then
-            echo "Error: File $FILE_PATH not found!"
-            exit 1
-          fi
-
-          # Formiranje URL-a za upload
-          UPLOAD_URL="$SP_SITE_URL/Shared%20Documents/nie-ux-spec"
-          echo "Upload URL: $UPLOAD_URL"  # Prikazivanje URL-a za debug
-
-          # Otpremanje fajla
-          curl -X POST -H "Authorization: Bearer $SP_ACCESS_TOKEN" \
-            -H "Accept: application/json;odata=verbose" \
-            -H "Content-Type: application/octet-stream" \
-            --data-binary @"$FILE_PATH" \
-            "$UPLOAD_URL"
+      - name: Create Test File
+        run: touch /tmp/foo.txt
+      - name: Send to Sharepoint
+        uses: cringdahl/sharepoint-file-upload-action@1.0.0
+        with:
+          file_path: "*.txt"
+          host_name: 'your.sharepoint.com'
+          site_name: 'some_site'
+          upload_path: 'fake_files'
+          tenant_id: ${{ secrets.TENANT_ID }}
+          client_id: ${{ secrets.CLIENT_ID }}
+          client_secret: ${{ secrets.CLIENT_SECRET }}
