@@ -24,7 +24,7 @@ jobs:
             https://login.microsoftonline.com/${{ secrets.TENANT_ID }}/oauth2/v2.0/token \
             | jq -r '.access_token' > access_token.txt
           echo "Access token retrieved successfully."
-          #echo "${{ secrets.SP_ACCESS_TOKEN }}" > access_token.txt
+          # echo "${{ secrets.SP_ACCESS_TOKEN }}" > access_token.txt
           echo $(cat access_token.txt)
 
 
