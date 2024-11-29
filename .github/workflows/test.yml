@@ -1,18 +1,50 @@
-name: example-file-upload
-on: workflow_dispatch
+name: Upload to SharePoint
+
+on:
+  workflow_dispatch:
+
 jobs:
-  get_report:
+  upload:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Create Test File
-        run: touch /tmp/foo.txt
-      - name: Send to Sharepoint
-        uses: cringdahl/sharepoint-file-upload-action@1.2.1
-        with:
-          file_path: "*.txt"
-          host_name: 'your.sharepoint.com'
-          site_name: 'some_site'
-          upload_path: 'fake_files'
-          tenant_id: ${{ secrets.TENANT_ID }}
-          client_id: ${{ secrets.CLIENT_ID }}
-          client_secret: ${{ secrets.CLIENT_SECRET }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get Access Token
+        id: get_token
+        run: |
+          echo "Requesting access token..."
+          curl -X POST \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=client_credentials" \
+            -d "client_id=${{ secrets.CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CLIENT_SECRET }}" \
+            -d "scope=https://graph.microsoft.com/.default" \
+            https://login.microsoftonline.com/${{ secrets.TENANT_ID }}/oauth2/v2.0/token \
+            | jq -r '.access_token' > access_token.txt
+          echo "Access token retrieved successfully."
+
+      - name: Upload file to SharePoint
+        env:
+          SP_SITE_URL: "https://tomtominternational.sharepoint.com/sites/nav-dx-guidance"
+        run: |
+          FILE_PATH="README.md"
+          FILE_NAME=$(basename "$FILE_PATH")
+          FOLDER_PATH="Shared Documents/nie-ux-spec"
+          UPLOAD_URL="$SP_SITE_URL/_api/web/getfolderbyserverrelativeurl('$FOLDER_PATH')/files/add(overwrite=true,url='$FILE_NAME')"
+
+          echo "Uploading file: $FILE_NAME to $FOLDER_PATH..."
+          response=$(curl -X POST \
+            -H "Authorization: Bearer $(cat access_token.txt)" \
+            -H "Accept: application/json;odata=verbose" \
+            -H "Content-Type: application/octet-stream" \
+            --data-binary @"$FILE_PATH" \
+            "$UPLOAD_URL" -w "%{http_code}")
+
+          if [ "$response" -eq 201 ]; then
+            echo "File uploaded successfully."
+          else
+            echo "Failed to upload file. HTTP status code: $response"
+            exit 1
+          fi
