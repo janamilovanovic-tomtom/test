@@ -11,12 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
-      - name: Use Access Token from Secrets
-        id: use_token
+      - name: Get Access Token
+        id: get_token
         run: |
-          echo "Using access token from GitHub Secrets."
-          echo "${{ secrets.SP_ACCESS_TOKEN }}" > access_token.txt
+          echo "Requesting access token..."
+          curl -X POST \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=client_credentials" \
+            -d "client_id=${{ secrets.CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CLIENT_SECRET }}" \
+            -d "scope=https://graph.microsoft.com/.default" \
+            https://login.microsoftonline.com/${{ secrets.TENANT_ID }}/oauth2/v2.0/token \
+            | jq -r '.access_token' > access_token.txt
           echo "Access token retrieved successfully."
 
       - name: Get file content from SharePoint
