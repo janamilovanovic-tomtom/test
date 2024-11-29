@@ -30,15 +30,13 @@ jobs:
           echo $(cat access_token.txt)
 
       - name: Download file from SharePoint
-        env:
-          SP_SITE_URL: "https://tomtominternational.sharepoint.com/sites/nav-dx-guidance"
+
         run: |
   
-          DOWNLOAD_URL="https://graph.microsoft.com/v1.0/sites/tomtominternational.sharepoint.com,055adf94-42e1-4941-8cd8-eb7ab60ca37d,drive/root:/Shared%20Documents/nie-ux-spec/README.md:/content"
-
+          DOWNLOAD_URL="https://graph.microsoft.com/v1.0/sites/055adf94-42e1-4941-8cd8-eb7ab60ca37d/drive/root:/Shared%20Documents/nie-ux-spec/README.md"
           echo "Download URL: $DOWNLOAD_URL"
 
-          echo "Downloading file: $FILE_NAME from $SP_SITE_URL..."
+          echo "Downloading file: $FILE_NAME"
           response=$(curl -X GET \
             -H "Authorization: Bearer $(cat access_token.txt)" \
             -H "Accept: application/json" \
