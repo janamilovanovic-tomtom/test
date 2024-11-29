@@ -14,20 +14,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Get Access Token
-        id: get_token
+      - name: Use Access Token from Secrets
+        id: use_token
         run: |
-          echo "Requesting access token..."
-          curl -X POST \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=client_credentials" \
-            -d "client_id=${{ secrets.CLIENT_ID }}" \
-            -d "client_secret=${{ secrets.CLIENT_SECRET }}" \
-            -d "scope=https://graph.microsoft.com/.default" \
-            https://login.microsoftonline.com/${{ secrets.TENANT_ID }}/oauth2/v2.0/token \
-            | jq -r '.access_token' > access_token.txt
+          echo "Using access token from GitHub Secrets."
+          echo "${{ secrets.SP_ACCESS_TOKEN }}" > access_token.txt
           echo "Access token retrieved successfully."
-          echo $(cat access_token.txt)
 
       - name: Download file from SharePoint
         run: |
@@ -50,4 +42,3 @@ jobs:
             echo "Failed to download file. HTTP status code: $response"
             exit 1
           fi
-      
