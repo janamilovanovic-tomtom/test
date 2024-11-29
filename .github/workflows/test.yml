@@ -1,4 +1,4 @@
-name: Upload to SharePoint
+name: Download from SharePoint
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload:
+  download:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,28 +29,25 @@ jobs:
           echo "Access token retrieved successfully."
           echo $(cat access_token.txt)
 
-      - name: Upload file to SharePoint
+      - name: Download file from SharePoint
         env:
           SP_SITE_URL: "https://tomtominternational.sharepoint.com/sites/nav-dx-guidance"
         run: |
-          FILE_PATH="README.md"
-          FILE_NAME=$(basename "$FILE_PATH")
-          FOLDER_PATH="Shared Documents/nie-ux-spec"
-          UPLOAD_URL="https://tomtominternational.sharepoint.com/sites/nav-dx-guidance/_api/web/getfolderbyserverrelativeurl('/Shared%20Documents/nie-ux-spec')/files/add(overwrite=true,url='README.md')"
   
-          echo "Upload URL: $UPLOAD_URL"
+          DOWNLOAD_URL="https://graph.microsoft.com/v1.0/sites/tomtominternational.sharepoint.com,055adf94-42e1-4941-8cd8-eb7ab60ca37d,drive/root:/Shared Documents/nie-ux-spec/README.md:/content"
 
-          echo "Uploading file: $FILE_NAME to $FOLDER_PATH..."
-          response=$(curl -X POST \
+          echo "Download URL: $DOWNLOAD_URL"
+
+          echo "Downloading file: $FILE_NAME from $SP_SITE_URL..."
+          response=$(curl -X GET \
             -H "Authorization: Bearer $(cat access_token.txt)" \
-            -H "Accept: application/json;odata=verbose" \
-            -H "Content-Type: application/octet-stream" \
-            --data-binary @"$FILE_PATH" \
-            "$UPLOAD_URL" -w "%{http_code}")
+            -H "Accept: application/json" \
+            -o "$FILE_PATH" \
+            "$DOWNLOAD_URL" -w "%{http_code}")
 
-          if [ "$response" -eq 201 ]; then
-            echo "File uploaded successfully."
+          if [ "$response" -eq 200 ]; then
+            echo "File downloaded successfully and saved as $FILE_PATH."
           else
-            echo "Failed to upload file. HTTP status code: $response"
+            echo "Failed to download file. HTTP status code: $response"
             exit 1
           fi
