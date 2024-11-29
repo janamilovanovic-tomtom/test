@@ -33,7 +33,7 @@ jobs:
 
         run: |
   
-          DOWNLOAD_URL="https://graph.microsoft.com/v1.0/sites/055adf94-42e1-4941-8cd8-eb7ab60ca37d/drive/root:/Shared%20Documents/nie-ux-spec/README.md"
+          DOWNLOAD_URL="https://graph.microsoft.com/v1.0/sites/055adf94-42e1-4941-8cd8-eb7ab60ca37d/drive/items/01HTWZYNWLWIF75TXITRAKXS72RFJ4NTTO/content"
           echo "Download URL: $DOWNLOAD_URL"
 
           echo "Downloading file: $FILE_NAME"
