@@ -29,10 +29,14 @@ jobs:
 
           FILE_NAME="README.md"
           echo "Downloading file: $FILE_NAME"
+
           response=$(curl -X GET \
             -H "Authorization: Bearer $(cat access_token.txt)" \
-            -H "Accept: application/octet-stream")
-
+            -H "Accept: application/octet-stream" \
+            -w "%{http_code}" \
+            -o response.txt \
+            "$DOWNLOAD_URL")
+          
           if [ "$response" -eq 200 ]; then
             echo "File downloaded successfully and saved as ./$FILE_NAME."
           else
