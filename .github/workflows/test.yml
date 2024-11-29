@@ -32,7 +32,7 @@ jobs:
           fi
 
           # Formiranje URL-a za upload
-          UPLOAD_URL="https://tomtominternational.sharepoint.com/sites/nav-dx-guidance/_api/web/getfolderbyserverrelativeurl('Shared%20Documents/nie-ux-spec')/files/add(overwrite=true, url='README.md')"
+          UPLOAD_URL="$SP_SITE_URL/_api/web/getfolderbyserverrelativeurl(Shared%20Documents/nie-ux-spec)/files/add(overwrite=true, url='$FILE_NAME')"
           echo "Upload URL: $UPLOAD_URL"  # Prikazivanje URL-a za debug
 
           # Otpremanje fajla
