@@ -41,7 +41,7 @@ jobs:
             -H "Authorization: Bearer $(cat access_token.txt)" \
             -H "Accept: application/json" \
             -o "./README.md" \
-            "$DOWNLOAD_URL" -w "%{http_code}")
+            "$DOWNLOAD_URL"")
 
           if [ "$response" -eq 200 ]; then
             echo "File downloaded successfully and saved as $FILE_PATH."
