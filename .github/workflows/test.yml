@@ -19,7 +19,7 @@ jobs:
         env:
           SP_ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}  # Koristi access token iz tajni
           SP_SITE_URL: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
-          SP_FOLDER_PATH: 'Shared%20Documents/nie-ux-spec'  # Razmak je enkodovan kao %20
+          SP_FOLDER_PATH: 'Shared Documents/nie-ux-spec'  # Razmak nije enkodovan
         run: |
           # Definiši putanju do fajla
           FILE_PATH="README.md"
@@ -33,6 +33,7 @@ jobs:
 
           # Formiranje URL-a za upload
           UPLOAD_URL="$SP_SITE_URL/_api/web/getfolderbyserverrelativeurl('$SP_FOLDER_PATH')/files/add(overwrite=true, url='$FILE_NAME')"
+          echo "Upload URL: $UPLOAD_URL"  # Prikazivanje URL-a za debug
 
           # Otpremanje fajla
           curl -X POST -H "Authorization: Bearer $SP_ACCESS_TOKEN" \
