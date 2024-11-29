@@ -32,8 +32,8 @@ jobs:
           FILE_PATH="README.md"
           FILE_NAME=$(basename "$FILE_PATH")
           FOLDER_PATH="Shared Documents/nie-ux-spec"
-          UPLOAD_URL="$SP_SITE_URL/_api/web/getfolderbyserverrelativeurl('$FOLDER_PATH')/files/add(overwrite=true,url='$FILE_NAME')"
-
+          UPLOAD_URL="https://tomtominternational.sharepoint.com/sites/nav-dx-guidance/_api/web/getfolderbyserverrelativeurl('/Shared Documents/nie-ux-spec')/files/add(overwrite=true,url=README.md)"
+  
           echo "Upload URL: $UPLOAD_URL"
 
           echo "Uploading file: $FILE_NAME to $FOLDER_PATH..."
