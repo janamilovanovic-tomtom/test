@@ -32,7 +32,7 @@ jobs:
           fi
 
           # Formiranje URL-a za upload
-          UPLOAD_URL="$SP_SITE_URL/nie-ux-spec"
+          UPLOAD_URL="$SP_SITE_URL/Shared%20Documents/nie-ux-spec"
           echo "Upload URL: $UPLOAD_URL"  # Prikazivanje URL-a za debug
 
           # Otpremanje fajla
