@@ -31,10 +31,7 @@ jobs:
           echo "Downloading file: $FILE_NAME"
           response=$(curl -X GET \
             -H "Authorization: Bearer $(cat access_token.txt)" \
-            -H "Accept: application/octet-stream" \
-            -o "./$FILE_NAME" \
-            -w "%{http_code}" \
-            "$DOWNLOAD_URL")
+            -H "Accept: application/octet-stream")
 
           if [ "$response" -eq 200 ]; then
             echo "File downloaded successfully and saved as ./$FILE_NAME."
