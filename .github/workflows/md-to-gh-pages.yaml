@@ -101,12 +101,12 @@ jobs:
               # Calculate the range
               content_range="bytes $offset-$end/$total_size"
           
-              # Upload the chunk
-              curl -X PUT \
+              # Create the chunk using dd
+              dd if=my_archive.zip bs=1 skip=$offset count=$((end - offset + 1)) status=none | curl -X PUT \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Content-Range: $content_range" \
-                --data-binary @"<$(dd if=my_archive.zip bs=1 skip=$offset count=$chunk_size)" \
+                --data-binary @- \
                 "$UPLOAD_URL"
           
               offset=$((offset + chunk_size))
-          done          done
+          done
