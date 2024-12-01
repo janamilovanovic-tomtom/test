@@ -44,5 +44,5 @@ jobs:
             curl -X PUT \
               -H "Authorization: Bearer $ACCESS_TOKEN" \
               -H "Content-Type: application/zip" \
-              --data-binary @my_archive.zip \
+              --data @my_archive.zip \
               "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/content"
