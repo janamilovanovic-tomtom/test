@@ -27,25 +27,22 @@ jobs:
           echo "${{ secrets.SP_ACCESS_TOKEN }}" > access_token.txt
           echo $(cat access_token.txt)
 
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Get file content from SharePoint
+      - name: Create ZIP archive
         run: |
-            
-            DOWNLOAD_URL="https://graph.microsoft.com/v1.0/sites/055adf94-42e1-4941-8cd8-eb7ab60ca37d/drive/items/01HTWZYNWLWIF75TXITRAKXS72RFJ4NTTO/content"
-            echo "Download URL: $DOWNLOAD_URL"
-            
-            response=$(curl -L -v -X GET \
-              -H "Authorization: Bearer $(cat access_token.txt)" \
-              -H "Accept: application/octet-stream" \
-              -w "%{http_code}" \
-              -o response.txt \
-              "$DOWNLOAD_URL")
-            
-            if [ "$response" -eq 200 ]; then
-              echo "File content retrieved successfully."
-              echo "Response content:"
-              cat response.txt
-            else
-              echo "Failed to retrieve file content. HTTP status code: $response"
-              exit 1
-            fi
+          zip -r my_archive.zip .
+
+      - name: Upload ZIP to Microsoft Drive
+        env:
+            DRIVE_ID: ${{ secrets.DRIVE_ID }}
+            FOLDER_NAME: 'YourFolderName'
+            ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
+            FILE_NAME: 'my_archive.zip'
+        run: |
+            curl -X PUT \
+              -H "Authorization: Bearer $ACCESS_TOKEN" \
+              -H "Content-Type: application/zip" \
+              --data-binary @my_archive.zip \
+              "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/content"
