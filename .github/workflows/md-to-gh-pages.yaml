@@ -96,14 +96,15 @@ jobs:
                   end=$((total_size - 1))
               fi
           
+              # Calculate the range
+              content_range="bytes $offset-$end/$total_size"
+          
               # Upload the chunk
               curl -X PUT \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
-                -H "Content-Range: bytes $offset-$end/$total_size" \
-                --data-binary @"my_archive.zip" \
-                --data-binary "@<(dd if=my_archive.zip bs=$chunk_size count=1 skip=$((offset / chunk_size)))" \
+                -H "Content-Range: $content_range" \
+                --data-binary @"<$(dd if=my_archive.zip bs=1 skip=$offset count=$chunk_size)" \
                 "$UPLOAD_URL"
           
               offset=$((offset + chunk_size))
           done
-
