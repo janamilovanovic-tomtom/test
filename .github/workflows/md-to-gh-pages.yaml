@@ -78,12 +78,14 @@ jobs:
                   }
                 }' \
             "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/createUploadSession")
-          echo "::set-output name=upload_url::$(echo $upload_session | jq -r .uploadUrl)"
+          
+          # Extract the upload URL and write to an environment file
+          echo "UPLOAD_URL=$(echo $upload_session | jq -r .uploadUrl)" >> $GITHUB_ENV
 
       - name: Upload file in chunks
         env:
           ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
-          UPLOAD_URL: ${{ steps.create_upload_session.outputs.upload_url }}
+          UPLOAD_URL: ${{ env.UPLOAD_URL }}
         run: |
           # Define the chunk size
           chunk_size=10485760  # 10 MB
@@ -107,4 +109,4 @@ jobs:
                 "$UPLOAD_URL"
           
               offset=$((offset + chunk_size))
-          done
+          done          done
