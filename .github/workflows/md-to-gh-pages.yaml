@@ -60,17 +60,50 @@ jobs:
       - name: Create ZIP archive
         run: zip -r my_archive.zip "${{ inputs.build_dir }}"/
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: my-archive
-          path: my_archive.zip
+      - name: Create upload session
+        id: create_upload_session
+        env:
+          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
+          DRIVE_ID: ${{ secrets.DRIVE_ID }}
+          FILE_NAME: 'my_archive.zip'
+          FOLDER_NAME: 'nie-ux-spec'
+        run: |
+          upload_session=$(curl -X POST \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "item": {
+                    "@microsoft.graph.conflictBehavior": "rename",
+                    "name": "'"$FILE_NAME"'"
+                  }
+                }' \
+            "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/createUploadSession")
+          echo "::set-output name=upload_url::$(echo $upload_session | jq -r .uploadUrl)"
 
-      - name: Publish to Sharepoint
-        uses: obrassard/action-sharepoint-publish@v1.1.1
-        with:
-            site_url: 'https://tomtominternational.sharepoint.com/sites/nav-dx-guidance'
-            library_folder: 'Shared Documents/nie-ux-spec'
-            sharepoint_client_id: ${{ secrets.CLIENTID }}
-            sharepoint_client_secret: ${{ secrets.CLIENTSECRET }}
-            file: 'my_archive.zip'
+      - name: Upload file in chunks
+        env:
+          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
+          UPLOAD_URL: ${{ steps.create_upload_session.outputs.upload_url }}
+        run: |
+          # Define the chunk size
+          chunk_size=10485760  # 10 MB
+          total_size=$(stat -c%s "my_archive.zip")
+          offset=0
+          
+          while [ $offset -lt $total_size ]; do
+              end=$((offset + chunk_size - 1))
+              if [ $end -ge $total_size ]; then
+                  end=$((total_size - 1))
+              fi
+          
+              # Upload the chunk
+              curl -X PUT \
+                -H "Authorization: Bearer $ACCESS_TOKEN" \
+                -H "Content-Range: bytes $offset-$end/$total_size" \
+                --data-binary @"my_archive.zip" \
+                --data-binary "@<(dd if=my_archive.zip bs=$chunk_size count=1 skip=$((offset / chunk_size)))" \
+                "$UPLOAD_URL"
+          
+              offset=$((offset + chunk_size))
+          done
+
