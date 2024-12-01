@@ -11,38 +11,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get Access Token
-        id: get_token
-        run: |
-          echo "Requesting access token..."
-          curl -X POST \
-            -H "Content-Type: application/x-www-form-urlencoded" \
-            -d "grant_type=client_credentials" \
-            -d "client_id=${{ secrets.CLIENT_ID }}" \
-            -d "client_secret=${{ secrets.CLIENT_SECRET }}" \
-            -d "scope=https://graph.microsoft.com/.default" \
-            https://login.microsoftonline.com/${{ secrets.TENANT_ID }}/oauth2/v2.0/token \
-            | jq -r '.access_token' > access_token.txt
-          echo "Access token retrieved successfully."
-          echo "${{ secrets.SP_ACCESS_TOKEN }}" > access_token.txt
-          echo $(cat access_token.txt)
 
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Create ZIP archive
         run: |
-          zip -r my_archive.zip README.md
+          zip -r my_archive.zip folder1 folder2 folder3
 
-      - name: Upload ZIP to Microsoft Drive
+      - name: Create upload session
+        id: create_upload_session
         env:
-            DRIVE_ID: ${{ secrets.DRIVE_ID }}
-            FOLDER_NAME: 'nie-ux-spec'
-            ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
-            FILE_NAME: 'my_archive.zip'
+          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
+          DRIVE_ID: ${{ secrets.DRIVE_ID }}
+          FILE_NAME: 'my_archive.zip'
+          FOLDER_NAME: 'nie-ux-spec'
         run: |
-            curl -X PUT \
-              -H "Authorization: Bearer $ACCESS_TOKEN" \
-              -H "Content-Type: application/zip" \
-              -T my_archive.zip \
-              "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/content"
+          upload_session=$(curl -X POST \
+            -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+                  "item": {
+                    "@microsoft.graph.conflictBehavior": "rename",
+                    "name": "'"$FILE_NAME"'"
+                  }
+                }' \
+            "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/createUploadSession")
+          echo "::set-output name=upload_url::$(echo $upload_session | jq -r .uploadUrl)"
+
+      - name: Upload file in chunks
+        env:
+          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
+          UPLOAD_URL: ${{ steps.create_upload_session.outputs.upload_url }}
+        run: |
+          # Define the chunk size
+          chunk_size=10485760  # 10 MB
+          total_size=$(stat -c%s "my_archive.zip")
+          offset=0
+          
+          while [ $offset -lt $total_size ]; do
+              end=$((offset + chunk_size - 1))
+              if [ $end -ge $total_size ]; then
+                  end=$((total_size - 1))
+              fi
+          
+              # Upload the chunk
+              curl -X PUT \
+                -H "Authorization: Bearer $ACCESS_TOKEN" \
+                -H "Content-Range: bytes $offset-$end/$total_size" \
+                --data-binary @"my_archive.zip" \
+                --data-binary "@<(dd if=my_archive.zip bs=$chunk_size count=1 skip=$((offset / chunk_size)))" \
+                "$UPLOAD_URL"
+          
+              offset=$((offset + chunk_size))
+          done
