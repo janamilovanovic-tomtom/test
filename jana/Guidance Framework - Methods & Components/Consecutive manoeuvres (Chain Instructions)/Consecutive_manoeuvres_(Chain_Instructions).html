@@ -1,0 +1,414 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Consecutive_manoeuvres_(Chain_Instructions)</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td><strong>PM</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td><strong>DEV</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:d6cafcbe-bb3a-4305-bba3-02e3350309bc?ref=confluence">Bohdan Soroka</a> HCP3,</td>
+</tr>
+</tbody>
+</table>
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#Table-of-Contents">Table of Contents</a></li>
+<li><a href="#Motivation">Motivation</a></li>
+<li><a href="#Terminology">Terminology</a></li>
+<li><a href="#When-Chain-Instruction-is-generated">When Chain Instruction is generated?</a></li>
+<li><a href="#Visual-Format-of-Chain-Instruction">Visual Format of Chain Instruction</a></li>
+<li><a href="#Triggering-points--Chain-Instruction">Triggering points &amp; Chain Instruction</a></li>
+<li><a href="#Chain-Instruction-Audio-Format">Chain Instruction Audio Format</a></li>
+<li><a href="#Types-of-Instructions-that-can-be-used-as-Chain-Instructions">Types of Instructions that can be used as Chain Instructions.</a><ul>
+<li><a href="#Examples">Examples</a></li>
+</ul>
+</li>
+<li><a href="#Roundabouts-as-Consecutive-Manoeuvres">Roundabouts as Consecutive Manoeuvres</a></li>
+<li><a href="#Strings">Strings</a></li>
+</ul>
+<h1>Motivation</h1>
+<p>Consecutive manoeuvres are manoeuvres that placed close to each other on the route path. This poses certain challenges for a driver because limited time he has to react on second manoeuvre after performing the first one. To mitigate this, we use <strong>Chain Instruction</strong> method. This method informs the driver about consecutive manoeuvre upfront, at the same time as announcing main manoeuvre delivering both manoeuvres in combined package.</p>
+<h1>Terminology</h1>
+<p>Manoeuvre that driver approaches first called <em><strong>"Main Manoeuvre"</strong></em> <br />
+Instruction which is applicable to the Main Manoeuvre called <em><strong>"Main Instruction"</strong></em><br />
+Manoeuvre driver approaches second, after passing the "Main Manoeuvre"  is called <em><strong>"Consecutive Manoeuvre"</strong></em><br />
+Instruction which is related to Consecutive manoeuvres at the point in time where the vehicle didn't yet reach the Main Manoeuvre is called <strong>"Chain Instruction"</strong></p>
+<h1>When Chain Instruction is generated?</h1>
+<p><strong>At the diagram below</strong> depicted two consecutive manoeuvres (A-green, and B-Blue) with their corresponding triggering points:</p>
+<p><img alt="Chain Instruction.svg" src="images/294994137.svg" /></p>
+<p><strong>A</strong> - Actual manoeuvre point of manoeuvre A (Main Manoeuvre)</p>
+<p><strong>A4</strong> - Confirmation triggering point of manoeuvre A</p>
+<p><strong>A3</strong> - Main triggering point of manoeuvre A</p>
+<p><strong>B</strong> - Actual manoeuvre point of manoeuvre B (Consecutive Manoeuvre)</p>
+<p><strong>B4</strong> - Confirmation triggering point of manoeuvre B</p>
+<p><strong>B3</strong> - Main triggering point of manoeuvre B</p>
+<p>Condition for Chain Instruction is: <strong>B3</strong> (Early announcement of connective manoeuvre) <strong>cannot be announced because it falls into the range of main instruction of manoeuvre A.</strong> In the diagram depicted above, the announcement B3 cannot happen during passing through manoeuvre A. Obviously, we cannot announce next instruction before passing the first one. But B3 announcement is critical for the next manoeuvre, therefore to address it, we introduce <em><strong>chain instruction</strong></em>. </p>
+<p>To inform the driver about two close manoeuvres upfront following instruction sequence is created;</p>
+<p><strong>At A3 triggering point:</strong> Instruction A3 and B3 are combined together following the rule of combined instructions.<br />
+<strong>At B3 triggering point:</strong> This point is not announced.<br />
+<strong>At A4 triggering point:</strong> Instruction A4 and B4 are combined together following the rule of combined instructions.<br />
+<strong>At B4 triggering point:</strong> B4 should be announced even if it spills over the manoeuvre point B.</p>
+<h1>Visual Format of Chain Instruction</h1>
+<p>Chain Instruction is represented as an event component similar to a standard event item in Horizon panel positioned below the NIP. If any other events are present in HP, they are positioned below chain instruction.</p>
+<p><img alt="image-20240812-083122.png" src="images/294917163.png" /></p>
+<p>Visual representation of chain instruction only contains maneuvre arrow, distance, exit number, and Road number. </p>
+<table>
+<thead>
+<tr>
+<th><strong>Visual Attribute</strong></th>
+<th><strong>Distance</strong></th>
+<th><strong>Road name</strong></th>
+<th><strong>Road Number</strong></th>
+<th><strong>Towards</strong></th>
+<th><strong>Exit number</strong></th>
+<th><strong>Lane Information</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Used in Chain Instruction</td>
+<td><strong>Yes</strong></td>
+<td><strong>No</strong></td>
+<td><strong>???</strong></td>
+<td><strong>No</strong></td>
+<td><strong>Yes</strong></td>
+<td><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<h1>Triggering points &amp; Chain Instruction</h1>
+<p>Chain instruction appears only at <strong>Main and Confirmation</strong> triggering points. Chain instruction is not communicated at earlier stages.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Triggering Point</strong></th>
+<th><strong>0-Follow the road</strong></th>
+<th><strong>1-Far Away</strong></th>
+<th><strong>2-Early</strong></th>
+<th><strong>3-Main</strong></th>
+<th><strong>4-Confirmation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Visual</td>
+<td><strong>No</strong></td>
+<td><strong>No</strong></td>
+<td><strong>No</strong></td>
+<td><strong>Yes</strong></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>Audio</td>
+<td><strong>No</strong></td>
+<td><strong>No</strong></td>
+<td><strong>No</strong></td>
+<td><strong>Yes</strong></td>
+<td><strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Following diagram depict the full sequence of Instruction sequence including chain instruction:</p>
+<p><img alt="" src="images/157703412.png" /></p>
+<h1>Chain Instruction Audio Format</h1>
+<p>Audio instruction for chain instruction always uses short format (turn left, keep right, take the exit, make a u-turn)) which only indicates the "action" without mentioning "pointers", "purposes" or any other elements of instructions. That means that some shortening needs to be applied to the data. More details about which attributes are used in chain instruction and which not are listed in the table below:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Audio Attribute</strong></th>
+<th><strong>Distance</strong></th>
+<th><strong>Pointer</strong></th>
+<th><strong>Action</strong></th>
+<th><strong>Purpose</strong></th>
+<th><strong>Road name</strong></th>
+<th><strong>Exit number / Name *</strong> </th>
+<th><strong>Road Number *</strong></th>
+<th><strong>Towards *</strong></th>
+<th><strong>Lane Information</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Used in Chain Instruction</td>
+<td><strong>No</strong></td>
+<td><strong>No</strong></td>
+<td><strong>Yes</strong></td>
+<td><strong>No</strong></td>
+<td><strong>No</strong></td>
+<td><strong>Yes, but see NOTE</strong></td>
+<td><strong>Yes, but see NOTE</strong></td>
+<td><strong>Yes, but see NOTE</strong></td>
+<td><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: Only one of the Blue items can be announced. Priorities of those items are following: Exit Num/Name → Towards → Road Number</p>
+<h1>Types of Instructions that can be used as Chain Instructions.</h1>
+<p>Every upcoming manoeuvre is represented by the Next Instruction, however, not all Consecutive manoeuvres should be represented by Chain instruction. Sometimes it doesn't make sense. Why? The reason for this is that some instructions in NIE are not guiding (prescribing driver action) but rather informative. Example: <em><strong>Border Crossing, Follow the Road for XXkm.</strong></em> Another reason is that some Chain instructions are too complex to be communicated clearly without overloading driver's cognitive capacity. Example: <em><strong>Roundabouts.</strong></em></p>
+<p>In the table below we list all possible manoeuvres and define which of them can be used as chain instructions (second part of the audio message)</p>
+<table>
+<thead>
+<tr>
+<th><strong>Instruction</strong></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>Turn Left/Right</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Turn Sharply Left/Right</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Bear Left/Right</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Keep Left/Right</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Turn around</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Turn around when Possible</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><strong>Highway Instructions</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Enter Motorway</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Merge</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Take Exit</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Keep Left/Right</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><strong>Roundabouts</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Roundabout (Michal???)</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><strong>Out of Car Transportation</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Take Ferry</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Take Car train</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><strong>Special Instructions</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Start Driving</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Reaching Destination</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Reaching Waypoint</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Entering Off-Road</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Starting from Off-road</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Follow the road for XXkm</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Toll Booth</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Boarder crossing</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Exit Auto Transport</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Enter HOV lane</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td></td>
+<td>Exit HOV lane</td>
+<td><strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: While this table should be used I default configuration of NIE, we should also support optional configuration (requested in Korean market) where all instructions types are possible for chain instruction.</p>
+<h2>Examples</h2>
+<p>Here are some examples of chain instruction:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Chain instruction</strong></th>
+<th><strong>Visual Instruction</strong></th>
+<th><strong>Audio Instruction</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Take Exit</td>
+<td><img alt="" src="images/157703403.png" /></td>
+<td>... and then take the exit No. 26</td>
+</tr>
+<tr>
+<td>Turn Right</td>
+<td><img alt="" src="images/157703404.png" /></td>
+<td>... and then Turn Right</td>
+</tr>
+<tr>
+<td>Enter Motorway</td>
+<td><img alt="" src="images/157703405.png" /></td>
+<td>... and then take the A115</td>
+</tr>
+<tr>
+<td>Turn Right</td>
+<td><img alt="" src="images/157703406.png" /></td>
+<td>... and then turn right</td>
+</tr>
+<tr>
+<td>Merge</td>
+<td><img alt="" src="images/157703407.png" /></td>
+<td>... and then merge to A115</td>
+</tr>
+<tr>
+<td>Roundabout</td>
+<td><img alt="" src="images/157703408.png" /></td>
+<td>... and then take the first exit at the roundabout</td>
+</tr>
+</tbody>
+</table>
+<h1>Roundabouts as Consecutive Manoeuvres</h1>
+<p>Roundabouts are special instructions that have two maneuver points(enter roundabout and exit) unlike "normal" instructions that have one maneuvre point. It is important to note that enter and exit are not two separate instructions but rather belongs to one instruction. Exit does not have different NIP and is only represented by audio instruction executed at the point of exit. </p>
+<p>In the given example when chain instruction is present after roundabout the sequence should look like:</p>
+<p><em><strong>"At the roundabout turn right, then turn right"</strong></em></p>
+<p>And NIP will display "third exit a the Roundabout" and "Turn right" as a chain instruction.</p>
+<p>When "enter roundabout point is passed" the NIP isn't changed.<br />
+But message at the exit point will be:</p>
+<p><em><strong>"Exit roundabout then turn right</strong></em></p>
+<h1>Strings</h1>
+<table>
+<thead>
+<tr>
+<th><strong>Screen</strong></th>
+<th><strong>String ID</strong></th>
+<th><strong>String reference</strong></th>
+<th><strong>Description</strong></th>
+<th><strong>String proposal</strong></th>
+<th><strong>Reviewed string</strong></th>
+<th><strong>Need</strong><strong>Translation</strong></th>
+<th><strong>Translated</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>-</td>
+<td>then</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+                </body>
+                </html>
+                

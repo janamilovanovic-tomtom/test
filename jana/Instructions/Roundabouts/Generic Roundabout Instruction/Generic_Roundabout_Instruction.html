@@ -1,0 +1,777 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Generic_Roundabout_Instruction</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <table>
+<thead>
+<tr>
+<th><strong>IXD</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VD</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td><strong>ENG. OWNER</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:27737e77-b2fa-4ca4-9fbf-019cbab57789?ref=confluence">User 57789</a></td>
+</tr>
+<tr>
+<td><strong>PM</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td><strong>TICKET</strong></td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-131044?src=confmacro">NAV-131044</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Introduction</h1>
+<p>This is a revision of the original design. As  a result of the evaluation of Roundabouts instructions we received the following feedback:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Issue</strong></th>
+<th><strong>Possible solution</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Turn directions (turn right/ left) often reported as wrong/misleading. Turns only work in narrow range scenarios</td>
+<td>Remove turn directions at roundabouts</td>
+</tr>
+<tr>
+<td>Turn directions for big roundabouts are useless, as driver loses original perspective while driving along the curve.</td>
+<td>Remove turn directions at roundabouts</td>
+</tr>
+<tr>
+<td>Lane guidance is misleading on a big roundabouts</td>
+<td>Provide SLG design for multi-lane roundabouts</td>
+</tr>
+<tr>
+<td>Exit Roundabout instruction is not clear.</td>
+<td>Clarify exit instruction</td>
+</tr>
+</tbody>
+</table>
+<p>Roundabouts are complicated intersection type that require special instruction for handling. Typically driving through roundabouts poses following challenges: It is not easy to identify correct exit, especially if there are many and directions are not straight. The challenge is amplified by the fact that decision should be made very fast. To address this we must prepare the driver upfront and provide him necessary information that could be applied instantly. Typical method of guidance trough roundabouts is mentioning the <strong>number of exit</strong> (counted from the entry point) that has to be taken. It is relatively easy to count exits for the driver, however this could be complicated if exits are mixed up with entries. It is not always easy to distinguish entries from exits especially when it needs to be done very fast during counting.  </p>
+<h1>Roundabout Instruction Architecture</h1>
+<p>Unlike, general instruction template, roundabout manoeuvre doesn't take place at one point but has a stretch of the road with two key points: entry and exit. To reflect this, the instruction has different architecture and consists of two parts:</p>
+<p><strong>Entry Roundabout instruction</strong> - Given for the entry as a manoeuvre point. Instructs how to perform whole Roundabout manoeuvre from entry to exit. <br />
+<strong>Exit roundabout instruction</strong> - Given for the exit as manoeuvre point. Only instructs how to perform the exit roundabout manoeuvre, while being already on the roundabout.</p>
+<p><img alt="Big Roundabouts Instruction.svg" src="images/306088039.svg" /></p>
+<p><strong>Roundabout Instruction schematic diagram.</strong><br />
+Technically, Roundabout manoeuvre is a sequence of two independent manoeuvres: <strong>Roundabout entry</strong> and <strong>Roundabout Exit</strong>  reference point for the entry is entry point and for the exit - exit. Those two manoeuvres have associated with them instructions which are depicted in corresponding Blue and Green colors on the diagram above.</p>
+<h2>Next Instruction panel</h2>
+<p>Design of Next instruction panel and Audio announcement depends on lane configuration at the roundabout, therefore we will be covering <strong>single-lane</strong> roundabouts and <strong>multi-lane</strong> separately.</p>
+<p><strong>Single lane roundabout instruction design</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Phase</strong></th>
+<th><strong>Visual</strong></th>
+<th><strong>Audio</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Early</td>
+<td><img src="images/157717722.png" title="" alt="" width="478"></td>
+<td><strong><em>In one kilometer, at the Roundabout, take the 3rd exit ...</em></strong></td>
+<td></td>
+</tr>
+<tr>
+<td>Main</td>
+<td><img src="images/157717721.png" title="" alt="" width="480"></td>
+<td><strong><em>In four hundred meters, at the Roundabout, take the 3rd exit ...</em></strong></td>
+<td></td>
+</tr>
+<tr>
+<td>Conf</td>
+<td><img src="images/157717719.png" title="" alt="" width="483"></td>
+<td><strong><em>take the 3rd exit</em></strong></td>
+<td>At the point of entry the distance counter gets down to 0 and then after entering roundabout, immediately restarts with the distance til the exit point.</td>
+</tr>
+<tr>
+<td>Exit</td>
+<td><img src="images/157717718.png" title="" alt="" width="434"></td>
+<td><strong><em>exit the roundabout</em></strong></td>
+<td>Exit instructions don't mention the number of exit since it is not applicable for the current position of the vehicle</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Multi-lane roundabout instruction design</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Phase</strong></th>
+<th><strong>Visual</strong></th>
+<th><strong>Audio</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Early</td>
+<td><img src="images/157717717.png" title="" alt="" width="371"></td>
+<td><strong><em>In one kilometer, at the Roundabout, take the 3rd exit ...</em></strong></td>
+<td></td>
+</tr>
+<tr>
+<td>Main</td>
+<td><img src="images/157717715.png" title="" alt="" width="371"></td>
+<td><strong><em>In four hundred meters, at the Roundabout, stay in the left two lanes to take the 3rd exit ...</em></strong></td>
+<td>New design of Unified SLG replaces manoeuvre arrow with SLG at main, Confirmation instruction phases. SLG here depicts lane configuration at the entrance to the roundabout.</td>
+</tr>
+<tr>
+<td>Confirmation</td>
+<td><img src="images/157717714.png" title="" alt="" width="372"></td>
+<td><strong><em>take the 3rd exit</em></strong></td>
+<td>At the point of entry the distance counter gets down to 0 and then after entering roundabout, immediately restarts with the distance til the exit point.</td>
+</tr>
+<tr>
+<td>Exit</td>
+<td><img src="images/157717712.png" title="" alt="" width="406"></td>
+<td><strong><em>exit the roundabout</em></strong></td>
+<td>New design of Unified SLG replaces manoeuvre arrow with SLG at main, Confirmation instruction phases. SLG here depicts lane configuration at the exit point from the roundabout.</td>
+</tr>
+</tbody>
+</table>
+<h3>SLG logic for multi-lane roundabouts</h3>
+<p>Multi-lane roundabouts lane recommendation should be gathered from lane connectivity data. Typically, the rightmost lane is connected with the first exit. Second and third to the second exit. Leftmost lane to the 3rd and further exits. This principle, however, could be broken and lane connectivity In those cases the only way to know which lane should be recommended is to read lane markings which are usually drawn on the surface of the road. Generally, when lane connectivity is in place it should be used for gathering recommended lane. And only when all lanes are connected to the target exit equally, we should apply generic lane logic.</p>
+<p><strong>Generic Lane Logic</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Exit number</strong></th>
+<th><strong>Recommended lane</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Rightmost</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>2nd from the right</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>2nd or/and 3rd from the right</td>
+<td>3rd - if third lane is available</td>
+</tr>
+<tr>
+<td>4 - max</td>
+<td>Leftmost</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: this table is defined for standard driving road side (not UK, Japan). For those regions the side should be reversed.</p>
+<p><strong>Example</strong></p>
+<p>Following example illustrates lane guidance at multi-lane roundabout with 2 exits. Roundabout itself consists of 2 lanes that are not marked on the circle but assumed to be there because ther are 2 lanes at the entrance of the roundabout.</p>
+<p><img src="images/348389997.png" title="" alt="Group 1664678241.png" width="1257"></p>
+<p><strong>Instruction modelling for this scenario</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Exit No.</strong></th>
+<th><strong>NIP</strong></th>
+<th><strong>Audio</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><img src="images/347936605.svg" title="" alt="Multi_Main-1.svg" width="285"></td>
+<td>Stay in the middle lane to take the first exit…</td>
+<td>Even though, it possible to change lanes while driving along the circle - it is not optimal. Therefore using our MPO (manoeuvre path optimisation) method we recommend the most optimal lane that doesn't require lane changes.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><img src="images/348036283.svg" title="" alt="Multi_Main.svg" width="370"></td>
+<td>Stay in the left two lanes to take the second exit….</td>
+<td>Both left lanes are equally optimised for the second exit, therefore both are recommended</td>
+</tr>
+</tbody>
+</table>
+<h3>Roundabout manoeuvre arrow</h3>
+<p>Visual Instruction represents Roundabout schematically.</p>
+<table>
+<thead>
+<tr>
+<th><strong>First exit</strong></th>
+<th><strong>Third exit</strong></th>
+<th><strong>cross, second exit</strong></th>
+<th><strong>take fifths exit</strong></th>
+<th><strong>exit roundabout</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/275168609.png" /></td>
+<td><img alt="" src="images/275522882.png" /></td>
+<td><img alt="" src="images/275490391.png" /></td>
+<td><img alt="" src="images/275427078.png" /></td>
+<td><img alt="" src="images/275427248.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2>When Exit instruction is omitted?</h2>
+<p>There are use cases when exit instruction doesn't have place. Those happen usually due to close proximity of the entry and exit points. They are so close to each other that can be considered as one.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Type</strong></th>
+<th><strong>Diagram</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First exit to the right</td>
+<td><img src="images/157717759.png" title="" alt="" width="250"></td>
+<td>In typical roundabout geometry (but not always), the first exit goes to the right. That puts it in the position which is very close to the entry. Naturally, there is no time for the exit instruction ion this case. Similarly to "Small Roundabouts" handling, in this scenario, exit instruction should be omitted.</td>
+</tr>
+<tr>
+<td>Small Roundabout</td>
+<td><img src="images/157717758.png" title="" alt="" width="348"></td>
+<td>It could happen (usually on small roundabouts) that distance of traveling along the curve (S) could be so small that it will not leave enough time for exit instruction to be announced. For this scenario we should have a method of skipping the exit instruction if time is not sufficient for it. Threshold of travel distance from entry to exit should be defined. Initial value is: \~80m (is it correct value?). To be refined experimentally while driving through small roundabouts.</td>
+</tr>
+</tbody>
+</table>
+<h1>Roundabouts types</h1>
+<p>Different configurations of roundabouts require different instruction compositions, therefore, we define separately following categories of roundabouts:</p>
+<ol>
+<li>
+<p><strong>Small / Straight roundabouts</strong> - the most trivial traffic figures that require minimal instruction for the manoeuvre.</p>
+</li>
+<li>
+<p><strong>Single lane roundabouts (excluding #1) -</strong> the most common traffic figures that require moderate instruction for the manoeuvre.</p>
+</li>
+<li>
+<p><strong>Multi-lane roundabouts -</strong> the most complex traffic figures that require the most elaborative instruction for the manoeuvre.</p>
+</li>
+</ol>
+<h2>1. Small / straight roundabouts</h2>
+<p>Small, straight (both conditions must be present to be classified as such) roundabout are trivial intersections and when crossing, don't require too elaborative instruction. Generic roundabout instruction is long and might be annoying especially if repeated in serial scenarios which are common for small roundabouts, therefore we use more natural format for such scenarios. We rely on <em><strong>cross the roundabout</strong></em> when going straight and <em><strong>go around the roundabout</strong></em> when going back. Street names announcements are also minimised at those traffic figures.</p>
+<p><strong>Small, Straight Roundabouts detection algorithms</strong> TO BE MOVED TO GITHUB</p>
+<p>This sections should be moved to the GitHub and managed by <em><strong>engineering owner</strong></em>.</p>
+<p><img alt="" src="images/icons/grey_arrow_down.png" />Detection of Small Roundabout</p>
+<p>Small roundabouts must have less than 30m radius. Angle deviations from 90° should not exceed +-5° (both sides)</p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>Road Network</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1</td>
+<td><img src="images/157717736.png" title="" alt="" width="425"></td>
+<td>This is a small (supposedly less than 30m radius) roundabout with clear straight exits.</td>
+</tr>
+<tr>
+<td>#2</td>
+<td><img src="images/157717735.png" title="" alt="" width="445"></td>
+<td>Two successive roundabout: one of them is small and another is big. For small one we should use short version and for big one - normal.</td>
+</tr>
+<tr>
+<td>#3</td>
+<td><img src="images/157717733.png" title="" alt="" width="468"></td>
+<td>This roundabout while small, <strong>is not straight</strong>, therefore id doesn't meet straight direction conditions.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Detection of straight direction.</strong></p>
+<p>Straight direction for small roundabouts is identified from looking at the following attributes:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Attribute</strong></th>
+<th><strong>Value</strong></th>
+<th><strong>Description</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multilane roundabouts</td>
+<td>Yes / No</td>
+<td>Multilane roundabouts are not qualified for having straight direction, as it is hard to keep sense of initial direction when travelling along big circle.</td>
+</tr>
+<tr>
+<td>Amount of exits</td>
+<td>2-8</td>
+<td>Only roundabouts <strong>with 2, 3 and 4 exits</strong> can be qualified for for having <em>Straight direction</em>.</td>
+</tr>
+<tr>
+<td>deviation of crossing angle</td>
+<td>+- 5°</td>
+<td>Only roundabouts with branches crossing at 90° or 180° angle can be qualified for for having <em>Straight direction</em>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples of Roundabouts that cannot have straight direction</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>Geometry</strong></th>
+<th><strong>Reasons Why</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><img title="" src="images/157717753.png" alt="" width="269"></td>
+<td>More then 4 exits.<br>Non 90° angles</td>
+</tr>
+<tr>
+<td>2</td>
+<td><img title="" src="images/157717755.png" alt="" width="266"></td>
+<td>Non 90° angles</td>
+</tr>
+<tr>
+<td>3</td>
+<td><img src="images/157717752.png" title="" alt="" width="269"></td>
+<td>Radius is bigger then 30m</td>
+</tr>
+<tr>
+<td>4</td>
+<td><img src="images/157717749.png" title="" alt="" width="268"></td>
+<td>Non 90° angles</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples of roundabouts qualified for having straight direction</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>Geometry</strong></th>
+<th><strong>Reasons Why</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><img title="" src="images/157717747.png" alt="" width="259"></td>
+<td>90° angles, 4 exits</td>
+</tr>
+<tr>
+<td>2</td>
+<td><img src="images/157717746.png" title="" alt="" width="256"></td>
+<td>90° angles, 3 exits</td>
+</tr>
+</tbody>
+</table>
+<h2>Single-Lane Roundabouts (excluding Small/Straight)</h2>
+<p>Any roundabout that doesn't fall under category of Small, Straight roundabouts and doesn't have multiple lanes is single lane roundabout.  It uses generic instruction composition using <em><strong>take the num Exit</strong></em> every time including straight and back directions. This is due to the fact that it is hard to rely on abstract directions when travelling along on medium/large circle.</p>
+<h2>Multi-Lane Roundabouts</h2>
+<p>Roundabouts that have lane dividers along their circle. Those roundabouts are large in diameter and require correct lane selection at the entry point. Those roundabout instructions focus on lane guidance <strong>Stay in/Take the</strong> <em><strong>num</strong></em> <strong>Right/Left lanes to take the num Exit.</strong> This composition could also be used for <strong>Turbo roundabouts.</strong></p>
+<h1>Roundabout Instruction composition</h1>
+<p>Based on the categorisation of roundabouts defined above, we will define instruction composition for each type separately.</p>
+<h2>Small/Straight Roundabout instruction composition</h2>
+<p><strong>(distance) + (pointer) + (action) + (purpose) + (direction)</strong>  - this general structure is used, however, as with all other instruction types some components are optional. The general principle of handling such roundabouts is usage of <em><strong>cross the roundabout</strong></em> and <em><strong>go around the roundabout</strong></em> actions which are only applicable for small roundabouts.</p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>Attribute</strong></th>
+<th><strong>Value</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1</td>
+<td>Distance</td>
+<td><strong>in</strong> <strong><em>num</em></strong> <strong>meters</strong></td>
+<td>Distance to the entry point is used according to generic instruction template.</td>
+</tr>
+<tr>
+<td>#2</td>
+<td>Pointer</td>
+<td><strong>at the roundabout</strong></td>
+<td>This pointer is used when direction through the roundabout is <strong>not straight or back</strong> (#3, #4)</td>
+</tr>
+<tr>
+<td>#3</td>
+<td>Pointer</td>
+<td><strong>cross the Roundabout</strong></td>
+<td>This pointer is used when direction through the roundabout <strong>is straight.</strong> Exit number is omitted in this case as, it is straightforward <br/> NOTE: This construction is an exception from general pointer syntax, as action is combined with the pointer - this is a necessary concession made to comply with English language structure, but it doesn't affect the logic.</td>
+</tr>
+<tr>
+<td>#4</td>
+<td>Pointer</td>
+<td><strong>go around the roundabout</strong></td>
+<td>This pointer is used only when direction through the roundabout is a U-turn.  <br/>NOTE: This construction is an exception from general pointer syntax, as action is combined with the pointer - this is a necessary concession made to comply with English language structure, but it doesn't affect the logic.</td>
+</tr>
+<tr>
+<td>#5</td>
+<td>Action</td>
+<td><strong>take the</strong> <strong><em>num</em></strong> <strong>exit</strong></td>
+<td>This action is used every time when direction through the roundabout is not straight or back (#3, #4)</td>
+</tr>
+<tr>
+<td>#6</td>
+<td>Action</td>
+<td><strong>,</strong> <strong><em>num</em></strong> <strong>exit</strong></td>
+<td>This action is only used to go around the roundabout (#4)</td>
+</tr>
+<tr>
+<td>#7</td>
+<td>Purpose</td>
+<td><strong>to stay on</strong></td>
+<td>This purpose is used only when incoming and outgoing roads are identical (except of "go around the roundabout")</td>
+</tr>
+<tr>
+<td>#8</td>
+<td>Direction (roadName/Number)</td>
+<td><strong>onto</strong> <strong><em>signpostRoadName</em></strong></td>
+<td>used only if provided by the signpost. In the presence of towards direction, this field is omitted.</td>
+</tr>
+<tr>
+<td>#9</td>
+<td>Direction (Towards)</td>
+<td><strong>towards</strong> <strong><em>signpostLocation</em></strong></td>
+<td>Used when there is a signpost with towards information related to the exit.</td>
+</tr>
+<tr>
+<td>#10</td>
+<td>Action</td>
+<td><strong>exit the roundabout</strong></td>
+<td>Used for exits</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example of Instructions for simple / straight Roundabouts</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>NIP</strong></th>
+<th><strong>distance</strong></th>
+<th><strong>pointer</strong></th>
+<th><strong>action</strong></th>
+<th><strong>purpose</strong></th>
+<th><strong>direction</strong></th>
+<th><strong>reason</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1</td>
+<td><img src="images/157717722.png" title="" alt="" width="458"></td>
+<td>in 1 km</td>
+<td>At the Roundabout</td>
+<td>take the third exit onto</td>
+<td>--</td>
+<td><em>signpostRoadName</em></td>
+<td>Road name is provided by the signpost.</td>
+</tr>
+<tr>
+<td>#2</td>
+<td><img src="images/157717881.png" title="" alt="" width="460"></td>
+<td>in 500 meters</td>
+<td>Cross the Roundabout</td>
+<td>--</td>
+<td>--</td>
+<td><em>--</em></td>
+<td>staying on the same road</td>
+</tr>
+<tr>
+<td>#5</td>
+<td><img src="images/157717884.png" title="" alt="" width="472"></td>
+<td>in 500 meters</td>
+<td>Go around the Roundabout</td>
+<td>, second exit</td>
+<td>--</td>
+<td>--</td>
+<td>roadName is omitted.</td>
+</tr>
+</tbody>
+</table>
+<h2>Single-lane roundabouts audio instruction attributes (excluding the small and straight roundabouts described above).</h2>
+<p><strong>(distance) + (pointer) + (action) + (purpose) + (direction)</strong>  - this general structure is used, however, as with all other instruction types some components are optional</p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>Attribute</strong></th>
+<th><strong>Value</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1</td>
+<td>Distance</td>
+<td><strong>in</strong> <strong><em>num</em></strong> <strong>meters</strong></td>
+<td>Distance to the entry point is used according to the generic instruction template.</td>
+</tr>
+<tr>
+<td>#2</td>
+<td>Pointer</td>
+<td><strong>at the roundabout</strong></td>
+<td>This action is used every time</td>
+</tr>
+<tr>
+<td>#3</td>
+<td>Action</td>
+<td><strong>take the</strong> <strong><em>num</em></strong> <strong>exit</strong></td>
+<td>This action is used every time</td>
+</tr>
+<tr>
+<td>#4</td>
+<td>Purpose</td>
+<td><strong>to stay on</strong></td>
+<td>This purpose is used only when incoming and outgoing roads are identical</td>
+</tr>
+<tr>
+<td>#5</td>
+<td>Direction (roadName/Number)</td>
+<td><strong>onto</strong> <strong><em>roadName</em></strong></td>
+<td>Used every time as long as towards is not provided. <br/> <br/>Road name/number coming from the signpost has priority over map data as defined globally <a href="./../../../Guidance%20Framework%20-%20Methods%20%26%20Components/Directional%20Information%20-%20Road%20names%2C%20Road%20numbers%2C%20Towards/Directional_Information-Road-names_Road-numbers_Towards.html">NIE_016 - Directional Information (Road names, Road numbers)</a></td>
+</tr>
+<tr>
+<td>#6</td>
+<td>Direction (Towards)</td>
+<td><strong>towards</strong> <strong><em>signpostLocation</em></strong></td>
+<td>Used when there is a signpost with towards information related to the exit.</td>
+</tr>
+<tr>
+<td>#7</td>
+<td>Action</td>
+<td><strong>exit the roundabout</strong></td>
+<td>Used for exits</td>
+</tr>
+</tbody>
+</table>
+<p>NOTE:The main difference in handling of this group of roundabouts is not using "cross the roundabout" and "go around the roundabout" actions. Instead, only exit numbers are used.</p>
+<p><strong>Example of Instructions for single lane Roundabouts</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>NIP</strong></th>
+<th><strong>distance</strong></th>
+<th><strong>pointer</strong></th>
+<th><strong>action</strong></th>
+<th><strong>purpose</strong></th>
+<th><strong>direction</strong></th>
+<th><strong>reason</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1</td>
+<td><img src="images/157717722.png" title="" alt="" width="477"></td>
+<td>in 1 km</td>
+<td>At the Roundabout</td>
+<td>take the third exit onto</td>
+<td>--</td>
+<td><em>roadName</em></td>
+<td>No signpost towards information available</td>
+</tr>
+<tr>
+<td>#2</td>
+<td><img src="images/157717870.png" title="" alt="" width="489"></td>
+<td>in 1 km</td>
+<td>At the Roundabout</td>
+<td>take the second exit</td>
+<td></td>
+<td>towards <em>Dresden</em></td>
+<td>Signpost information with Dresden is available in the signpost</td>
+</tr>
+<tr>
+<td>#6</td>
+<td><img src="images/157717718.png" title="" alt="" width="490"></td>
+<td>--</td>
+<td>--</td>
+<td>exit the roundabout</td>
+<td>--</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3>Multi-lane roundabouts audio instruction components</h3>
+<p><strong>(distance) + (pointer) + (action) + (purpose) + (direction)</strong>- this general structure is used, however, as with all other instruction types some components are optional</p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>Component</strong></th>
+<th><strong>Value</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1</td>
+<td>Distance</td>
+<td><strong>In</strong> <strong><em>num</em></strong> <strong>meters</strong></td>
+<td>Distance is used according to generic instruction template.</td>
+</tr>
+<tr>
+<td>#2</td>
+<td>Pointer</td>
+<td><strong>at the roundabout</strong></td>
+<td>This action is used every time</td>
+</tr>
+<tr>
+<td>#3</td>
+<td><strong>Action</strong></td>
+<td><strong>stay in</strong> <strong><em>num</em></strong> <strong>Right/Left lanes</strong></td>
+<td>Amount of lanes (num) and their logic varies depending on the geometry and follow generic Lane guidance. This action is used at <strong>Main instruction phase</strong></td>
+</tr>
+<tr>
+<td>#4</td>
+<td><strong>Purpose</strong></td>
+<td><strong>to take the</strong> <strong><em>num</em></strong> <strong>exit</strong></td>
+<td>This action is used at <strong>Main instruction phase</strong></td>
+</tr>
+<tr>
+<td>#5</td>
+<td><strong>Action</strong></td>
+<td><strong>take the</strong> <strong><em>num</em></strong> <strong>exit</strong></td>
+<td>This action is used at <strong>Early instruction phase</strong></td>
+</tr>
+<tr>
+<td>#6</td>
+<td>Direction</td>
+<td><strong>to</strong> <strong><em>roadName</em></strong></td>
+<td>Used every time as long as towards is not provided. <br/> <br/>Road name/number coming from the signpost has priority over map data as defined globally <a href="./../../../Guidance%20Framework%20-%20Methods%20%26%20Components/Directional%20Information%20-%20Road%20names%2C%20Road%20numbers%2C%20Towards/Directional_Information-Road-names_Road-numbers_Towards.html">NIE_016 - Directional Information (Road names, Road numbers)</a></td>
+</tr>
+<tr>
+<td>#7</td>
+<td>Direction</td>
+<td><strong>towards</strong> <strong><em>signpostLocation</em></strong></td>
+<td>Used when there is a signpost with towards information related to the exit</td>
+</tr>
+<tr>
+<td>#8</td>
+<td>Action</td>
+<td><strong>exit the roundabout</strong></td>
+<td>Used for exits</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example of Instructions for multi-lane roundabouts:</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>id</strong></th>
+<th><strong>NIP</strong></th>
+<th><strong>Phase</strong></th>
+<th><strong>distance</strong></th>
+<th><strong>pointer</strong></th>
+<th><strong>action</strong></th>
+<th><strong>purpose</strong></th>
+<th><strong>direction</strong></th>
+<th><strong>Reason</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#1</td>
+<td><img src="images/157717874.png" title="" alt="" width="351"></td>
+<td>Main</td>
+<td>in 400meters</td>
+<td>At the Roundabout</td>
+<td>stay in two left lanes</td>
+<td>to take the third exit</td>
+<td>to <em>roadName</em></td>
+<td>No signpost towards information available</td>
+</tr>
+<tr>
+<td>#2</td>
+<td><img src="images/157717875.png" title="" alt="" width="355"></td>
+<td>Main</td>
+<td>in 400meters</td>
+<td>At the Roundabout</td>
+<td>stay in two left lanes</td>
+<td>to take the third exit</td>
+<td>towards <em>signpostLocation</em></td>
+<td>Road name is replaced with the towards, because it is provided in the signpost</td>
+</tr>
+<tr>
+<td>#3</td>
+<td><img src="images/157717878.png" title="" alt="" width="348"></td>
+<td>Early</td>
+<td>in 2 km</td>
+<td>At the Roundabout</td>
+<td>take the third exit</td>
+<td>--</td>
+<td>to <em>roadName</em></td>
+<td>No signpost towards information available</td>
+</tr>
+<tr>
+<td>#4</td>
+<td><img src="images/157717712.png" title="" alt="" width="363"></td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>exit the roundabout</td>
+<td>--</td>
+<td>to <em>roadName</em></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h1>Roundabout exits counting (identifying <em>num</em> parameter)</h1>
+<p>Roundabout exits can have various angles relative to the direction of entry. NIE supports max 8 exits. All possible directions must be mapped to 8(max.) directions.  Each exit is identified by a number which is going counterclockwise. NOTE: For Right handed driving countries (UK, Japan) the direction is inverted.</p>
+<p><img alt="" src="images/157717800.png" /></p>
+<h3>Dealing with Tangential exits</h3>
+<p>Tangential exits, technically, are not belongs to a roundabout as they bypass it via dedicated straight paths. Those exits should not be counted and should not even be considered as roundabout instructions. I</p>
+<p><strong>Tangential exits</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Type</strong></th>
+<th><strong>Diagram</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tangential</td>
+<td><img title="" src="images/307203509.png" alt="" width="1093"></td>
+<td>Tangential lines that are passing by the roundabout <strong><em>without even touching the the circle perimeter.</em></strong> The instruction should not be <em>Roundabout instruction,</em> but rather <em>Turn, Bear, Keep</em> - whatever is applicable for the given geometry. <br/> <br/>NOTE: If tangential line touches the perimeter (has a common segment), the exit is considered to be belongs to roundabout.  If the route passes through a roundabout (has at least one roundabout arc) then a roundabout instruction is generated. If the route just includes a roundabout junction and doesn't include a roundabout arc, roundabout instruction is not generated.</td>
+</tr>
+</tbody>
+</table>
+<h1>----- END OF DOCUMENT -----</h1>
+                </body>
+                </html>
+                

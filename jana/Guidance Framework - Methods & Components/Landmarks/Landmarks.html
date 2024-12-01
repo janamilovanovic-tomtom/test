@@ -1,0 +1,312 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Landmarks</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <p><img alt="" src="images/157686367.png" /></p>
+<table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td>PO</td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td>DEV</td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:2b00ecb1-a543-4410-818c-575056da8b84?ref=confluence">Vadym Khandus</a></td>
+</tr>
+<tr>
+<td>TICKETS</td>
+<td><a href="https://tomtom.atlassian.net/browse/GOSDK-13065">GOSDK-13065</a><br><a href="https://tomtom.atlassian.net/browse/NAV-23334">NAV-23334</a><br><a href="https://tomtom.atlassian.net/browse/NAV-95745">NAV-95745</a><br><a href="https://tomtom.atlassian.net/browse/NAV-92335">NAV-92335</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#Table-of-Contents">Table of Contents</a></li>
+<li><a href="#Introduction-to-Landmarks">Introduction to Landmarks</a></li>
+<li><a href="#Impact-on-Instruction-Design">Impact on Instruction Design</a></li>
+<li><a href="#Supported-landmarks">Supported landmarks</a></li>
+<li><a href="#General-Design-Principle--methods">General Design Principle &amp; methods</a><ul>
+<li><a href="#Inform-about-Landmark-when-it-is-needed">Inform about Landmark when it is needed.</a></li>
+<li><a href="#One-Landmark-at-a-time">One Landmark at a time</a></li>
+<li><a href="#Visual--Audio-Pointers">Visual &amp; Audio Pointers</a></li>
+<li><a href="#Serial-Landmarks-handling">Serial Landmarks handling</a></li>
+</ul>
+</li>
+<li><a href="#Specific-Landmarks-designs">Specific Landmarks designs</a></li>
+<li><a href="#Future-plans">Future plans</a></li>
+</ul>
+<h1><strong>Introduction to Landmarks</strong></h1>
+<p>Landmarks is an object or feature of a landscape or town that is easily seen and recognised from a short distance, especially one that enables someone to determine their location. User research in Europe and Asia shows that users commonly explain routes in relation to <strong>landmarks, junctions and paths.</strong> <strong>Landmarks</strong> are recommended to be used as guiding <em><strong>Pointers</strong></em> in Navigation. This is due to a more natural, human way of orientation in space that Landmarks provide.</p>
+<p>NOTE: based on the EU Research project <a href="https://tomtom.atlassian.net/wiki/pages/viewpage.action?pageId=87302106&amp;navigatingVersions=true">Hardie Guidelines</a></p>
+<h1><strong>Impact on Instruction Design</strong></h1>
+<p>Landmarks are manifested in Guidance in following ways:</p>
+<ul>
+<li>Announced by Audio</li>
+<li>Visualised in the NIP (not all Landmarks)</li>
+<li>Landmarks are also rendered on the map (not all Landmarks)</li>
+</ul>
+<p>NIE provides <a href="./../Instruction%20architecture/Instruction_architecture.html">modular Instruction architecture</a>. There is a specific component in this architecture which is reserved for Landmarks - <em><strong>Pointer</strong></em>. Term <em><strong>Landmark</strong></em> and <em><strong>Pointer</strong></em> can be used interchangeably, but it is important to clarify, while <em><strong>Landmark</strong></em> refers to the real object itself on the road in real world, <em><strong>Pointer</strong></em> is a UI element (and audio component) which is pointing to it. </p>
+<h1><strong>Supported landmarks</strong></h1>
+<p>NavSDK currently (Q1.2024) supports the following landmarks:</p>
+<table>
+<thead>
+<tr>
+<th>Landmark</th>
+<th>Supported</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Traffic lights</td>
+<td>YES</td>
+<td>Visualisation is not supported</td>
+</tr>
+<tr>
+<td>Bridges</td>
+<td>NO</td>
+<td>Regression due transition to NavSDK</td>
+</tr>
+<tr>
+<td>Tunnels</td>
+<td>NO</td>
+<td>Regression due transition to NavSDK</td>
+</tr>
+<tr>
+<td>End of road (T Junction)</td>
+<td>YES</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h1><strong>General Design Principle &amp; methods</strong></h1>
+<p>To effectively and unobtrusively communicate relevant for the moment Information to the driver, we follow those general principles for Landmark Pointers:</p>
+<h2>Inform about Landmark when it is needed.</h2>
+<p>Drivers are easily overloaded with information, therefore it is critical to provide it in time - not too early and not too late. There is no point to tell about Landmarks at large distances, but at the moment of a turn it is also too late. For those reasons we communicate Landmark information in Audio only at <a href="https://tomtom.atlassian.net/wiki/display/FlaminGO/NIE_004+-+Instruction+Triggering+Logic">Main Instruction phase</a>. Landmark <strong>is not announced at Early and Confirmation phases</strong>. This doesn't affect the visual representation of landmark in the NIP and Map. It can still be shown earlier, following general rules for the NIP and Map components.</p>
+<h2>One Landmark at a time</h2>
+<p>Due to a nature of guidance, we can only use <strong>one landmark at a time</strong>. Therefore when multiple landmarks occur at the same location the highest priority landmark is included.</p>
+<p>Some <a href="https://tomtom.atlassian.net/wiki/download/attachments/87294859/Burnett%2C%20G.E.%20%282000%29%20³Turn%20right%20at%20the%20traffic%20lights².pdf?version=1&amp;modificationDate=1519041512000&amp;api=v2">external research</a> indicates that landmarks are most useful to users which are:</p>
+<ul>
+<li>visible from a distance</li>
+<li>unique in appearance</li>
+<li>close to or part of the road</li>
+<li>relatively permanent</li>
+</ul>
+<p>Here is the table defining priorities of landmarks in case of conflicts of conflicts:</p>
+<table>
+<thead>
+<tr>
+<th>Landmark</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tunnel</td>
+<td>1</td>
+</tr>
+<tr>
+<td>End of the road</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Traffic light</td>
+<td>3</td>
+</tr>
+<tr>
+<td>bridge</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<h2>Visual &amp; Audio Pointers</h2>
+<p>Landmark can be represented by <strong>visual</strong> (element in the NIP, Map pointer) and <strong>audio</strong> (announcement "...at the Traffic Light... ") components. <strong>Visual component is not always applicable</strong>, due to the nature of some landmarks (bug bridges for example), while Audio should be always used.</p>
+<h2>Serial Landmarks handling</h2>
+<p>Some types of Landmarks (Traffic Lights) often come in successions, which makes it harder to refer to as they are multiple. There should be special methods applied to handle such situations and disambiguate multiplicity of landmarks for the driver.</p>
+<h1><strong>Specific Landmarks designs</strong></h1>
+<p>To dive into design details of each type of landmark, follow those pages:</p>
+<ol>
+<li><a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20End%20of%20the%20Road/Landmark_End_of_the_Road.html">End of the road</a></li>
+<li><a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Traffic%20Light/Landmark_Traffic_Light.html">Traffic Light</a></li>
+<li><a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Bridges/Landmark_Bridges.html">Bridge</a></li>
+<li><a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Landmarks/Landmarks%20-%20Tunnels/Landmark_Tunnels.html">Tunnel</a></li>
+</ol>
+<h1><strong>Future plans</strong></h1>
+<p>At the moment (Q4.2023) there is very limited support for Landmark types</p>
+<p>Below a full list of potential items to explore as a candidates for Landmarks: </p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Landmark</th>
+<th>Edge</th>
+<th>District</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pelican crossing</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Bridge over road</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Hump-backed bridge</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Petrol station</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Monument</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Railway station</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Road sign/signpost</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Point of Interest</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Stop sign</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Crosswalk</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Railroad crossing</td>
+<td>✓</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Tram lines</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>River</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Canal</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Lake</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Sea</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Forest</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Park</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Grass</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>Railway track</td>
+<td></td>
+<td>✓</td>
+<td></td>
+</tr>
+<tr>
+<td>City centre</td>
+<td></td>
+<td></td>
+<td>✓</td>
+</tr>
+<tr>
+<td>University campus</td>
+<td></td>
+<td></td>
+<td>✓</td>
+</tr>
+</tbody>
+</table>
+                </body>
+                </html>
+                

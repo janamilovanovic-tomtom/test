@@ -1,0 +1,168 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Landmark_Traffic_Light</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <p><img alt="" src="images/157703442.png" /></p>
+<table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th>@Matteo Fanchin <br><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td>PM</td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#Table-of-Contents">Table of Contents</a></li>
+<li><a href="#Landmarks-Introduction">Landmarks Introduction</a></li>
+<li><a href="#Manifestation-of-Traffic-Lights">Manifestation of Traffic Lights</a></li>
+<li><a href="#Visual-Representation">Visual Representation</a></li>
+<li><a href="#Audio-Instruction">Audio Instruction</a></li>
+<li><a href="#Map-Representation">Map Representation</a></li>
+<li><a href="#Multiple-instances-of-Traffic-Light">Multiple instances of Traffic Light</a></li>
+</ul>
+<h1>Landmarks Introduction</h1>
+<p><strong>Landmarks</strong> is defined as an object or feature of a landscape or town that is easily seen and recognized from a distance, especially one that enables someone to establish their location. User research in Europe and Asia shows that users commonly explain routes in relation to <strong>landmarks, junctions and paths. Traffic lights</strong> are most common landmarks.   </p>
+<p>Landmarks appear in instruction sequence as <strong>Pointers</strong>, as shown in the diagram below. </p>
+<p><img alt="" src="images/157703524.png" /></p>
+<p>NOTE: It is important to note that <strong>Pointers re not the same as Landmarks</strong>, because there are some pointers (at the Fork) which are not Landmarks, but rather traffic figures. Pointers contain Landmarks but they have wider usage.</p>
+<h1>Manifestation of Traffic Lights</h1>
+<p>Traffic light are manifested at following touch points:</p>
+<ul>
+<li>As a visual indication in the NIP.</li>
+<li>As a Pointer in Audio Instruction.</li>
+<li>Landmarks could be rendered on the map.</li>
+</ul>
+<h1>Visual Representation</h1>
+<p>Traffic light icon appears in the NIP at the right side, instead of Exit Number. </p>
+<p><img alt="" src="images/157703527.png" /></p>
+<p>NOTE: Traffic light and exit numbers cannot be present simulteniusely due to uninterrupted traffic flows on Highways and similar roads.</p>
+<h1>Audio Instruction</h1>
+<p>Traffic light is represented as a <em>pointer</em> in audio instruction sequence. Thera are several possibilities for the instruction depending on the location of the manoeuvre in relation to the traffic light:</p>
+<table>
+<thead>
+<tr>
+<th>Distance</th>
+<th>Pointer</th>
+<th>Action</th>
+<th>Purpose</th>
+<th>Direction</th>
+<th>Conditions</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>In 600m</td>
+<td>at the traffic light</td>
+<td>turn right to B96a</td>
+<td>--</td>
+<td>towards Dresden</td>
+<td>Used when manoeuvre located at the junction that is controlled by this traffic light.</td>
+<td>TR icon is shown in the NIP.</td>
+</tr>
+<tr>
+<td>in 600m</td>
+<td>before the traffic light</td>
+<td>turn right to B96a</td>
+<td>--</td>
+<td>towards Dresden</td>
+<td>Used when manoeuvre located just (max 50m) before the junction.</td>
+<td>TR icon is not used in the NIP in this case.</td>
+</tr>
+<tr>
+<td>in 600m</td>
+<td>after the traffic light</td>
+<td>turn right to B96a</td>
+<td>--</td>
+<td>towards Dresden</td>
+<td>Used when manoeuvre located just (max 50m) after the junction.</td>
+<td>TR icon is not used in the NIP in this case.</td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: "Before" and "After" should only be used inside the 50m threshold. Out of those, the whole landmark is not announced.</p>
+<h1>Map Representation</h1>
+<p>Target Traffic light should also be displayed on the map. There several aspects of this visualisation that need to be decided:  </p>
+<p>Which zoom levels traffic will be displayed at?<br />
+How would it coexist without collision with other graphical guiding elements present at the same place such as Maneuvre arrow?<br />
+If there are multiple traffic lights between current position and the next maneuvre, they all need to be displayed.</p>
+<h1>Multiple instances of Traffic Light</h1>
+<p>It often happens that there are multiple instances of traffic light occurs during the stretch of the road before the manoeuvre. In this case it could be misleading to indicate specific traffic light for the maneuvre, because driver cannot identify the correct one. In order to mitigate this, following method is used: At given triggering point, amount of instances of traffic lights till the manoeuvre is counted.  </p>
+<p>If there is just one traffic light, announcement given: "at the traffic light".<br />
+If there are 2 traffic lights, the instruction announces "at the second traffic light".<br />
+If more then 2, traffic light is not announced at all.  </p>
+<p>See the following table of audio announcements for details:</p>
+<table>
+<thead>
+<tr>
+<th>Triggering point -\&gt;</th>
+<th>Far Away</th>
+<th>Early</th>
+<th>Main</th>
+<th>Confirmation</th>
+<th>Amount of traffic lights before the maneuvre</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>--</td>
+<td>--</td>
+<td>At the traffic light</td>
+<td>--</td>
+<td>1</td>
+</tr>
+<tr>
+<td></td>
+<td>--</td>
+<td>--</td>
+<td>At the second traffic light</td>
+<td>--</td>
+<td>2</td>
+</tr>
+<tr>
+<td></td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>--</td>
+<td>&gt; 2</td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: "Before" and "After" are not used for multiple instances. In other words, if there are multiple instances and "before" or "after" must be used, the whole landmark is removed. We should not get announcements like "before the second traffic light".</p>
+<p>NOTE: Visual representation of traffic light in the NIP supports the audio announcement.  </p>
+<p>NOTE: In case multiple instances of the landmark, only one icon shown in the NIP.</p>
+                </body>
+                </html>
+                

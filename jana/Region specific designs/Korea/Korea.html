@@ -1,0 +1,248 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Korea</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <p><img alt="" src="images/157705905.png" /></p>
+<table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:018cce61-1d81-4f2e-beef-371a9f3958c1?ref=confluence">Rachael Lo</a>  <a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dev. Teams</td>
+<td>Geo-expansion</td>
+</tr>
+<tr>
+<td>Jira tickets</td>
+<td>Audio Instructions<br/><a href="https://tomtom.atlassian.net/browse/GOSDK-6647?src=confmacro">GOSDK-6647</a> <br/><a href="https://tomtom.atlassian.net/browse/GOSDK-6648?src=confmacro">GOSDK-6648</a></td>
+</tr>
+<tr>
+<td>Deviated from</td>
+<td><a href="../../Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20Instructions/Audio_Instructions.html">Audio Instructions</a><br><a href="./../../Instructions/Roundabouts/Roundabouts.html">Roundabouts</a></td>
+</tr>
+<tr>
+<td>Local references</td>
+<td><a href="https://tomtom.atlassian.net/wiki/pages/viewpage.action?pageId=202052949">Drive tests</a>, <a href="https://tomtominternational-my.sharepoint.com/:x:/g/personal/sundie_jong_tomtom_com/EaNi4nnhOjhMufT01SWgK8AB_geo1zkK_yWinQIQU5MxBA">Discussions</a>, <a href="https://tomtom.atlassian.net/wiki/display/AS/South+Korea+clockwise+guidance">Benchmarks</a></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><img alt="" src="images/157705905.png" /><ul>
+<li><a href="#1Audio-Instructions">1. Audio Instructions</a></li>
+<li><a href="#1-1Introduction">1-1. Introduction</a></li>
+<li><a href="#1-2-Approaches">1-2. Approaches</a></li>
+<li><a href="#1-3Audio-Instructions-Source">1-3. Audio Instructions Source</a></li>
+</ul>
+</li>
+<li><a href="#2-Roundabouts">2. Roundabouts</a><ul>
+<li><a href="#2-1-Introduction">2-1. Introduction</a></li>
+<li><a href="#2-2-Indicating-directions-of-maneuver">2-2. Indicating directions of maneuver</a></li>
+<li><a href="#2-3-Roundabout-Instruction-structure">2-3. Roundabout Instruction structure</a></li>
+</ul>
+</li>
+</ul>
+<h1>1. Audio Instructions</h1>
+<h2>1-1. Introduction</h2>
+<p>To make audio guidance more idiomatic for end users in South Korean region, clockwise guidance is implemented to replace "Bear left/right" and "Turn sharply" instructions, which lack suitable vocabulary in Korean.  </p>
+<p>Using clockwise guidance not only make the Korean audio guidance more intuitive. It also provides drivers more informative instructions to navigate busy intersections or take ambiguous turns without relying on the display. </p>
+<h2>1-2. Approaches</h2>
+<p>On Q23.2 the first step is to translate the local strings, which involve mapping clock annotations to the current guidance angles.</p>
+<blockquote>
+<p>[!NOTE]
+Since the phrase "turn left/right at x o'clock" conveys a distinct meaning compared to the original expressions "bear" and "sharp turn," it would be beneficial to introduce technical and visual design updates that provide more specific descriptions using clockwise directions. By incorporating detailed clockwise descriptions, the instructions can be more accurate and useful. </p>
+</blockquote>
+<p><img alt="" src="images/157705889.png" /></p>
+<table>
+<thead>
+<tr>
+<th>№</th>
+<th>Action English</th>
+<th>Action Korean</th>
+<th>Purpose</th>
+<th>Pointer</th>
+<th>Road name/number</th>
+<th>Detail English</th>
+<th>Detail Korean</th>
+<th>Towards</th>
+<th>Number ordinal/cardinal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Bear</td>
+<td>Turn</td>
+<td>to take exit</td>
+<td>At the traffic light</td>
+<td>A100 (example)</td>
+<td>left</td>
+<td>left at 11 o'clock</td>
+<td>towards city centre</td>
+<td>List of ordinal numbers</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Bear</td>
+<td>Turn</td>
+<td>to take exit</td>
+<td>At the traffic light</td>
+<td>A100 (example)</td>
+<td>right</td>
+<td>right at 1 o'clock</td>
+<td>towards city centre</td>
+<td>List of ordinal numbers</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Turn sharply</td>
+<td>Turn</td>
+<td>to merge</td>
+<td>After the tunnel</td>
+<td>E51 (example)</td>
+<td>Cardinal numbers (list)</td>
+<td>left at 7 o'clock</td>
+<td>towards Hamburg (example)</td>
+<td></td>
+</tr>
+<tr>
+<td>D</td>
+<td>Turn sharply</td>
+<td>Turn</td>
+<td>to merge</td>
+<td>After the tunnel</td>
+<td>E51 (example)</td>
+<td>Cardinal numbers (list)</td>
+<td>right at 5 o'clock</td>
+<td>towards Hamburg (example)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>1-3. Audio Instructions Source</h2>
+<p>End result of the audio instructions compilation is stored in the Excel file.<br />
+See the <a href="https://tomtominternational.sharepoint.com/:x:/s/ttUXDDrive/EWU_AvkdHg5FmCxdz9uhLRsBhLTZSEuS_mEuSR4gYuVYtQ?e=EFgM9q">Audio Instructions Source</a> (English only), and Korean <a href="https://tomtominternational-my.sharepoint.com/:x:/g/personal/sundie_jong_tomtom_com/EaNi4nnhOjhMufT01SWgK8AB_geo1zkK_yWinQIQU5MxBA">translation discussions</a></p>
+<h1>2. Roundabouts</h1>
+<h2>2-1. Introduction</h2>
+<p>Roundabout instruction localization for Korean is needed for the following reasons:</p>
+<ol>
+<li>The current audio instructions using exit numbers to express action are unfamiliar among locals.</li>
+<li>Because of differences in language structures, using the phrase 'turn right/left in a roundabout' can cause confusion among users and lead to incorrect turns. So the current action details for roundabout instructions with be replaced by clockwise guidance. </li>
+</ol>
+<p>See examples below:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Pointer</th>
+<th>Distance</th>
+<th>Action</th>
+<th>Detail</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>English</td>
+<td>At the roundabout</td>
+<td>in 300m</td>
+<td>take the 4th exit</td>
+<td>to go left</td>
+<td>to xxx St.</td>
+</tr>
+<tr>
+<td>Korean</td>
+<td>At the roundabout</td>
+<td>in 300m</td>
+<td>go at 10 o’clock direction</td>
+<td>go at 10 o’clock direction</td>
+<td>to xxx St.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!NOTE]
+On Q23.2 as the first step we start from translating the local strings. 
+<br><br>Follow-up actions include aligning the upcoming topics (e.g. distinguishing big or small roundabouts) and validate usability concerns (e.g. announcing clockwise guidance as confirmation instruction).</p>
+</blockquote>
+<h2>2-2. Indicating directions of maneuver</h2>
+<p>The clockwise format will be mapped on the current all possible 8(max.) directions.</p>
+<p>Because some of the angles fall somewhere in between the clockwise 12 directions, they snap to one of the clock number based on the direction users need to turn.</p>
+<p>See examples below:  </p>
+<p><img alt="" src="images/157705890.png" /></p>
+<p>If the road direction falls somewhere in between those main 8 directions, it snaps to the closest clock which is the same logic as global. </p>
+<p><img alt="" src="images/157705891.png" /></p>
+<h2>2-3. Roundabout Instruction structure</h2>
+<p>Visual Instruction represents Roundabout schematically and contains following items: Roundabout circle, All exits/entries, Highlighted correct exit.</p>
+<table>
+<thead>
+<tr>
+<th>NIP Instruction</th>
+<th>Main Audio Instruction</th>
+<th>Korean localization</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157705892.png" /></td>
+<td><strong>FULL:</strong> In 300m on the Roundabout, take the 1st exit to go right to Lorem Ipsum St.    <br/><br/><strong>COMPACT:</strong> In 300m on the Roundabout, take the 1st exit.</td>
+<td><strong>FULL:</strong> In 300m on the Roundabout, go at 3 o’clock direction to go to Lorem Ipsum St.<br/><br/><strong>COMPACT:</strong> In 300m on the Roundabout, at 3 o’clock direction.</td>
+<td>Graphical representation of the RB has all exits depicted with highlighted correct exit.</td>
+</tr>
+<tr>
+<td><img alt="" src="images/157705893.png" /></td>
+<td><strong>FULL:</strong> In 300m Cross the Roundabout, 1st exit to Lorem Ipsum St.<br/><br/><strong>COMPACT:</strong> In 300m Cross the Roundabout, 1st exit.</td>
+<td><strong>FULL:</strong> In 300m Cross the Roundabout, go at 12 o’clock direction to Lorem Ipsum St.<br/><br/><strong>COMPACT:</strong> In 300m Cross the Roundabout, go at 12 o’clock direction.</td>
+<td></td>
+</tr>
+<tr>
+<td><img alt="" src="images/157705894.png" /></td>
+<td><strong>FULL:</strong> In 300m Cross the Roundabout, 1st exit to Lorem Ipsum St.  <br/><br/><strong>COMPACT:</strong> In 300m Cross the Roundabout, 1st exit.</td>
+<td><strong>FULL:</strong> In 300m Cross the Roundabout, go at 12 o’clock direction to Lorem Ipsum St.  <br/><br/><strong>COMPACT:</strong> In 300m Cross the Roundabout, go at the 12 o’clock direction.</td>
+<td>On multi-lane Roundabouts lane guidance information must be provided.<br/><br/>NOTE: LG at the entrance to RB might be different from LG before the exit. LG must be changed during travelling across the rB.</td>
+</tr>
+<tr>
+<td><img alt="" src="images/157705895.png" /></td>
+<td><strong>FULL:</strong> In 300m on the Roundabout, take the 5th exit to go Left to Lorem Ipsum St.  <br/><br/><strong>COMPACT:</strong> In 300m on the Roundabout, take the 5th exit.</td>
+<td><strong>FULL:</strong> In 300m on the Roundabout, go at 10 o’clock direction to Lorem Ipsum St.  <br/><br/><strong>COMPACT:</strong> In 300m on the Roundabout, go at 10 o’clock direction.</td>
+<td>Indicate visually all possible exits (Max 8).</td>
+</tr>
+<tr>
+<td><img alt="" src="images/157705896.png" /></td>
+<td><strong>FULL:</strong> In 300m on the Roundabout, take the 1st exit to go Right to Lorem Ipsum St.<br/><br/><strong>COMPACT:</strong> In 300m on the Roundabout, take the 1st exit.</td>
+<td><strong>FULL:</strong> In 300m on the Roundabout, go at 5 o’clock direction to Lorem Ipsum St.<br/><br/><strong>COMPACT:</strong> In 300m on the Roundabout, go at 5 o’clock.</td>
+<td>Not possible exits are also indicated via interrupted line, but only if they are orthogonal to the circle of the roundabout (not v-shaped) For v-shaped entries which a separated from exits, entries are not indicated.</td>
+</tr>
+<tr>
+<td><img alt="" src="images/157705897.png" /></td>
+<td><strong>FULL:</strong> In 300m Go around the Roundabout, 4th exit to Lorem Ipsum St.<br/><br/><strong>COMPACT:</strong> In 300m Turn around on the Roundabout, 4th exit.</td>
+<td><strong>FULL:</strong> In 300m Go around the Roundabout, go back to Lorem Ipsum St.<br/><br/><strong>COMPACT:</strong> In 300m turn around on the Roundabout.</td>
+<td>Turn around Instruction is given only if the route needs to come back to the same road (identical name) that we came from.</td>
+</tr>
+</tbody>
+</table>
+                </body>
+                </html>
+                

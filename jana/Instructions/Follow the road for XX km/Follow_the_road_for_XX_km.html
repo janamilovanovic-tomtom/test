@@ -1,0 +1,164 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Follow_the_road_for_XX_km</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <p><img alt="Screenshot 2024-08-14 at 13.36.58.png" src="images/298101761.png" /></p>
+<table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td><strong>PM</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td><strong>ENG OWNER</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:9a48e539-50aa-491e-acff-bfff512d987e?ref=confluence">User d987e</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Motivation</h1>
+<p>Follow the road instruction is given on a long stretch of a route which doesn't have any manoeuvres and only action required is to continue following current road without deviations. The instruction is intended to <strong>provide the driver with the peace of mind</strong>, ensuring him that for the next long stretch he does not need to pay attention to navigation and can relax and listen to the music or have conversation with the passenger. Unlike any other instruction it doesn't instruct to do anything but the opposite - to take a brake from navigation.</p>
+<h1>Design Intention</h1>
+<p>By this design we want to achieve following outcome:</p>
+<p><strong>Inform the driver every time he enters significantly long road segment that he has to drive uninterrupted for XX km.</strong></p>
+<h1>Triggering point</h1>
+<p>Follow the road instruction is triggered after taking any manoeuvre (most often Merge manoeuvre, as long stretches mostly happen on Motorways) after which there is a significantly long uninterrupted by instruction driving section. To ensure the instruction is not interrupting current Merge manoeuvre, we use <strong>3 sec time-out</strong> between teh end of the merge and follow the road instruction. Following diagram (read from bottom to top) depicts the exact location of the triggering point:</p>
+<p><img alt="Follow the road for XXkm.svg" src="images/297843587.svg" /></p>
+<h1>Conditions for Instruction</h1>
+<p>Follow the road instruction can be triggered in two ways depending on the conditions.</p>
+<ol>
+<li>
+<p>Visual and Audio instructions together</p>
+</li>
+<li>
+<p>Just Audio instruction, while prepare phase is shown in the NIP.</p>
+</li>
+</ol>
+<h2>Visual and Audio instruction triggering - uninterrupted phase scenario</h2>
+<p>Instruction is triggered under the following condition: Distance between current position and next <em><strong>interrupting</strong></em> instruction is greater then:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Urban (Non-Motorways)</strong></th>
+<th><strong>Motorways</strong></th>
+<th><strong>Rest</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3000m</td>
+<td>6000m</td>
+<td>4000m</td>
+</tr>
+</tbody>
+</table>
+<p>Those values correspond to <strong>prepare phase</strong> - silent phase of the instruction. In other words Follow the road is triggered <strong>before prepare phase</strong>. See the <strong>Instruction triggering logic</strong> pages for more details.</p>
+<p>Not all instructions considered <em><strong>interrupting</strong></em> though. There are some instruction that can be generated during long stretch of the road that don't affect the road path anyhow. Those are:</p>
+<p><strong>Border crossings</strong> - if the road class doesn't change</p>
+<p><strong>Interim Exits</strong> - always.</p>
+<p><strong>Forks</strong> - if the route path stays on the same road after the fork.</p>
+<p><strong>Enter / Exit HOV</strong> - if road doesn't change.</p>
+<p>Mentioned instruction types should be ignored and stretch of the road considered <strong>uninterrupted</strong>.</p>
+<h3></h3>
+<p>Distance</p>
+<p><img alt="" src="images/157703717.png" /></p>
+<p>Distance displayed in the NIP refers to the distance till the next <em><strong>interrupting</strong></em> manoeuvre, even though the manoeuvre itself is not (yet) shown. That means during this sections multiple <em><strong>uninterrupting</strong></em> instructions could be executed.</p>
+<h2>Just Audio Triggering - Interrupted phase scenario</h2>
+<p>It could happen in <strong>interrupted phase</strong> scenario that motorway segment is joined at prepare phase (of next instruction), therefore next instruction NIP visual instruction should be already shown. At this point Follow the road audio instruction should be announced as audio only.</p>
+<h1>Audio Announcements</h1>
+<p>Follow the road instruction can have following variation in audio announcements depending on the scenario.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Scenario</strong></th>
+<th><strong>Road Identity</strong></th>
+<th><strong>Audio Announcement</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Uninterrupted road identity</td>
+<td>Road number (A100)</td>
+<td>Follow the A100 for …</td>
+</tr>
+<tr>
+<td>Uninterrupted road identity</td>
+<td>Road number (A100) and Road Name (Berliner Ring)</td>
+<td>Follow the A100 for …</td>
+</tr>
+<tr>
+<td>Interrupted road identity</td>
+<td>Whatever</td>
+<td>Follow the course of the road for …</td>
+</tr>
+</tbody>
+</table>
+<h1>Interrupted Road Identity</h1>
+<p>There are situation when <strong>roads identity</strong> (road name/number) changes during the stretch of <em><strong>follow the road</strong></em> instruction. There is no manoeuvre at the change point therefore no instruction is required, however changing current road name could create a confusion for a driver. The original intention of this instruction type is communication the <em><strong>no action zone</strong></em> to the driver. In other words, during this instruction range driver can relax and shift his attention from guidance instruction. Changing road name should not be important to the driver in this scenario. However, instruction format uses road name, and if the road name changes we cannot use it as intended. For that reason, we conclude following. If road identity changes during the span of the instruction, we:</p>
+<ol>
+<li>
+<p>Visual instruction (NIP) would reflect the current road name and it will change if road name changes, silently.</p>
+</li>
+<li>
+<p>At the point of road name change no special audio instruction is announced, however reference to road name in the NIP must be silently updated.</p>
+</li>
+</ol>
+<h1>Feedback</h1>
+<p>People react on instructions differently. Here I’d like to collect the feedback that was given to this design.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Feedback</strong></th>
+<th><strong>Design comments</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td>For me the opposite happens (from giving peace of mind). The straight-on NIP hides what will come next, making me more anxious. For example, deciding whether to over take someone depends on how close you are to the exit. With the SONIP this decision becomes more difficult.</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>I’d prefer to see what happen next even if it is far away, lets say 30km, however if it is 300km i’d prefer to have follow the road instruction.</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Even for shorter distances (2-5km) follow the road in some form (audio only) is useful.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+                </body>
+                </html>
+                

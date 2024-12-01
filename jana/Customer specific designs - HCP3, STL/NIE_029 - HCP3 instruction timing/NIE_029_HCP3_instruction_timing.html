@@ -1,0 +1,173 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>NIE_029_HCP3_instruction_timing</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <table>
+<thead>
+<tr>
+<th><strong>Created by</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a>, <a href="https://tomtom.atlassian.net/wiki/people/712020:d6cafcbe-bb3a-4305-bba3-02e3350309bc?ref=confluence">Bohdan Soroka</a> <a href="https://tomtom.atlassian.net/wiki/people/712020:bd4f4d9f-75d9-4d67-8408-8ace89f8fda6?ref=confluence">Oleh Kis</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PM</td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td>Code</td>
+<td><a href="https://github.com/tomtom-internal/nk2-navigation-triggering-engine/tree/main/navigation-triggering-engine/src/triggering_engine/config/HCP3">https://github.com/tomtom-internal/nk2-navigation-triggering-engine/tree/main/navigation-triggering-engine/src/triggering_engine/config/HCP3</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#Table-of-Contents">Table of Contents</a></li>
+<li><a href="#Background">Background</a></li>
+<li><a href="#Minimal-Distance-values">Minimal Distance values</a></li>
+<li><a href="#Current-timing-implementation-HCP3">Current timing implementation HCP3</a><ul>
+<li><a href="#Rest-of-the-world">Rest of the world</a></li>
+<li><a href="#NAR-Region">NAR Region</a></li>
+</ul>
+</li>
+</ul>
+<h1>Background</h1>
+<p>HCP3 team has requested custom configuration to be applied for them which differs from TT configuration. HCP3 team evaluates their system performance in their cars and those requests are based on this evaluation. Since in TT we have our own evaluation setup, the results from those evaluations often differ. This is the reason why we cannot unify HCP3 and TT configurations. this document covers those delta differences present in HCP3 configuration</p>
+<h1>Minimal Distance values</h1>
+<p>Following Tables define values of Minimal distance.   </p>
+<p>Triggering points are not universal and differ by road classes. We currently differentiate between 4 types of roads:</p>
+<ol>
+<li>
+<p>Motorways in NAM region (controlled access or motorway)  </p>
+</li>
+<li>
+<p>Motorways the rest of the world (controlled access or motorway)  </p>
+</li>
+<li>
+<p>Rural roads (neither Motorways nor Urban)</p>
+</li>
+<li>
+<p>Urban Roads</p>
+</li>
+</ol>
+<h1>Current timing implementation HCP3</h1>
+<h2>Rest of the world</h2>
+<p>2 secs audio compensation<br />
+Data source: <a href="https://github.com/tomtom-internal/nk2-navigation-triggering-engine/blob/main/navigation-triggering-engine/src/triggering_engine/config/HCP3/triggering_configuration.json">https://github.com/tomtom-internal/nk2-navigation-triggering-engine/blob/main/navigation-triggering-engine/src/triggering_engine/config/HCP3/triggering_configuration.json</a></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Prepare (early)  trigger distance (announcement)</th>
+<th>Distance (main)</th>
+<th>Call for action (now)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Controlled access / motorways</td>
+<td>2300 m (2 km)</td>
+<td>1300 m (1 km)</td>
+<td>550 m(Earliest)  <br/> 250 m(Recommended)</td>
+</tr>
+<tr>
+<td>Rural (admin class [0-3])</td>
+<td>800 m</td>
+<td>300 m</td>
+<td>140 m(Earliest) <br/> 100 m(Recommended)</td>
+</tr>
+<tr>
+<td>Low Priority Rural (admin class [4-6])</td>
+<td>800 m</td>
+<td>300 m</td>
+<td>100 m(Earliest)  <br/>70 m(Recommended)</td>
+</tr>
+<tr>
+<td>Urban (admin class [4-6])</td>
+<td>600 m</td>
+<td>300 m</td>
+<td>70 m(Earliest)  <br/>50 m (no audio compensation) *</td>
+</tr>
+<tr>
+<td>High speed Urban  (admin class [0-3])</td>
+<td>600 m</td>
+<td>300 m</td>
+<td>100 m(Earliest) <br/> 65 m (Recommended) <br/> (no audio compensation) *</td>
+</tr>
+</tbody>
+</table>
+<h2>NAR Region</h2>
+<p>2 secs audio compensation<br />
+Source data: <a href="https://github.com/tomtom-internal/nk2-navigation-triggering-engine/blob/main/navigation-triggering-engine/src/triggering_engine/config/HCP3/triggering_configuration_NAR.json">https://github.com/tomtom-internal/nk2-navigation-triggering-engine/blob/main/navigation-triggering-engine/src/triggering_engine/config/HCP3/triggering_configuration_NAR.json</a>  </p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Prepare (early)  trigger distance (announcement)</th>
+<th>Distance (main)</th>
+<th>Call for action (now)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Controlled access / motorways</td>
+<td>3379 m (2 mi)</td>
+<td>1770 m (1 mi)</td>
+<td>400 m* (1300 ft) (Earliest)  <br/>263m* (900 ft) (Recommended)</td>
+</tr>
+<tr>
+<td>Rural (admin class [0-3])</td>
+<td>1287 m (3/4 mi)</td>
+<td>482 m (1/4 mi)</td>
+<td>304 m (1000 ft) (Earliest)  <br/>91 m (300 ft) (Recommended)</td>
+</tr>
+<tr>
+<td>Low Priority Rural (admin class [4-6])</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Urban (admin class [4-6])</td>
+<td>1287 m (3/4 mi)</td>
+<td>482 m (1/4 mi)</td>
+<td>228 m (no audio compensation) * (750 ft) (Earliest)  <br/>76 m (no audio compensation) * (250 ft) (Recommended)</td>
+</tr>
+<tr>
+<td>High speed Urban (admin class [0-3])</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Notes:</strong> </p>
+<p>Follow instructions will be triggered before the Prepare phase. <br />
+Instruction phases announcement distance values are rounded. <br />
+Arrival instructions follow the values for other instructions with the exception that the audio duration compensation for Now is in place for arrival instruction.<br />
+If maneuvers are close to each-other then instruction phases can be combined or skipped. </p>
+<ul>
+<li>Triggering "now" on controlled access has been changed to give trigger 50m earlier (based on drive test feedback), see <a href="https://tomtom.atlassian.net/browse/HCP3-14648?src=confmacro">HCP3-14648</a> </li>
+</ul>
+                </body>
+                </html>
+                

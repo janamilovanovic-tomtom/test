@@ -8,7 +8,7 @@ def main(src_dir, build_dir):
 
     for root, dirs, files in os.walk(src_dir):
         for file in files:
-            if file.endswith('.md'):
+            if file.endswith('.md') and file != "pull_request_template.md" and file != "README.md":
                 relative_path = os.path.relpath(root, src_dir)
                 output_dir = os.path.join(build_dir, relative_path)
                 os.makedirs(output_dir, exist_ok=True)
@@ -45,6 +45,7 @@ def main(src_dir, build_dir):
                 </body>
                 </html>
                 """
+                print(file)
 
                 if file == 'New_Instruction_Engine.md':
                     filename = 'index.html'

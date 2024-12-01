@@ -1,0 +1,332 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Simple_Lane_Guidance</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <p>testing review</p>
+<table>
+<thead>
+<tr>
+<th><strong>UX</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VD</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td><strong>ENG OWNER</strong></td>
+<td>???</td>
+</tr>
+<tr>
+<td><strong>PM</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Introduction</h1>
+<p>Simple Lane guidance (SLG) defines a set of methods intended for precise guidance in multi-lane environments, where manoeuvres are often not as straightforward as in single lane situations. SLG provides both: visual Instruction (NIP) and Audio Instruction. Visually, SLG is represented as a schematic diagram at the bottom part of the NIP and depicts lane geometry <em><strong>at the point of the manoeuvre</strong></em>. Target lanes are highlighted, while the rest are greyed out. The general principle of Lane guidance remains the same across all use cases. Her are some examples of various contexts:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Motorways</strong></th>
+<th><strong>Non-Motorways</strong></th>
+<th><strong>Roundabouts</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157718747.png" /></td>
+<td><img alt="" src="images/157718750.png" /></td>
+<td><img alt="" src="images/157718755.png" /></td>
+</tr>
+</tbody>
+</table>
+<h1>Touch Points</h1>
+<p>SLG as a visual component could be represented across various touch points in the vehicle. Typically it is combined with the NIP - next instruction panel.</p>
+<p><img alt="" src="images/157718704.png" /></p>
+<p>NOTE: Simple lane Guidance (SLG) and Lane Lane Guidance (LLG) are two different solutions targeting the same goal - providing precise lane positioning. ~Both SLG and LLG work together, but the general rule is they should not be simultaneously shown on the same display (Cluster display, Central stack display, Heads up display).~ </p>
+<h1>Use Cases</h1>
+<p>Lane Guidance can be used by any instruction <strong>with exception for Non-guiding instructions</strong>: Departure, Arrival (to final destination and to a waypoint), Border Crossing.<br />
+Specific usage of SLG is defined by instruction type, therefore it is worth to check appropriate instruction definitions:</p>
+<p><a href="https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157679963">Turn Instruction</a></p>
+<p><a href="./../../Instructions/Roundabouts/Roundabouts.html">Roundabout Instruction</a></p>
+<p><a href="./../../Instructions/High%20occupancy%20Lanes%20(HOV)/High_occupancy_Lanes(HOV).html">HOV instruction</a></p>
+<p><a href="./../../Instructions/Furcations%20-%20%20Bifurcations,%20Trifurcations,%20Exits/Furcations-Bifurcations_Trifurcations_Exits.html">Forks &amp; Exit instructions</a>. </p>
+<p>Additionally, it is important to mention <a href="./../../Instructions/Furcations%20-%20%20Bifurcations,%20Trifurcations,%20Exits/Interim%20Exit%20Scenario/Interim_Exit_Scenario.html">Interim Exit scenario</a> where LG plays critical role.</p>
+<h1>Visualisation of SLG</h1>
+<p>SLG uses schematic arrows representing lane directions for visualisation. Any valid for driving lane (no shoulder lanes), should be represented by the arrows.<br />
+NOTE: At the moment there is no special treatment for bus (public transport) lanes. Bus lanes should be treated as normal lanes for now.</p>
+<p><strong>Here are following possible states for each individual LG arrow</strong></p>
+<p><img alt="" src="images/157718685.png" /></p>
+<p><strong>Example of usage of SLG in the Unified NIP.</strong></p>
+<p><img alt="" src="images/157718747.png" /></p>
+<p>Highlighted SLG arrow represents (one) direction which is required by the current route. Greyed out arrows represent (one) alternative direction which should not be taken (following current route). Keep in mind, in reality there could be multiple directions associated with any given lane, but the engine is only indicating one of them.</p>
+<p><strong>There are following rules that SLG must follow:</strong></p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>Different directions outcomes must be represented by different direction arrow.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>Identical directions outcomes must be represented by identical direction arrows.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Amount of arrow must match amount of lanes at reference point</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Arrows representing direction of the route must be highlighted</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Arrows representing off-route direction must be greyed out</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Highlighted arrow must be announced by audio if applicable for given instruction</td>
+</tr>
+<tr>
+<td>7</td>
+<td>SLG should not be used if there is only 1 legal lane to drive</td>
+</tr>
+<tr>
+<td>8</td>
+<td>SLG should not be used if all legal lanes stay on route</td>
+</tr>
+</tbody>
+</table>
+<p>Visually, all individual arrows are consolidated together to schematically represent real lane order of the road.</p>
+<p><strong>The resulted schematic image is attached to the top part of the NIP</strong></p>
+<table>
+<thead>
+<tr>
+<th><img alt="" src="images/157718757.png" /></th>
+<th><img alt="" src="images/157718684.png" /></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>Manoeuvre arrow &amp; SLG arrows</h2>
+<p>Manoeuvre arrow represent the instruction and is used at early and far away instruction phases. Later at main instruction phase it is replaces by SLG arrows (if lane guidance is present). This behaviour is true for <strong>Unified NIP</strong> design which is depicted below:</p>
+<p><strong>Unified NIP layout</strong></p>
+<p><img alt="" src="images/157718757.png" /></p>
+<p>Unified NIP substitutes manoeuvre arrow with SLG closer to the manoeuvre point, so they never displayed together. Manoeuvre arrow angle ( turn-90°, bear-45°, straight-180°) doesn't have to match the manoeuvre angle precisely. However in case of the current NIP design:</p>
+<p><strong>Current NIP layout</strong></p>
+<p><img alt="Group 834.png" src="images/275178677.png" /></p>
+<p>SLG arrow are displayed alongside with the manoeuvre arrow. In this case we should match the angle between them to avoid confusion. Current NIP layout is in use at 25 Jul 2024 .</p>
+<h1>Audio Lane Guidance</h1>
+<p>While visual LG is always displayed in the NIP, Audio LG information should be announced only under certain conditions. First, lets define types of audio lane guidance. There are two types:</p>
+<ol>
+<li>
+<p><strong>Approximated Audio Lane Guidance - AALG</strong><br />
+    This method doesn't elaborate on specific lanes, but rather tells which side driver is required to keep: <em><strong>Keep left/right, stay in the middle...</strong></em> Approximated lane guidance has been always used by NK, and it is not new.  </p>
+</li>
+<li>
+<p><strong>Explicit Audio Lane Guidance - EALG</strong><br />
+    This is a newly introduced by NIE method tells driver specific lane numbers to stay at: <em><strong>use two right lanes to</strong> "perform given manoeuvre".</em>  </p>
+</li>
+</ol>
+<p>EALG can used for all major Instruction types: Turns, Bears, Continue straight but not for others:</p>
+<table>
+<thead>
+<tr>
+<th>Instruction type</th>
+<th>Explicit Audio LG</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Turns</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>Bears</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Sharp turns</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Roundabouts</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Forks</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Exits</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>HOV</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Mandatory turn</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Departure instructions</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>Exact logic for EALG usage is dependant on the manoeuvre type, therefore rules defining usage of AALG and EALG are defined individually per instruction type: </p>
+<p><a href="https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157679963">NIE_011 - Turn manoeuvres overview</a><br />
+<a href="./../../Instructions/Furcations%20-%20%20Bifurcations,%20Trifurcations,%20Exits/Furcations-Bifurcations_Trifurcations_Exits.html">NIE_013 - Forks Instructions (Bifurcations, Trifurcations, Exits)</a><br />
+<a href="./../../Instructions/Roundabouts/Roundabouts.html">NIE_010 - Roundabouts</a></p>
+<h1>Strings</h1>
+<p>Following strings cover the whole range of scenarios for SLG.</p>
+<table>
+<thead>
+<tr>
+<th>String ID</th>
+<th>Description</th>
+<th>String proposal</th>
+<th>Reviewed string</th>
+<th>Translated</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Points the vehicle to the leftmost/rightmost lane</td>
+<td>use the leftmost/rightmost lane to take the ...</td>
+<td>Use the leftmost/rightmost lane to take the ...</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Keeps the vehicle at the leftmost/rightmost lane</td>
+<td>stay in the leftmost/rightmost lane to continue on...</td>
+<td>Stay in the leftmost/rightmost lane to continue on...</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Points the vehicle to 2, 3 or 4 lanes from the right or left</td>
+<td>use two/three/four left/right lanes to take...</td>
+<td>Use the two/three/four left/right lanes to take...</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Keeps the vehicle at 2nd, 3rd or 4th lanes from the right or left</td>
+<td>stay in two/three/four left/right lanes to continue on...</td>
+<td>Stay in the two/three/four left/right lanes to continue on...</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Points the vehicle to middle lane</td>
+<td>use the middle lane to take the...</td>
+<td>Use the middle lane to take the...</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>Keeps the vehicle at the middle lane</td>
+<td>stay in the middle lane to continue on...</td>
+<td>Stay in the middle lane to continue on...</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Points the vehicle to 2, 3, 4 middle lanes</td>
+<td>use the two/three/four middle lanes to take the...</td>
+<td>Use the two/three/four middle lanes to take the...</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>Keeps the vehicle at 2, 3, 4 middle lanes</td>
+<td>stay in the two/three/four middle lanes to continue on...</td>
+<td>Stay in the two/three/four middle lanes to continue on...</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>Points the vehicle to a specific lane counting from the left or right</td>
+<td>use the second/third lane from the left/right to take the...</td>
+<td>Use the second/third lane from the left/right to take the...</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Keeps the vehicle at the specific lane counting from the left or right</td>
+<td>stay in the second/third lane from the left/right to continue on...</td>
+<td>Stay in the second/third lane from the left/right to continue on...</td>
+<td></td>
+</tr>
+<tr>
+<td>11</td>
+<td>Points the vehicle to a specific 2 lanes counting from the left or right</td>
+<td>use the second or third lane from the left/right to take the...</td>
+<td>Use the second or third lane from the left/right to take the..</td>
+<td></td>
+</tr>
+<tr>
+<td>12</td>
+<td>Keeps the vehicle at the specific 2 lanes counting from the left or right</td>
+<td>stay in the second or third lane from the left/right to continue on...</td>
+<td>Stay in the second or third lane from the left/right to continue on..</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h1>Further ideas &amp; open questions</h1>
+<h3>Real-time guidance vs manoeuvre point</h3>
+<p>One of the major issues with SLG is mismatch between drivers expectations to see actual LG directions at the moment they are looking at the screen, in other words, drivers expect SLG to act in real-time, while the logic of the NIP and all it's component always refer to a point in the future - manoeuvre point. Tee issue is especially prominent in so called "interim exit" scenario - when driver passes two consecutive exits and he needs to take second one.</p>
+<p>It is not clear how to address this issue with the static methods, such as SLG. There are following possible paths discovered:</p>
+<ol>
+<li>
+<p>LLG - Lane level guidance will eventually replace SLG partially or entirely. LLG, by it's nature acts in real time and able to reflect real situation.</p>
+</li>
+<li>
+<p>Consider combining real-time logic with future point - this approach has been implemented in NK1.</p>
+</li>
+</ol>
+<p>Further work is needed in this area.</p>
+<h3>Lane change warning</h3>
+<p>As a result of evaluation, it has been discovered, that drivers are missing warnings about lane changes: lane merges and splitting. The question remains if those changes are attached to a manoeuvre upfront or not.</p>
+<h3>Multi-directional LG arrows</h3>
+<p>Most prominent competitors, (Google Map, Waze, Apple Maps) use different method of displaying LG arrows - their arrows depict all possible directions of the lane (which is often also marked on the road surface) in the arrow itself, while highlighting only the correct one. This approach has clear advantages and will be integrated eventual as part of Unified NIP design.</p>
+<h3>Manoeuvre path optimisation</h3>
+<p>For serial manoeuvres (which we handle by Chain instructions) optimised manoeuvre path could be different from possible path. In other words, in order to complete the passage with minimal amount of lane changes, only specific lanes should be used. The algorithm of selection of such lanes called <em><strong>Manoeuvre path optimisation</strong></em>. This method is defined in details here: <a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Lane%20Level%20Guidance%20(LLG%2CLLN)/Lane_Level_Guidance(LLG_LLN).html">NIE_027 - Lane Level Guidance (LLG)</a></p>
+<h1>/ END OF DOCUMENT</h1>
+                </body>
+                </html>
+                

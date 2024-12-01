@@ -1,0 +1,319 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Landmark_End_of_the_Road</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <table>
+<thead>
+<tr>
+<th><strong>Reference dev. document</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/spaces/~khandus/pages/213189056/End+of+road+landmark">End of road landmark</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Design</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a> <a href="https://tomtom.atlassian.net/wiki/people/712020:2b00ecb1-a543-4410-818c-575056da8b84?ref=confluence">Vadym Khandus</a></td>
+</tr>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td>PO</td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#Table-of-Contents">Table of Contents</a></li>
+<li><a href="#Introduction">Introduction</a><ul>
+<li><a href="#end-of-the-road-example">"end of the road" example</a></li>
+</ul>
+</li>
+<li><a href="#Instruction-design-for-the-end-of-the-road-pointer">Instruction design for the end of the road pointer</a></li>
+<li><a href="#Break-down-of-Use-cases">Break down of Use cases</a><ul>
+<li><a href="#1Very-Short-road-segments-between-manoeuvres">1. Very Short road segments between manoeuvres</a></li>
+<li><a href="#2-Parking-lots-Pedestrian-areas-Service-Areas">2. Parking lots, Pedestrian areas, Service Areas</a></li>
+</ul>
+</li>
+<li><a href="#3-Road-splits-before-T-Junction">3. Road splits before T-Junction</a></li>
+<li><a href="#4-When-main-road-turns">4. When main road turns</a><ul>
+<li><a href="#5-At-complex-intersections">5. At complex intersections</a></li>
+<li><a href="#6-At-Exit-ramps">6. At Exit ramps</a></li>
+</ul>
+</li>
+<li><a href="#Short-Summary-of-rules-for-filtering-out-at-the-end-of-the-road-pointer">Short Summary of rules for filtering out "at the end of the road" pointer</a></li>
+</ul>
+<h1><strong>Introduction</strong></h1>
+<p><em><strong>End of the road</strong></em> refers to a <em>T-Junction</em> type of intersection. When next manoeuvre (it could only be turn left/right) is placed at such location it is helpful to inform the driver about this <em>pointer</em>. Instead of tracking exact distance till the manoeuvre, driver can just drive till the road ends - this effectively reduces cognitive load for the driver and makes manoeuvre detection more reliable. The challenge lies in the detection of this <em>pointer</em>. While it should be used at <em>T-junctions</em> and those are easy to detect, not all T-junctions should be applied. On this page we will break down use cases when <em><strong>end of the road</strong></em> pointer should be used.  </p>
+<p>NOTE: term <em><strong>Landmark</strong></em> and <em><strong>Pointer</strong></em> are used interchangeably here. They refer to the same object, but <em><strong>Landmark</strong></em> refers to the object itself on the road in real world, while <em><strong>Pointer</strong></em> is UI element (and audio component) which is pointing to it.</p>
+<h2><strong>"end of the road" example</strong></h2>
+<table>
+<thead>
+<tr>
+<th><strong>Instruction</strong></th>
+<th><strong>At the end of the road</strong>, turn right</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Description</strong></td>
+<td>This instruction is given when at a T junction</td>
+</tr>
+<tr>
+<td><strong>Location</strong></td>
+<td>52°31'50.3"N 13°31'00.8"E</td>
+</tr>
+<tr>
+<td><strong>Road Geometry</strong></td>
+<td><img alt="" src="images/157711686.png" /></td>
+</tr>
+<tr>
+<td><strong>Visual Instruction</strong></td>
+<td><img alt="" src="images/157711053.png" /></td>
+</tr>
+<tr>
+<td><strong>Audio Instruction</strong></td>
+<td><strong>at the end of the road</strong> turn right onto <em>street name</em></td>
+</tr>
+</tbody>
+</table>
+<h1>Instruction design for the end of the road pointer</h1>
+<p>When <em><strong>end of the road</strong></em> pointer is applied following deviations from the standard instruction design logic should be made:</p>
+<ol>
+<li>Instruction arrow should use special <strong>T-junction arrow (1)</strong></li>
+<li>Pointer <em>end of the road</em> should be only announced by Audio at <strong><em>main instruction phase</em></strong> (not <em>Early</em>).</li>
+<li><em><strong>Distance announcement</strong></em> at main instruction phase should be omitted.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Visual Instruction - NIP</th>
+<th>Audio Instruction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157711053.png" /></td>
+<td>Main instruction phase:<br/><strong>at the end of the road</strong> turn left onto <em>street name</em>  <br/><br/>Other instruction phases:<br/><strong>As normal</strong></td>
+</tr>
+</tbody>
+</table>
+<h1><strong>Break down of Use cases</strong></h1>
+<p>Applying end of the road at every T-junction is not reasonable. We will look at the range of use cases where it is not desired. As a result we will come up with the rules for applying end of the road pointer. Here are some scenarios that don't require an end of the road pointer:  </p>
+<ol>
+<li>Very short road segments between two manoeuvres.</li>
+<li>Inside or at entering/exiting Parking lots, pedestrian areas, service areas.</li>
+<li>When road splits before the T-Junction.</li>
+<li>When Main road turns at a T-Junction.</li>
+<li>Generally at complex intersections where more roads are involved. Also when joining dual carriage road falls here.</li>
+<li>At exit ramps if they end with T-junction.</li>
+<li>At Roundabout entries</li>
+<li>At entries to Ferries or Car trains.</li>
+</ol>
+<p>Lets look at each of them with examples.</p>
+<h2>1. Very Short road segments between manoeuvres</h2>
+<p>Very short road segments don't require the end of the road because they aren't perceived as a significant roads by the drivers. They are seen as a connecting links between more significant road segments. <strong>Distance of 100m or less</strong> between last manoeuvre and T-Junction should not be considered for the end of the road pointer. Examples below illustrate this scenario:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Example 1</strong></th>
+<th><strong>Example 2</strong></th>
+<th><strong>Example 3</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157711069.png" /></td>
+<td><img alt="" src="images/157711070.png" /></td>
+<td><img alt="" src="images/157711071.png" /></td>
+</tr>
+</tbody>
+</table>
+<p><strong>RULE#1</strong><br />
+If distance between last manoeuvre an T-Junction is <strong>less then 100m</strong>, end of the road pointer should not be used.</p>
+<p>NOTE: More example of this and other scenarios as well as technical description of rules can be found at development documentation here: <a href="https://tomtom.atlassian.net/wiki/spaces/~khandus/pages/213189056/End+of+road+landmark">End of road landmark</a></p>
+<h2>2. Parking lots, Pedestrian areas, Service Areas</h2>
+<p>Those specific environments don't really have roads clearly defined and usually consist of grid of very short undefined road segments or even no roads at all. End of the road pointer has no logical sense in such situations. Examples bellow illustrate this scenario:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Example 1</strong></th>
+<th><strong>Example 2</strong></th>
+<th><strong>Example 3</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157711074.png" /></td>
+<td><img alt="" src="images/157711075.png" /></td>
+<td><img alt="" src="images/157711083.png" /></td>
+</tr>
+</tbody>
+</table>
+<p><strong>RULE #2</strong></p>
+<p>The "End of road" landmark is not used if T-Junction manoeuvre is located in the following areas:</p>
+<ul>
+<li>Is a part of a square. A square is a paved area where a car can travel but there are no legally defined traffic paths.</li>
+<li>Is an entry, a part, or an exit of a service facility like motorway rest area, parking facility or golf course.</li>
+<li>Is a part of pedestrian zone.</li>
+<li>Is a pedestrian road.</li>
+</ul>
+<p>NOTE: More example of this and other scenarios as well as technical description of rules can be found at development documentation here: <a href="https://tomtom.atlassian.net/wiki/spaces/~khandus/pages/213189056/End+of+road+landmark">End of road landmark</a></p>
+<h1>3. Road splits before T-Junction</h1>
+<p>There are when the road splits before the actual T-junction. This is usually done to separate physical traffic streams from different directions. Such a road split is seen by drivers as a disturbing event and makes harder to detect where the actual road ends. To mitigate such confusion, we should not use the end of the road pointer in such scenarios.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Example 1</strong></th>
+<th><strong>Example 2</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157711079.png" /></td>
+<td><img alt="" src="images/157711080.png" /></td>
+</tr>
+</tbody>
+</table>
+<p><strong>RULE #3</strong></p>
+<p>Do not use end of the road If T-junction has a <strong>road split</strong> before the actual manoeuvre, or roads split an sharper angle.</p>
+<h1>4. When main road turns</h1>
+<p>When the current road (identified by road name) continues after the turn, we cannot say <em><strong>at the end of the road</strong></em> because, technically, road doesn't end there. </p>
+<table>
+<thead>
+<tr>
+<th>Example 1</th>
+<th>Example 1</th>
+<th>Example 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157711084.png" /></td>
+<td><img alt="" src="images/157711085.png" /></td>
+<td><img alt="" src="images/157711086.png" /></td>
+</tr>
+</tbody>
+</table>
+<p><strong>RULE #4</strong></p>
+<p>When the road before the intersection continues after the turn (has the same non-empty name after the intersection), we do not use end of the road pointer.</p>
+<h2>5. At complex intersections</h2>
+<p>Any type of complexity found at T-junction: additional roads outcomes, non straight angles, proximity of another intersection, joining multi-lane or dual-carriage road... at all those scenarios end of the road should not be used because detection of the road end might not be possible or open for interpretations.</p>
+<table>
+<thead>
+<tr>
+<th>Example 1</th>
+<th>Example 2</th>
+<th>Example 3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157711088.png" /></td>
+<td><img alt="" src="images/157711089.png" /></td>
+<td><img alt="" src="images/157711090.png" /></td>
+</tr>
+</tbody>
+</table>
+<p><strong>RULE #5</strong></p>
+<p>Do not use end of the road at complex scenarios when T-Junction topology is complicated by additional factors:</p>
+<p>Additional T-intersection road outcomes at intersection or very close to it.</p>
+<p>Joining big multi-lane or dual carriage road.</p>
+<p>Geometry of T-intersection is not straight - any angle of the intersection deviates from 90° by more than 20°.</p>
+<h2>6. At Exit ramps</h2>
+<p>At exit ramps that are coming out of Motorways (or lower road class below Motorways) that utilise exit ramps. If exit ramp end up with T-junction, at this point at the end of the road should not be used.</p>
+<table>
+<thead>
+<tr>
+<th>Example-1</th>
+<th>Example-2</th>
+<th>Example-3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157711292.png" /></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h1>Short Summary of rules for filtering out "at the end of the road" pointer</h1>
+<p>Following set of rules define conditions for <strong>excluding</strong> "at the end of the road" pointer:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Rule statement</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>If distance between last manoeuvre an T-Junction is <strong>less then 100m.</strong></td>
+<td><img alt="" src="images/157711071.png" /></td>
+</tr>
+<tr>
+<td>2</td>
+<td>If T-Junction manoeuvre is located in the following areas:<br/><br/><em> </em><em>Is a part of a square.</em><em> A square is a paved area where a car can travel but there are no legally defined traffic paths.<br/></em> Is an entry, a part, or an exit of a <strong>service facility</strong> like motorway rest area, parking facility or golf course.<br/><em> Is a part of </em><em>pedestrian zone</em><em>.<br/></em> Is a <strong>pedestrian road</strong>.</td>
+<td><img alt="" src="images/157711083.png" /></td>
+</tr>
+<tr>
+<td>3</td>
+<td>If T-junction has a <strong>road split</strong> before the actual manoeuvre, or roads split an sharper angle.</td>
+<td><img alt="" src="images/157711080.png" /></td>
+</tr>
+<tr>
+<td>4</td>
+<td>When <strong>main road continues</strong> after the turn (identical road ID).</td>
+<td><img alt="" src="images/157711084.png" /></td>
+</tr>
+<tr>
+<td>5</td>
+<td>If T-Junction is <strong>complicated</strong> by additional factors:<br/><br/><em> Additional T-intersection road outcomes at intersection or very close to it.<br/></em> Joining big multi-lane or dual carriage road.<br/>* Geometry of T-intersection is not straight.</td>
+<td><img alt="" src="images/157711088.png" /></td>
+</tr>
+<tr>
+<td>6</td>
+<td>If T-junction entry is a ramp coming out of motorway (or even lower road class) exit.</td>
+<td><img alt="" src="images/157711292.png" /></td>
+</tr>
+<tr>
+<td>7</td>
+<td>At Roundabout entries</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>At entries to Car trains or Ferries.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p>END OF THE DOCUMENT</p>
+                </body>
+                </html>
+                

@@ -1,0 +1,144 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Manoeuvre_path_optimisation</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <table>
+<thead>
+<tr>
+<th><strong>Status</strong></th>
+<th>APPROVED</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>created by</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></td>
+</tr>
+<tr>
+<td><strong>PM</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td><strong>ENG. OWNER</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:f34dc359-a067-45ee-88e1-4e2edb5bfab7?ref=confluence">Matthew Exon</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Motivation</h1>
+<p>In multi-lane environments, guidance indicates lane configuration at the manoeuvre point. Normally, any lane suitable for manoeuvre taking is highlighted in <a href="../Simple%20Lane%20Guidance%20-%20SLG/Simple_Lane_Guidance.html">SLG module</a>. This highlighting is also supported by the audio instruction (<em>use two right lanes to turn right</em>), when applicable. However, scenario involving series of close manoeuvres, requires slightly different logic. While navigating through series of manoeuvres on multi-lane intersections, we want to minimise amount of lane changes for the driver, especially when those changes has to be made in quick succession. Quick successive lane changes increase the stress and chance of error, therefore guidance calculates the optimal path for such scenarios, suggesting to use not all possible lanes but just <em><strong>optimal ones</strong></em>. Those lanes are called <em><strong>Recommended Lanes,</strong></em> and the process of optimising is called <em><strong>Manoeuvre Path Optimisation - MPO.</strong></em></p>
+<p>It is important to note that <em><strong>MPO</strong></em> is only effective for close to each other manoeuvres and doesn't provide any value if distance between them is significant, for longer stretches lane changes don't pose any troubles. This document describes the logic of the <em><strong>Recommended lanes</strong></em> are how they applied in guidance under different conditions.</p>
+<p>NOTE: This document focuses on the internal logic of MPO only and does not define methods used in it, such as <a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.html">NIP - next instruction panel</a>, <a href="../Simple%20Lane%20Guidance%20-%20SLG/Simple_Lane_Guidance.html">SLG - simple lane guidance</a>, <a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Consecutive%20manoeuvres%20(Chain%20Instructions)/Consecutive_manoeuvres_(Chain_Instructions).html">Chain instructions</a>. Those methods are defined by corresponding pages.</p>
+<h1>Scenarios</h1>
+<p>The best way to illustrate the idea of <em>MPO</em> is by looking at typical scenarios of chain instructions. Not in every scenario the effect of MPO is visible, but the general effect is minimal lane changes through series of manoevers.</p>
+<h2>Turn right, followed by the left fork</h2>
+<p>This scenario involves a turn right followed by fork left. The effect of MPO work here is in the highlighting <em><strong>only second right lane</strong></em> for the right turn. While both lanes are perfectly suitable for the manoeuvre A, following lane change is easier to perform being on the second lane from the right side.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Diagram</strong></th>
+<th><strong>Manoeuvre A</strong></th>
+<th><strong>Manoeuvre B</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157717954.png" /></td>
+<td><img alt="" src="images/157717953.png" /></td>
+<td><img alt="" src="images/157717952.png" /></td>
+</tr>
+<tr>
+<td>The optimal manoeuvre path is the one from the second lane from the right, since it it requires only 1 lane change, while the rightmost lane would require 2 lanes.</td>
+<td>AUDIO <br/> <strong>use second right lane, to turn right to ... and then keep left</strong></td>
+<td>AUDIO   <br/><strong>Keep left</strong></td>
+</tr>
+</tbody>
+</table>
+<h2>Turn right followed by the right fork</h2>
+<p>This scenario involves a turn right followed by fork right. The effect of MPO work here is not visible as both right lanes are perfectly optimised for the manoeuvre.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Diagram</strong></th>
+<th><strong>Manoeuvre A</strong></th>
+<th><strong>Manoeuvre B</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157717951.png" /></td>
+<td><img alt="" src="images/157717950.png" /></td>
+<td><img alt="" src="images/157717949.png" /></td>
+</tr>
+<tr>
+<td>The optimal manoeuvre paths are both right lanes as no lane changes required for passing both manoeuvres.</td>
+<td>AUDIO  <br/> <strong>use 2 right lanes, to turn right to ... and then keep right</strong></td>
+<td>AUDIO   <br/><strong>Keep right</strong></td>
+</tr>
+</tbody>
+</table>
+<h2>Keep left followed by the exit</h2>
+<p>This Motorway scenario involves two consecutive road splits. The first one is bifurcation, where driver has to keep left in order to stay on the left branch, but immediately after bifurcation, comes the exit. The effect of MPO work here is in highlighting only one left lane out of 2 possible at the first manoeuvre.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Diagram</strong></th>
+<th><strong>Manoeuvre A</strong></th>
+<th><strong>Manoeuvre B</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157717948.png" /></td>
+<td><img alt="" src="images/157717947.png" /></td>
+<td><img alt="" src="images/157717946.png" /></td>
+</tr>
+<tr>
+<td>For the optimal manoeuvre path it is necessary to take second  lane from the left at manoeuvre A.</td>
+<td>AUDIO   <br/><strong>use the second lane from the left to stay on...</strong></td>
+<td>AUDIO   <br/><strong>take the exit 17 west</strong></td>
+</tr>
+</tbody>
+</table>
+<h1>Serial manoeuvres detection</h1>
+<p>To summarise the examples above, the effect of MPO is <strong>lane recommendation based on minimal lane changes though the series of manoeuvres.</strong></p>
+<p><em><strong>MPO</strong></em> effect illustrated above is applied to 2 manoeuvres, however number of lane optimised chain instructions is not limited to 2. Any amount of chained instructions can have MPO. But how we detect serial manoeuvres? The logic of detection of serial manoeuvres is identical to the logic used for the same purpose for LLG sessions. <em><strong>Serial manoeuvres</strong></em> are detected by measuring distance between them. If the distance falls into serial manoeuvre threshold, two or more manoeuvres are considered to be <em><strong>serial.</strong></em> Threshold value is not universal but depends on road classes and is defined in this table:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Urban</strong></th>
+<th><strong>Motorways</strong></th>
+<th><strong>Others</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200m</td>
+<td>1000m</td>
+<td>500m</td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE:</strong> Serial manoeuvre threshold is not the same as Chain instruction detection method - they serve different purposes and not related to each other.</p>
+<p><strong>END OF DOCUMENT /</strong></p>
+                </body>
+                </html>
+                

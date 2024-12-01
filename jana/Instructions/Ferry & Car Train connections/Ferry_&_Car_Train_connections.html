@@ -1,0 +1,150 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Ferry_&_Car_Train_connections</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td><strong>PM</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td><strong>ENG OWNER</strong></td>
+<td>TBD</td>
+</tr>
+</tbody>
+</table>
+<h1>Introduction</h1>
+<p>Following Instruction are covering special cases of out of the car transportations. Those are Ferry and Car-Train connections.</p>
+<h2>Take Ferry Connection</h2>
+<p>This Instruction is given on Ferry terminals before entering a Ferry and on leaving the Ferry on the other side.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Instruction</strong></th>
+<th>Take Ferry Connection</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Location</strong></td>
+<td><a href="https://www.google.de/maps/dir/49.633649,-1.5895337/50.7787073,-1.8769172/@49.646823,-1.6129346,17z/am=t/data=!4m6!4m5!3e0!6m3!1i0!2i2!3i0?hl=en&amp;authuser=0">Location URL</a></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Road Geometry</strong></td>
+<td><img alt="" src="images/157681907.png" /></td>
+<td><img alt="" src="images/157681912.png" /></td>
+</tr>
+<tr>
+<td><strong>Visual Instruction</strong></td>
+<td><img alt="" src="images/157681914.png" /></td>
+<td><img alt="" src="images/157689514.png" /></td>
+</tr>
+<tr>
+<td><strong>Audio Instruction</strong></td>
+<td>In 600m <strong>Take the ferry</strong>  Portsmouth - Cherbourg</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Audio Instruction template</strong></td>
+<td><strong>[distance] [action] [Name of the ferry]</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Notes</strong></td>
+<td>This Instruction is given on approaching ferry connection.<br><br>Name of the ferry is formatted as:  <br><br>  <strong>[Starting location]</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>- [destination] <br>In case Ferry connection crosses country border, appropriate message should be added at the Instruction:<br><strong>Entering [country name].<br></strong>During travelling on Ferry, "Leave the ferry" instruction should be shown on NIP. No audio instruction is required.<br>### Missing data<br>In NDS map ferry connection is identified as <strong>[starting location] [destination]</strong> of the ferry. We assume that this is how Ferry identified in reality, but it requires validation. <br>### Missing data<br>We don't know if the actual manoeuvre point is located in relation to the actual ferry.  Depending where this point is located we might not need confirmation instruction. To be refined in the future.</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2>Take Car Train Connection</h2>
+<p>This Instruction is given on Car Train terminals before entering a Car Train.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Instruction</strong></th>
+<th>Take Car train Connection</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Location</strong></td>
+<td><a href="https://www.google.de/maps/dir/51.2722045,0.9818408/50.9272542,2.0063159/@51.095486,1.1238671,15.7z/am=t/data=!4m2!4m1!3e0?hl=en&amp;authuser=0">Location URL</a></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Road Geometry</strong></td>
+<td><img alt="" src="images/157681905.png" /></td>
+<td><img alt="" src="images/157681918.png" /></td>
+</tr>
+<tr>
+<td><strong>Visual Instruction</strong></td>
+<td><img alt="" src="images/157681921.png" /></td>
+<td><img alt="" src="images/157688036.png" /></td>
+</tr>
+<tr>
+<td><strong>Audio Instruction</strong></td>
+<td>In 600m Take the Eurostar train to Coquelles</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Audio Instruction template</strong></td>
+<td><strong>[distance] [action] [Train name] [Train destination]</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Notes</strong></td>
+<td>This Instruction is given on approaching Car Train Connection.<br>Name of the train is formatted as <br>   <strong>[Train name]</strong> <strong>[Train destination]</strong> <br><br>During travelling by train, "Leave the train" instruction should be shown in NIP. No audio instruction is required.<br><br>### Missing data<br>In NDS map train connection is identified as <strong>[destination]</strong> of the train. We assume that this is how train identified in reality, but it requires validation. <br><br>### Missing data<br>We dont know if actual manoeuvre point is located in relation to actual train.  Depending wher this point is located we might not need confirmation instruction.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+                </body>
+                </html>
+                

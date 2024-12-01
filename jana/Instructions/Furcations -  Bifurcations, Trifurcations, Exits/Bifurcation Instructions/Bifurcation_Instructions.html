@@ -1,0 +1,339 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Bifurcation_Instructions</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <p><img alt="" src="images/157715330.png" /></p>
+<table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td><strong>ENG OWNER</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:2b00ecb1-a543-4410-818c-575056da8b84?ref=confluence">Vadym Khandus</a> - please change this when another person is assigned</td>
+</tr>
+<tr>
+<td><strong>PM</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td><strong>Spec Review ticket</strong></td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-151482?src=confmacro">NAV-151482</a></td>
+</tr>
+<tr>
+<td><strong>GitHub Documents</strong></td>
+<td><a href="https://github.com/tomtom-internal/navigation-instruction-engine/blob/bc9915ebc23d1bdac3a34164aff5a3de260848ee/documentation/architecture/src/adr/2022-09-27T12%3A35%3A00%2B0200_natural_continuation/bifurcations.adoc">https://github.com/tomtom-internal/navigation-instruction-engine/blob/bc9915ebc23d1bdac3a34164aff5a3de260848ee/documentation/architecture/src/adr/2022-09-27T12%3A35%3A00%2B0200_natural_continuation/bifurcations.adoc</a></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!NOTE]
+<strong>Changes requested</strong> <br> We've noticed that we have received many bug tickets from customers related to the natural continuation on bifurcations. It is not really clear to customers when and why our guidance decides not to provide bifurcation instructions in some cases.
+<br><br>The rules used to detect them are described in the <a href="https://github.com/tomtom-internal/navigation-instruction-engine/blob/bc9915ebc23d1bdac3a34164aff5a3de260848ee/documentation/architecture/src/adr/2022-09-27T12%3A35%3A00%2B0200_natural_continuation/bifurcations.adoc">source code documentation</a>. However, we would like to refine these rules for a general audience and include them in this UX specification.
+<br><br>The purpose of this is to have a better visual and textual explanation of our guidance that we can share with customers, enabling us to provide a single screenshot to explain some cases to clients.
+<br><br>After the UX specification is improved, we may need to adjust it and add it to the HCP3 version of the spec.</p>
+</blockquote>
+<h1><strong>Introduction to furcations (Bifurcations)</strong></h1>
+<p><strong>furcations (Bifurcations) and Exits</strong> are two types of intersections which don't interrupt traffic flow. Both are found primarily on <strong>Motorways</strong>, but they can also be found on lower road classes that share some properties with Motorways, such as <strong>uninterrupted traffic flows</strong> and <strong>curved road geometry</strong> designed for fast manoeuvre taking. For differentiating <strong>furcations from Exits</strong>, refer to this pages: <a href="./../Furcations-Bifurcations_Trifurcations_Exits.html">furcations Instructions (Bifurcations, Trifurcations, Exits)</a>  </p>
+<p><strong>TERMINOLOGY:</strong> Term <em><strong>furcation</strong></em> here and across the whole specifications is used interchangeably with term <em><strong>Bifurcation</strong></em>, however, keep in mind that <em><strong>furcations</strong></em> also include <em><strong>Trifurcations</strong></em>.</p>
+<p>Bifurcation intersections design varies greatly depending on the complexity of the split. Here are some typical examples:</p>
+<table>
+<thead>
+<tr>
+<th><strong>furcation Type</strong></th>
+<th><strong>Schematic diagram</strong></th>
+<th><strong>Attributes</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main road continues</td>
+<td><img alt="" src="images/157719554.png" /></td>
+<td>Often, departing branch is indicated by exiting (angled) arrows<br/>Often, continuing branch is indicated by straight arrows.</td>
+<td>This type of bifurcation happens when one of outgoing branches has the same road identity (Road Name/Number) as the incoming path.  <br/><br/>  <strong><em>Main road</em></strong> refers to the road that continues through the intersection. <strong><em>Departing road</em></strong> - is the road that appears as new at the intersection.  <br/><br/>  Directional arrows indication is manifested in the signpost and/or on the surface of the road. This data might be or might be not available in the map.<br/><br/>The ratio between straight lanes and departing lanes affects the audio lane guidance message.  <br/><br/>  NOTE: Directional arrows might not be available for small lane count bifurcations.</td>
+</tr>
+<tr>
+<td>Equal split</td>
+<td><img alt="" src="images/157719555.png" /></td>
+<td>Typically, both branches indicated by exiting (angled) arrows.</td>
+<td>This type of bifurcation happens when both of outgoing branches have different road IDs from the incoming path.<br/><br/>Directional arrows indication is manifested in the signpost and/or on the surface of the road. This data might be or might be not available in the map.<br/><br/>NOTE: Directional arrows might not be available for small lane count bifurcations.</td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: Those bifurcations are just given as examples. The real configurations could be different from those and cannot be categorised precisely.</p>
+<h1><strong>Design Principles for furcation Instructions (WIP)</strong></h1>
+<p>When providing Guidance at furcation Intersections, we need to pay attention at lane configurations and intersection and roads identities before and after the intersection. </p>
+<h1><strong>Rules for furcation Instructions</strong></h1>
+<p><strong>Bifurcations Instructions</strong> have following attributes:   </p>
+<p><strong>1.</strong> Pointer <em><strong>At the furcation</strong></em>  is used every time.  </p>
+<p><strong>2.</strong> Actions: <em><strong>Keep Left/Right</strong></em> (AALG), or <em><strong>Use XX lanes</strong></em> (EALG)<em><strong>.</strong></em> The choice between AALG (approximated audio lane guidance) and EALG (explicit audio lane guidance) is done based on the scenario.</p>
+<p><strong>3.</strong> Purpose could be ether <strong>Take the <road id=""></strong> or <strong>Continue on <road id=""></strong>, depending on the scenario.</p>
+<p><strong>Possible furcation scenarios are Illustrated in the table below:</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>Route path</strong></th>
+<th><strong>Lane configuration</strong></th>
+<th><strong>Pointer</strong></th>
+<th><strong>Action</strong></th>
+<th><strong>Purpose</strong></th>
+<th><strong>Towards</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Continuation of the current road <strong>A100</strong> in the direction of <strong>Hamburg</strong>, while alternative branch is a new road.</td>
+<td><img alt="" src="images/157718759.png" /></td>
+<td><strong>At the furcation...</strong></td>
+<td><strong>Keep Left to</strong><br/><br/>REASON: Approximated LG is used for continuation when majority of lanes follow the route path.</td>
+<td><strong>Continue on</strong> <strong><em>A100</em></strong><br/><br/>REASON: <strong><em>Continue</em></strong> is used for continuation on the same road.</td>
+<td><strong>towards</strong> <strong><em>Hamburg</em></strong></td>
+</tr>
+<tr>
+<td>1.1</td>
+<td>Subset of <strong>#1</strong> with different lane configuration</td>
+<td><img alt="" src="images/157718763.png" /></td>
+<td><strong>At the furcation...</strong></td>
+<td><strong>Stay in the left two lanes to</strong><br/><br/>REASON: Explicit LG is used for continuation when minority of lanes follow the route path.NOTE: <strong><em>Use</em></strong> will be used instead of <strong><em>Stay</em></strong> in some scenarios when lane localisation is supported.</td>
+<td><strong>Continue on</strong> <strong><em>A100</em></strong><br/><br/>REASON: <strong><em>Continue</em></strong> is used for continuation on the same road.</td>
+<td><strong>towards</strong><strong><em>Hamburg</em></strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>Switching to a new road <strong>A9</strong> in the direction of <strong>Berlin</strong>, while alternative branch is a continuation of the current road</td>
+<td><img alt="" src="images/157718760.png" /></td>
+<td><strong>At the furcation...</strong></td>
+<td><strong>Use the right two lanes to</strong><br/><br/>REASON: Explicit LG is used for taking a new road</td>
+<td><strong>take</strong><strong><em>A9</em></strong><br/><br/>REASON: <strong><em>Take</em></strong> is used for taking a new road    ALSO: <strong><em>Switch to</em></strong> to can be used instead of <strong><em>Take</em></strong>  word <strong><em>take</em></strong> is already in use in the same sentence.</td>
+<td><strong>towards</strong><strong><em>Berlin</em></strong></td>
+</tr>
+<tr>
+<td>2.1</td>
+<td>Subset of <strong>#2</strong> with different lane configuration</td>
+<td><img alt="" src="images/157718764.png" /></td>
+<td><strong>At the furcation...</strong></td>
+<td><strong>Keep Right to</strong><br/><br/>REASON: Count of lanes which is <strong>greater than 4 requires approximated LG</strong></td>
+<td><strong>take</strong><strong><em>A9</em></strong></td>
+<td><strong>towards</strong><strong><em>Berlin</em></strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Switching to a new road <strong>A9</strong> in the direction of <strong>Berlin</strong>, while alternative branch is also a new road road</td>
+<td><img alt="" src="images/157718761.png" /></td>
+<td><strong>At the furcation...</strong></td>
+<td><strong>Use the right two lanes to</strong><br/><br/>REASON: Explicit LG is used for taking a new road</td>
+<td><strong>take</strong><strong><em>A9</em></strong></td>
+<td><strong>towards</strong><strong><em>Berlin</em></strong></td>
+</tr>
+<tr>
+<td>3.1</td>
+<td>Subset of <strong>#3</strong> with different lane configuration</td>
+<td><img alt="" src="images/157718766.png" /></td>
+<td><strong>At the furcation...</strong></td>
+<td><strong>Use the left two lanes to</strong><br/><br/>REASON: Explicit LG is used for taking a new road</td>
+<td><strong>take</strong><strong><em>A9</em></strong></td>
+<td><strong>towards</strong><strong><em>Berlin</em></strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>When only two lanes are available at the entrance of the furcation.</td>
+<td><img alt="" src="images/157719551.png" /></td>
+<td><strong>At the furcation...</strong></td>
+<td><strong>Keep right to</strong>  <br/><br/>REASON: Approximated LG is used when there are only 2 lanes and choice needs to be made between them</td>
+<td><strong>...</strong></td>
+<td><strong>...</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE:</strong> Scenarios illustrated above describe standalone manoeuvre situations when no, close following manoeuvre is present. Situations involving serial manoeuvres apply MPO - <strong>manoeuvre path optimisation</strong> logic that might output different lane configurations. Details about MPO can be found here: <a href="../../../Guidance%20Framework%20-%20Methods%20&amp;%20Components/Manoeuvre%20path%20optimisation/Manoeuvre_path_optimisation.html">Manoeuvre path optimisation</a></p>
+<h1>Directional Lane configuration</h1>
+<p>Bifurcation can vary by the lane directions configuration. This configuration is usually reflected by the <strong>directional arrows drawn on the road and indicated at the signpost</strong>. In most scenarios left branch on the bifurcation has straight arrows, while right has turning right ones. However, the geometry could also be different.   </p>
+<p><strong>Directional lane configuration on the road</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Driver's View</strong></th>
+<th><strong>Top View</strong></th>
+<th><strong>Top View close up</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157718775.png" /></td>
+<td><img alt="" src="images/157718776.png" /></td>
+<td><img alt="" src="images/157718777.png" /></td>
+</tr>
+</tbody>
+</table>
+<p>This directional information <strong>should be reflected in the Manoeuvre arrow and SLG</strong>  if this information could be gathered from the map:  </p>
+<p><img alt="" src="images/157715414.png" /></p>
+<h1><strong>Visual Instruction Format - NIP</strong></h1>
+<table>
+<thead>
+<tr>
+<th><strong>Phase</strong></th>
+<th><strong>NIP</strong></th>
+<th><strong>Notes</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Early</td>
+<td><img alt="" src="images/157719054.png" /></td>
+<td>Early instruction phase and earlier, do not display SLG, but only manoeuvre arrow.</td>
+</tr>
+<tr>
+<td>Main</td>
+<td><img alt="" src="images/157718782.png" /></td>
+<td>Main instruction phase and later, display only SLG component without manoeuvre arrow.</td>
+</tr>
+</tbody>
+</table>
+<h1><strong>Instructions Examples</strong></h1>
+<p>Following examples illustrate how Instructions involving furcation intersections are constructed.</p>
+<p><strong>furcations LOCATIONS</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>ID</strong></th>
+<th><strong>Map link</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>https://maps.app.goo.gl/KB231fY9tWfdfdpE9</td>
+</tr>
+<tr>
+<td>2</td>
+<td>https://maps.app.goo.gl/ZxTafaFXaakUKkwDA</td>
+</tr>
+<tr>
+<td>3</td>
+<td>https://maps.app.goo.gl/xqQ8PRiE9bLE9zZj6</td>
+</tr>
+</tbody>
+</table>
+<h2>Motorway furcation 1</h2>
+<p>The left branch continues on RING A10, while the right branch takes a new road A9.</p>
+<p><strong>INTERSECTION GEOMETRY</strong></p>
+<table>
+<thead>
+<tr>
+<th><strong>Driver's View</strong></th>
+<th><strong>Top View</strong></th>
+<th><strong>Top View close up</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157718775.png" /></td>
+<td><img alt="" src="images/157718776.png" /></td>
+<td><img alt="" src="images/157718777.png" /></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>MAIN INSTRUCTION</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Left Branch</strong></th>
+<th><strong>Right Branch</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VISUAL</strong></td>
+<td><img alt="" src="images/157718781.png" /></td>
+<td><img alt="" src="images/157718782.png" /></td>
+</tr>
+<tr>
+<td><strong>AUDIO</strong></td>
+<td>In 600 meters, At the furcation, keep left to continue on A10 RING towards Purmerand</td>
+<td>In 600 meters, At the furcation, use the right two lanes to take A1 towards Hengelo</td>
+</tr>
+</tbody>
+</table>
+<h2>Motorway furcation 2</h2>
+<p>The left branch (2 lanes) continues on RING A10 Ring-Noord towards Utrecht, while the right branch (3 lanes) takes a new road A10 Ring-west towards Rotterdam.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Driver's view</strong></th>
+<th><strong>Top view</strong></th>
+<th><strong>Top view close up</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/157718787.png" /></td>
+<td><img alt="" src="images/157718785.png" /></td>
+<td><img alt="" src="images/157718783.png" /></td>
+</tr>
+</tbody>
+</table>
+<p><strong>MAIN INSTRUCTION</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Left Branch</strong></th>
+<th><strong>Right Branch</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>VISUAL</strong></td>
+<td><img alt="" src="images/157718788.png" /></td>
+<td><img alt="" src="images/157718789.png" /></td>
+</tr>
+<tr>
+<td><strong>AUDIO</strong></td>
+<td>In 600 meters, At the furcation, stay in the left two lanes to continue on A10, E35 towards Utrecht</td>
+<td>In 600 meters, At the furcation, use the right three lanes to take E22 towards Rotterdam</td>
+</tr>
+</tbody>
+</table>
+<h1>GitHub Reference design document</h1>
+<p>For even detailed, low level analysis of bifurcation detections, please refer to this document: <br />
+<a href="https://github.com/tomtom-internal/navigation-instruction-engine/blob/bc9915ebc23d1bdac3a34164aff5a3de260848ee/documentation/architecture/src/adr/2022-09-27T12%3A35%3A00%2B0200_natural_continuation/bifurcations.adoc">https://github.com/tomtom-internal/navigation-instruction-engine/blob/bc9915ebc23d1bdac3a34164aff5a3de260848ee/documentation/architecture/src/adr/2022-09-27T12%3A35%3A00%2B0200_natural_continuation/bifurcations.adoc</a></p>
+<p>/ END OF DOCUMENT  </p>
+<p>=======================</road></road></p>
+                </body>
+                </html>
+                

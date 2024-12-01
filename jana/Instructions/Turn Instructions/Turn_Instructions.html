@@ -1,0 +1,340 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Turn_Instructions</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <p><img alt="" src="images/267225293.png" /></p>
+<table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td><strong>PM</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td><strong>ENG. OWNER</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:2b00ecb1-a543-4410-818c-575056da8b84?ref=confluence">Vadym Khandus</a></td>
+</tr>
+<tr>
+<td><strong>Reference</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/spaces/~khandus/pages/267835935/Lane+guidance+messages+for+supported+instruction+types">Lane guidance messages for supported instruction types</a></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>[!NOTE]
+<strong>DICLAIMER</strong> <br> The document below is covering user experience and general guidelines for technical implementation. It doesn't define exact methods for achieving this user experience, algorithms and heuristics - those has to be described at separate technical documentation on <em><strong>GitHub</strong></em> and managed by <em><strong>engineering owner.</strong></em></p>
+<p>[!NOTE]
+As of today 14 Aug 2024 , most of the functionality described here is not yet implemented.</p>
+</blockquote>
+<h1>Introduction</h1>
+<p>Turn manoeuvres are most basic manoeuvre type that we can define as deviation from <em><strong>natural continuation</strong></em> path of the road at intersection of two or more roads or at the point of splitting of the current road into two or more. <em><strong>Natural continuation</strong></em> path is a road that can be clearly identified by driver as a <em><strong>continue straight</strong></em> direction. When following natural continuation path, no instruction is required. Before moving on we need to define some terminology.  </p>
+<p>Intersection types:</p>
+<p><em><strong>Single lane intersections</strong></em> are intersections that don't provide individual lanes dedicated for turns, and all manoeuvres are performed from the same (single) lane.</p>
+<p><em><strong>Multi lane intersections</strong></em> are intersections that separate directions by individual lanes. Lane count at multilane intersection points must be more then 2.</p>
+<p><em><strong>Ambiguous Intersections</strong></em> are intersections that depart from standard geometry and as a result of this, manoeuvres cannot be mapped to standard set of instructions (turn left/right, continue straight)</p>
+<p><em><strong>Unambiguous intersection</strong></em> is an standard intersection that is constructed from two crossing roads at the roughly 90 angle. This includes T-junctions as well.</p>
+<p>Manoeuvre types:</p>
+<p><em><strong>Turn left/right</strong></em> - Manoeuvre with straight angle of the turn.</p>
+<p><em><strong>Bear left/right</strong></em> - Manoeuvre with the shallow angle of the turn.</p>
+<p><em><strong>Turn sharply left/right</strong></em> - Manoeuvre with sharp angle of the turn.</p>
+<p><em><strong>U-turn</strong></em> - going backwards on the same roar path.</p>
+<p>This page below defines how turn instructions are constructed based on the road geometry, and also how they appear to the driver. We will look separately at ambiguous and non-ambiguous scenarios as well as single and multi-lane scenarios.  </p>
+<h1>Single lane, Unambiguous Intersections</h1>
+<p>Scenarios involving intersections with single outcome in one turn direction. Those types of intersections considered to be trivial and not posing any ambiguity to the driver, unlike other intersections which could have multiple outcomes in one turn direction.</p>
+<table>
+<thead>
+<tr>
+<th><strong>No.</strong></th>
+<th><strong>Location</strong></th>
+<th><strong>Geometry</strong></th>
+<th><strong>Road view</strong></th>
+<th><strong>Manoeuvre arrow</strong></th>
+<th><strong>Instruction</strong></th>
+<th><strong><em>Notes</em></strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>02</td>
+<td>Simple turn left at a T-junction<br/><br/>48.866433, 2.277646</td>
+<td><img alt="" src="images/267225326.png" /></td>
+<td><img alt="" src="images/267225323.png" /></td>
+<td><img alt="" src="images/267225320.png" /></td>
+<td>turn left</td>
+<td>Simple turn manoeuvre that happen at T junction with no ambiguity present. In such trivial use cases we omit street names announcements from audio instructions.<br/><br/>The real angle of the turn is not 90° but this direction still matched to 90° as closest match.</td>
+</tr>
+<tr>
+<td>07</td>
+<td>Non-ambiguous sharp turn<br/><br/>48.856411, 2.274748</td>
+<td><img alt="" src="images/267225302.png" /></td>
+<td><img alt="" src="images/267225299.png" /></td>
+<td><img alt="" src="images/267225296.png" /></td>
+<td>turn sharp right to street name</td>
+<td>This sharp turn is non ambiguous therefore</td>
+</tr>
+</tbody>
+</table>
+<h1>Single lane, Ambiguous Intersections NOT IMPLEMENTED</h1>
+<p>Scenarios involving conflicting, alternative exits in the same direction</p>
+<table>
+<thead>
+<tr>
+<th><strong>No.</strong></th>
+<th><strong>Location</strong></th>
+<th><strong>Geometry</strong></th>
+<th><strong>Road view</strong></th>
+<th><strong>Manoeuvre arrow</strong></th>
+<th><strong>Instruction</strong></th>
+<th><strong><em>Notes</em></strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>03</td>
+<td>Ambiguous turn right, the gentler one<br/><br/>48.849978, 2.288525</td>
+<td><img alt="" src="images/267225311.png" /></td>
+<td><img alt="" src="images/267225314.png" /></td>
+<td><img alt="" src="images/267225284.png" /></td>
+<td>take the right turn, the gentler one, to <em>street name</em></td>
+<td>The right turn direction provides two possible outcomes for turning right. This is an ambiguous use case.</td>
+</tr>
+<tr>
+<td>04</td>
+<td>Ambiguous turn right, the sharper one<br/><br/>48.849978, 2.288525</td>
+<td><img alt="" src="images/267225317.png" /></td>
+<td><img alt="" src="images/267225314.png" /></td>
+<td><img alt="" src="images/267225281.png" /></td>
+<td>take the sharper turn right, to <em>street name</em></td>
+<td>The right turn direction provides two possible outcomes for turning right. This is an ambiguous use case.</td>
+</tr>
+<tr>
+<td>05</td>
+<td>Ambiguous right turn with many alternative outcomes<br/><br/>48.867842, 2.281052</td>
+<td><img alt="" src="images/267225290.png" /></td>
+<td><img alt="" src="images/267225287.png" /></td>
+<td><img alt="" src="images/267225278.png" /></td>
+<td>take the right turn, the gentler one to <em>street name</em></td>
+<td>There are 3 outcomes to the right direction here,</td>
+</tr>
+<tr>
+<td>06</td>
+<td>Ambiguous sharp right turn with many alternative outcomes<br/><br/>48.867842, 2.281052</td>
+<td><img alt="" src="images/267225308.png" /></td>
+<td><img alt="" src="images/267225305.png" /></td>
+<td><img alt="" src="images/267225275.png" /></td>
+<td>take the sharper turn right, to <em>street name</em></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>REFERENCE: Turn instruction follow generic instruction model defined here: <a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Next%20Instruction%20panel%20-%20NIP/Next_Instruction_Panel.html">NIE_002 - Next Instruction Panel (NIP)</a></p>
+<h1>Multi-lane Intersections - Audio Instruction Architecture</h1>
+<p>In NIE Instruction constructed in a modular way so they can communicate not only simple messages like <em><strong>Turn right</strong></em> but more elaborative instructions like <em><strong>Bear right to stay on Haupstrasse</strong></em> or <em><strong>Use the right two lanes to turn right</strong></em>.  In order to allow this we use <strong>components</strong> called <strong>Action</strong> and <strong>Purpose.</strong>  More info about instruction architecture provided here: <a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Audio%20Instructions/Audio_Instructions.html">NIE_003 - Audio Instructions</a>  </p>
+<p><strong>[action]</strong> - Describes the immediate action that driver needs to perform: <em><strong>turn right, keep left, use the right two lanes</strong></em></p>
+<p><strong>[purpose]</strong> - Describes what would be the result of this action: <em><strong>to stay on, to take the exit, to switch to, to turn right</strong></em></p>
+<p>In case of trivial Instruction, like <em><strong>Turn right</strong></em> there is only one component (action) is provided. Turn instruction (as well as any other instruction) is composed of those two components. We need to keep in mind that the same expression (turn right) can be used as an <em>action</em> or <em>purpose</em> depending on the context of the instruction.  </p>
+<p>Examples:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Audio Instruction</strong></th>
+<th><strong>Action</strong></th>
+<th><strong>Purpose</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Turn Right</strong></td>
+<td>turn right</td>
+<td>--</td>
+</tr>
+<tr>
+<td><strong>use the two right lanes to turn right</strong></td>
+<td>use the two right lanes</td>
+<td>to turn right</td>
+</tr>
+<tr>
+<td><strong>Bear left</strong></td>
+<td>bear left</td>
+<td>--</td>
+</tr>
+<tr>
+<td><strong>use the two left lanes to bear left</strong></td>
+<td>use the two left lanes</td>
+<td>to bear left</td>
+</tr>
+<tr>
+<td><strong>Turn sharp right</strong></td>
+<td>turn sharp right</td>
+<td>--</td>
+</tr>
+<tr>
+<td><strong>use the two right lanes to turn sharp right</strong></td>
+<td>use the two right lanes</td>
+<td>to turn sharp right</td>
+</tr>
+</tbody>
+</table>
+<p>Text constructions like <em><strong>use the two right lanes to...</strong></em> called <em><strong>Explicit Audio Lane guidance</strong></em> - EALG. EALG is used every time when precise lane guidance information is helpful for the manoeuvre taking. EALG is not always helpful though - In trivial turn scenarios it is simply not necessary. Lets look at some typical junctions scenarios:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Manoeuvre</strong></th>
+<th><strong>Junction 1</strong></th>
+<th><strong>Junction 2</strong></th>
+<th><strong>Junction 3</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Diagram of the intersection</strong></td>
+<td><img alt="" src="images/286009218.svg" /></td>
+<td><img alt="J3.svg" src="images/285695454.svg" /></td>
+<td><img alt="" src="images/285662007.svg" /></td>
+</tr>
+<tr>
+<td><strong>Turn left</strong></td>
+<td>NO EALG - single possibility for turn doesn't require EALG because it is trivial manoeuvre.</td>
+<td>YES - because there are two lanes available for turn.</td>
+<td>NO EALG - single possibility for turn doesn't require EALG because it is trivial manoeuvre.</td>
+</tr>
+<tr>
+<td><strong>Turn right</strong></td>
+<td>NO EALG - single possibility for turn doesn't require EALG because it is trivial manoeuvre.</td>
+<td>YES - because there are two lanes available for turn.</td>
+<td>YES - because there are two lanes available for turn.</td>
+</tr>
+<tr>
+<td><strong>Continue straight</strong></td>
+<td>YES - continuation straight always require EALG.</td>
+<td>YES - continuation straight always require EALG.</td>
+<td>YES - continuation straight always require EALG.</td>
+</tr>
+</tbody>
+</table>
+<p>Drivers can navigate lanes intuitively (rightmost lane turns right, leftmost - left) for small lane count simple junctions, however, on bigger, multilane junctions, lane configuration could pose challenges. The situation gets even more complicated when street traffic congestion covers lane markings on the surface of the road. The aim of SLG (and EALG specifically) in those situations is to guide drivers more precisely into specific lanes. There are following conditions should be met for EALG to be applied:</p>
+<table>
+<thead>
+<tr>
+<th><strong>No.</strong></th>
+<th><strong>Condition for turns (Left/Right)</strong></th>
+<th><strong>Condition for straight</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>amount of lanes is more then 2</td>
+<td>always</td>
+</tr>
+<tr>
+<td>2</td>
+<td>more then one lane available for turn</td>
+<td>always</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>Instruction without EALG</strong></th>
+<th><strong>Instruction with EALG</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>turn right</td>
+<td>use the two right lanes to turn right...</td>
+</tr>
+<tr>
+<td>turn left</td>
+<td>use the three left lanes to turn left...</td>
+</tr>
+<tr>
+<td>Continue straight</td>
+<td>use the two middle lanes to continue straight...</td>
+</tr>
+</tbody>
+</table>
+<p>NOTE: The logic described above is not complete as it doesn't cover scenarios with <em><strong>route path optimisation</strong></em>. <em><strong>Route path optimisation</strong></em> is an algorithm that optimises chain instructions for easiest passage. When chain instruction present, guidance could recommend specific lane for the first turn (out of many) in order to prepare the driver for the next manoeuvre. This could result in following instruction: <em><strong>...use the second lane from the right to turn right -</strong></em> in order to prepare the driver for consecutive left turn. Route optimisation path will be defined separately and not covered here. </p>
+<h1>Ambiguous Multilane Junction</h1>
+<p><em><strong>Ambiguous Junction</strong></em> is a that has either crossing angles different from 90° or more then 4 exits or both conditions. Detection of junction ambiguity is a separate topic that is not covered in this document. <em><strong>Ambiguous Junctions</strong></em> should always use EALG to clarify directions of turns</p>
+<table>
+<thead>
+<tr>
+<th><strong>Ambiguous Junction 1</strong></th>
+<th><strong>Ambiguous Junction 2</strong></th>
+<th><strong>Ambiguous Junction 3</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="J4.svg" src="images/289997286.svg" /></td>
+<td><img alt="J5.svg" src="images/290062797.svg" /></td>
+<td><img alt="J6.svg" src="images/289767933.svg" /></td>
+</tr>
+</tbody>
+</table>
+<h2>Examples</h2>
+<p>Lets illustrate those rules by examples:</p>
+<table>
+<thead>
+<tr>
+<th><strong>View</strong></th>
+<th><strong>EALG</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img alt="" src="images/272902083.png" /></td>
+<td>LEFT- NO<br/><br/>RIGHT - NO<br/><br/>STRAIGHT - YES</td>
+</tr>
+<tr>
+<td><img alt="" src="images/272902088.png" /></td>
+<td>LEFT- NO<br/><br/>RIGHT - NO<br/><br/>STRAIGHT - YES</td>
+</tr>
+</tbody>
+</table>
+<h1>Examples of lane guidance messages - complete set of messages</h1>
+<p>The page below consolidates all possible scenarios for audio messages for turns (and other instruction types).   </p>
+<p><a href="https://tomtom.atlassian.net/wiki/spaces/~khandus/pages/267835935/Lane+guidance+messages+for+supported+instruction+types">Lane guidance messages for supported instruction types</a></p>
+<h1>Further Information</h1>
+<p>Information posted on this page defines general framework of Turn instruction. To dig deeper into concrete scenarios, follow those pages:</p>
+<p><a href="https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157680380">NIE_011.7 - Turn Instructions</a></p>
+<p><a href="https://tomtom.atlassian.net/wiki/spaces/FlaminGO/pages/157690607/Bear+left+right">NIE_011.1 - Bear left / right</a></p>
+<p><a href="./Angles%20Quantisation/Angles_Quantisation.html">NIE_011.6 - Turn Angle representation</a></p>
+<p><a href="./Shallow%20and%20Sharp%20Turns/Shallow_and_Sharp_Turns.html">NIE_011.5 - Sharp &amp; Sharper Turns</a></p>
+<p><a href="./Isolated%20turn/Isolated_turn.html">NIE_011.4 - Isolated turn</a></p>
+<p><a href="./Mandatory%20turn/Mandatory_turn.html">NIE_011.3 - Mandatory turn</a></p>
+<p><a href="./Continue%20Straight/Continue_Straight.html">NIE_011.2 - Continue Straight</a></p>
+                </body>
+                </html>
+                

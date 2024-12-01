@@ -1,0 +1,291 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>NIE_023_NIP_in_Cluster(STL)</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <p><img alt="" src="images/157696965.png" /></p>
+<p>PIC: Example of Next Instruction Panel in the context of Horizon Panel.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Interaction Designer</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Visual Designer</strong></td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/5be2fd44649a737c2342afbe?ref=confluence">Georgios Koultouridis</a></td>
+</tr>
+<tr>
+<td>PM</td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/557058:c780ee11-e2ba-4436-9adf-fdd36a8a351a?ref=confluence">Rolf Dorland</a></td>
+</tr>
+<tr>
+<td>PO</td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+<tr>
+<td>Dev. Teams</td>
+<td>Omega, Lighthouse</td>
+</tr>
+<tr>
+<td>Visual Design Specification</td>
+<td>www.figma.com</td>
+</tr>
+</tbody>
+</table>
+<h1>Table of Contents</h1>
+<ul>
+<li><a href="#Table-of-Contents">Table of Contents</a></li>
+<li><a href="#Definition">Definition</a></li>
+<li><a href="#UI-Touchpoints">UI Touchpoints</a></li>
+<li><a href="#Components-of-Visual-Instruction-NIP">Components of Visual Instruction (NIP)</a></li>
+<li><a href="#Cluster-Display">Cluster Display</a><ul>
+<li><a href="#Description">Description</a></li>
+<li><a href="#NIP-Prioritisation">NIP Prioritisation</a></li>
+<li><a href="#NIP-Configurability">NIP Configurability</a><ul>
+<li><a href="#Font-size">Font size</a></li>
+<li><a href="#Adaptiveness">Adaptiveness</a></li>
+<li><a href="#Prototype-example">Prototype example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Definition</h1>
+<p>Visual Instruction  (also known as NIP-Next Instruction Panel) is a UI component that is used to visualise Instruction in order to provide Guidance for a driver. Guidance is a complex experience consists of visual instruction, Audio instruction, Map with representation of the route on it and various other elements. Audio and Visual Instructions change in time as vehicle progresses to the manoeuvre point. This logic is described in details in this document: <a href="../../Guidance%20Framework%20-%20Methods%20&amp;%20Components/Instruction%20Triggering%20Logic/Instruction_Triggering_Logic.html">Instruction Triggering Logic</a>.</p>
+<h1>UI Touchpoints</h1>
+<p>Visual instruction is represented at following touch point in a car: HUD, Cluster Display, Central unit display. Each of those touch points have different visual design of the NIP and layout. For now we describe only CSD touch point.</p>
+<p><img alt="" src="images/157696981.png" /></p>
+<h1>Components of Visual Instruction (NIP)</h1>
+<p><img alt="" src="images/157696938.png" /></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Item</th>
+<th>Context</th>
+<th>Mandatory</th>
+<th>Occurence</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Next Instruction schematic image (Manoeuvre arrow)</td>
+<td>any</td>
+<td>yes</td>
+<td>Single</td>
+<td>Graphical image representing next manoeuvre schematically</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Distance to next instruction</td>
+<td>not applicable for some special instructions</td>
+<td>yes</td>
+<td>Single</td>
+<td>Distance to point of main manoeuvre. Distance units follow special formatting rules described here: <a href="https://tomtom.atlassian.net/wiki/spaces/NAVUISPECS/pages/87264846/G_008+Distance+and+Time+Notation#G_008DistanceandTimeNotation-Distanceformatting">G_008 Distance and Time Notation#Distanceformatting</a></td>
+</tr>
+<tr>
+<td>3</td>
+<td>Road Name Representation of Directional Information</td>
+<td>any</td>
+<td>No</td>
+<td>Single</td>
+<td><strong>Road name</strong> (part of Directional info) is a road driver will continue on after completing manoeuvre. There are two use cases here that need to be separated:<br/><br/>1. <strong>Signpost</strong> is not available for the manoeuvre. In this case Road name is taken from map data as a name of a road manoeuvre leads to. NOTE: Only significant roads should be selected. Connecting road links should not be mentioned.<br/><br/>2. <strong>Signpost</strong> is available. In this case Road name must be in sync with signpost information even if map date provides different information.  <br/><br/> Road names ofter refer to the same object as Road numbers. Additional information about usage of <strong>Road names</strong> and <strong>Road Numbers</strong> provided in this document: <a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Directional%20Information%20-%20Road%20names%2C%20Road%20numbers%2C%20Towards/Directional_Information-Road-names_Road-numbers_Towards.html">Directional Information - Road names, Road numbers, Towards</a></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Road Number  Representation of Directional Information</td>
+<td>any</td>
+<td>No</td>
+<td>Multiple</td>
+<td><strong>Road number</strong> (part of Directional info) is a number assigned to a road and usually corresponds to the Road name above. Visually road numbers represented as graphical shapes which vary by location and the number inside. Sometimes Road numbers have direction (East) attached to them. Some roads have both: Road name and Road numbers, some only road names and some only road numbers. <br/>There are two use cases here that need to be separated:<br/><br/>1. <strong>Signpost</strong> is not available for the manoeuvre. In this case <strong>Road number</strong> is taken from map data as a number of a road manoeuvre leads to. Only significant roads should be selected. Connecting road links should not be mentioned.<br/><br/>2. <strong>Signpost</strong> is available. In this case Road number must be in sync with signpost even if map date provides different information.<br/><br/>If multiple Road numbers provided, only those that route goes through must be displayed.   <br/><br/>  Road names ofter refer to the same object as Road numbers. Additional information about usage of <strong>Road names</strong> and <strong>Road Numbers</strong> provided in this document: <a href="./../../Guidance%20Framework%20-%20Methods%20%26%20Components/Directional%20Information%20-%20Road%20names%2C%20Road%20numbers%2C%20Towards/Directional_Information-Road-names_Road-numbers_Towards.html">Directional Information - Road names, Road numbers, Towards</a></td>
+</tr>
+<tr>
+<td>5</td>
+<td>Towards Information</td>
+<td>any</td>
+<td>No</td>
+<td>Single</td>
+<td>An area/city TOWARDS which the user will be heading after the manoeuvre.<br/><br/>This information is taken from Signpost. If multiple Towards are provided there, we should show the one that Route goes through and ignore others. <br/><br/>   NDS DATA<br/>NDS DATA ISSUE<br/>Currently in NDS data, <strong>Road names/numbers</strong> sometimes provided as <strong>Towards</strong> information. This seems to be incorrect and needs to be clarified with NDS. For now, we provide some heuristic algorithm that filters out <strong>Road names/numbers</strong> from Towards information.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Exit Numbers</td>
+<td>Highways only</td>
+<td>No</td>
+<td>Multiple</td>
+<td><strong>Exit Number</strong> is a method by which exits are identified on roads in most areas. must match the real-world sign information Could contain an array of numbers with or without cardinal direction information (i.e. Sout-East) <br/><br/>   EXCEPTION<br/>In some areas (California and Russia are known to have such logic) exit numbers are not used always or not used at all. Instead to identify the exit they use Towards or Directional information.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Lane guidance</td>
+<td>on multi-lane roads</td>
+<td>No</td>
+<td>Single</td>
+<td>Graphical image representing lane structure at the point of next manoeuvre</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Chain Instruction</td>
+<td>any</td>
+<td>No</td>
+<td>Single</td>
+<td>Is used where another manoeuvre occurs very soon after the main manoeuvre.</td>
+</tr>
+</tbody>
+</table>
+<h1>Cluster Display</h1>
+<h2>Description</h2>
+<p>Following the <a href="https://www.figma.com/file/c6C8xa5qJAeF1DgSR69zT7/Nav-Cluster-Reference-Vision?node-id=0%3A1">Cluster vision reference ↗️</a> , the Next instruction panel, as part of the cluster display, should be able to easily adapt and scale to the different OEM layouts without compromising usability and the core concepts.<br />
+As a part of the system described above, the cluster NIP should be <strong>adaptable, flexible but focused, glanceable, simplified, not distracting and easy to read.</strong></p>
+<h2>NIP Prioritisation</h2>
+<p><img alt="" src="images/157696959.png" /></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Item</th>
+<th>Context</th>
+<th>Permanent?</th>
+<th>Priority</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Next Instruction schematic image (Manoeuvre arrow)</td>
+<td>any</td>
+<td>yes</td>
+<td>1.</td>
+<td>Graphical image representing next manoeuvre schematically. This information is key and will always be displayed on the NIP whatever the size of it.</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Distance to next instruction</td>
+<td>not applicable for some special instructions</td>
+<td>yes</td>
+<td>1.</td>
+<td>Distance to point of main manoeuvre. Distance units follow special formatting rules described here: <a href="https://tomtom.atlassian.net/wiki/spaces/NAVUISPECS/pages/87264846/G_008+Distance+and+Time+Notation#G_008DistanceandTimeNotation-Distanceformatting">G_008 Distance and Time Notation#Distanceformatting</a><br/><br/>This information is key and will always be displayed on the NIP whatever the size of it.  However, it position might differ from top aligned (most of the use cases) to center aligned (small NIP area/ split screen) regarding the size of the NIP area.</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Exit Numbers</td>
+<td>highways only</td>
+<td>No</td>
+<td>2.</td>
+<td>This is the most important element on Highway's scenario. The exit number will be prioritised on top of the road number / shields, in case there is no room for both.</td>
+</tr>
+<tr>
+<td>D</td>
+<td>i. Road Name</td>
+<td>any</td>
+<td>No</td>
+<td>3.</td>
+<td>Road names, in a built-up area scenario will only be displayed if the NIP area is big enough. In case of a long road names ( two lines ) or if the NIP area is small (PSA, split screen), the NIP will focus on the manoeuvre arrow and on the distance to direction only.</td>
+</tr>
+<tr>
+<td>D</td>
+<td>ii. Road Shields/ Number</td>
+<td>any</td>
+<td>No</td>
+<td>3.</td>
+<td>Road shields / number will not be visible on the smallest NIP area. However, it will be in the rest.</td>
+</tr>
+</tbody>
+</table>
+<h2>NIP Configurability</h2>
+<h3>Font size</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Eye Distance</strong> (cm)</td>
+<td><strong>Example</strong></td>
+</tr>
+<tr>
+<td><strong>800</strong>Pitch 0.132 (wide)</td>
+<td><img alt="" src="images/157696958.png" /></td>
+</tr>
+<tr>
+<td><strong>1000</strong>Pitch 0.132 (wide)</td>
+<td><img alt="" src="images/157696957.png" /></td>
+</tr>
+</tbody>
+</table>
+<h3>Adaptiveness</h3>
+<p>These buckets are a representation of the panel of our Cluster’s NIP areas based on our various clients.  They <strong>DO NOT</strong> represent all of our clients NIP area / Cluster sizes but sum up the extreme use cases, in order for us to align our vision and design an adaptive and flexible NIP accordingly.  </p>
+<p><img alt="" src="images/157696960.png" /></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Simple Navigation Example</strong></td>
+<td><strong>Motorways Example</strong></td>
+<td><strong>Notes</strong></td>
+</tr>
+<tr>
+<td><img alt="" src="images/157696945.png" /></td>
+<td><img alt="" src="images/157696944.png" /></td>
+<td>This is PSA 7" cluster. Potentially the smallest NIP area.<br/>  In that case, we do not have the room for the road name and center the distance with the arrow manoeuvre. In motorways scenario, the exit number is prioritised over the road number.</td>
+</tr>
+<tr>
+<td><img alt="" src="images/157696952.png" /></td>
+<td><img alt="" src="images/157696950.png" /></td>
+<td>In the Maserati Cluster scenario, the road name can be displayed on one lign. <br/> In case this is too long, it will be fade out.</td>
+</tr>
+<tr>
+<td><img alt="" src="images/157696948.png" /></td>
+<td><img alt="" src="images/157696947.png" /></td>
+<td>Similar to the Maserati NIP area, this PSA ultra wide Cluster, will display the road name as long as it fits, on one lign.  <br/> In the motorways scenario, the exit number will be next to the distance with the road numbers right below, as designed in the original layout.</td>
+</tr>
+<tr>
+<td><img alt="" src="images/157696943.png" /></td>
+<td><img alt="" src="images/157696942.png" /></td>
+<td>The split screen scenario make it difficult to keep the road name within the built up area scenario. In that case, we focus on the distance only, horizontally centred with the manoeuvre arrow.  <br/> The road numbers will be right below that arrow on the mortorways.</td>
+</tr>
+<tr>
+<td><img alt="" src="images/157696941.png" /></td>
+<td><img alt="" src="images/157696940.png" /></td>
+<td>In the biggest NIP area from Stelantis, in order to use as much room as possible, the elements center aligned vertically inside the NIP by prioritisation order.</td>
+</tr>
+</tbody>
+</table>
+<h3>Prototype example</h3>
+<p>https://github.com/user-attachments/assets/3310f3ea-4faf-4610-89ae-eb6c002f971b</p>
+                </body>
+                </html>
+                

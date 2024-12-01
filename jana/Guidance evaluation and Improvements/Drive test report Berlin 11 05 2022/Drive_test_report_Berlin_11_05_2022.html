@@ -1,0 +1,246 @@
+
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Drive_test_report_Berlin_11_05_2022</title>
+                    <style>
+                        table {
+                            border-collapse: collapse;
+                            width: 100%;
+                        }
+                        th, td {
+                            border: 1px solid black;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                <table>
+<thead>
+<tr>
+<th><strong>Owner</strong></th>
+<th><a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PM</td>
+<td><a href="https://tomtom.atlassian.net/wiki/people/712020:a6d50cb1-97be-4a9a-a279-3fbb3e2e1799?ref=confluence">Joost Pennings</a></td>
+</tr>
+</tbody>
+</table>
+<h1>Introduction</h1>
+<p>The Drive test took place in Berlin with following participants: <a href="https://tomtom.atlassian.net/wiki/people/70121:e8cb7861-9079-4b92-b96d-bfe8cd882680?ref=confluence">Alexey Opokin</a> <a href="https://tomtom.atlassian.net/wiki/people/712020:5206fef6-cc5b-4004-b718-381d8785098b?ref=confluence">Vladimir Sinenko</a> <a href="https://tomtom.atlassian.net/wiki/people/712020:949d5275-659f-47e3-9e07-bef883342456?ref=confluence">Former user (Deleted)</a><br />
+The tested platform was Samsung Galaxy S6 tablet with latest Automotive UI build. Map version - TT maps (without lane guidance).<br />
+This is a second Drive test of NIE. First one was performed a year ago.</p>
+<h1>Test Setup Issues</h1>
+<p>Setting up a proper environment for testing appeared to be not very straightforward.  </p>
+<p>Installation Automotive UI<br />
+<a href="https://tomtom.atlassian.net/wiki/x/LlwKD">https://tomtom.atlassian.net/wiki/x/LlwKD</a>  </p>
+<p>Installation Onboard Maps<br />
+<a href="https://tomtom.atlassian.net/wiki/x/RzQ2Bg">https://tomtom.atlassian.net/wiki/x/RzQ2Bg</a>  </p>
+<p>We faced following issues:</p>
+<p><strong>Impossible to identify which map is used by the App (with FTX or without)</strong><br />
+Suggestion - Can we put map ID and map engine (Online / onboard) it directly on the screen as an overlay? That would make our lives so much easier.</p>
+<p><strong>TT Maps with FTX are not readily available.</strong><br />
+The only map available with FTX (lane guidance) was the whole Europe. The map was too big to install on the target device. Splitting the map process is extremely difficult, and It's not currently even possible to build a custom smaller map on the NDS Portal as the service is down.  </p>
+<p>Suggestion: Can we make pre-built Maps for main testing regions (Germany, Detroit, Netherlands)? <br />
+Suggestion: Can we extend the tablet with a 128Gb SD-card. </p>
+<p>With such issues I dont expect that our remote testers could setup the testing environment properly.</p>
+<p><strong>Can we do something to simplify the process?</strong>  </p>
+<h1>Issues Discovered</h1>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Description</th>
+<th>Image</th>
+<th>Location</th>
+<th>Domain</th>
+<th>Design status</th>
+<th>Impact</th>
+<th>Ticket</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rounding of distance value at triggering points (Audio).</td>
+<td>Triggering points (Audio) should have round values (400, 450, 500…) and not 410, 420, 460…</td>
+<td>N/A</td>
+<td></td>
+<td>NIE</td>
+<td><strong>Ready</strong></td>
+<td><strong>CRITICAL</strong><br><br>This issue is 1 year old and has been discovered at previous drive test.</td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-76138?src=confmacro">NAV-76138</a> <br><br><a href="https://tomtom.atlassian.net/browse/NAV-54235?src=confmacro">NAV-54235</a></td>
+</tr>
+<tr>
+<td>Return to position tracking after panning the map.</td>
+<td>After manual panning the map, it doesn’t return to position tracking automatically but stays at the fixed location.</td>
+<td><img alt="" src="images/157696500.jpg" /></td>
+<td></td>
+<td>Map Interactions</td>
+<td><strong>Not ready</strong></td>
+<td><strong>CRITICAL</strong><br><br>it is also a Safety issue.</td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-82661?src=confmacro">NAV-82661</a>   <br><br>   As this is a UI issue, it  is also valid for Automotive UI powered by NK1 and not specific to the New Instruction Engine</td>
+</tr>
+<tr>
+<td>Current position marker location</td>
+<td>Current position marker is too close to the bottom edge of the screen.</td>
+<td><img alt="" src="images/157696495.jpg" /></td>
+<td></td>
+<td>Map Interactions</td>
+<td><strong>Ready</strong></td>
+<td><strong>MAJOR</strong><br><br>it creates the impression of unrefined UI</td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-80383?src=confmacro">NAV-80383</a>  <br><br>   As this is a UI issue, it  is also valid for Automotive UI powered by NK1 and not specific to the New Instruction Engine</td>
+</tr>
+<tr>
+<td>Chain Instruction</td>
+<td>Chain instructions appear even if chain instruction in 2km distance from the main manoeuvre. Seems to be a bug.</td>
+<td><img alt="" src="images/157696508.jpeg" /></td>
+<td></td>
+<td>NIE</td>
+<td><strong>Ready</strong></td>
+<td><strong>CRITICAL</strong></td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-82992?src=confmacro">NAV-82992</a></td>
+</tr>
+<tr>
+<td>Follow the road for XXkm</td>
+<td>Follow the road instructions in the NIP is combined with the next Instruction which comes afterwards. NIP shows exit number and street name (related to a next instruction).    Probably a Bug on UI side.</td>
+<td><img alt="" src="images/157696506.jpeg" /></td>
+<td></td>
+<td>NIE / UI</td>
+<td><strong>Ready</strong></td>
+<td><strong>MAJOR</strong><br><br>the implantation of this instruction seems to be wrong.</td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-82766?src=confmacro">NAV-82766</a></td>
+</tr>
+<tr>
+<td>Audio Instruction mismatch</td>
+<td>Audio says “ in 2 km…”  and the NIP shows 1.5km</td>
+<td><img alt="" src="images/157696495.jpg" /></td>
+<td></td>
+<td>NIE</td>
+<td><strong>Ready</strong></td>
+<td><strong>MINOR</strong>  <br><br></td>
+<td></td>
+</tr>
+<tr>
+<td>Interrupted Triggering points are messed up</td>
+<td>Two announcements in 500 and 400m</td>
+<td><img alt="" src="images/157696497.jpg" /></td>
+<td></td>
+<td>NIE</td>
+<td><strong>Ready</strong></td>
+<td><strong>MAJOR</strong></td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-82994?src=confmacro">NAV-82994</a></td>
+</tr>
+<tr>
+<td>Early arrival</td>
+<td>Reaching a waypoint announced 300m before actual location of the waypoint.</td>
+<td>N/A</td>
+<td></td>
+<td>NIE</td>
+<td>N/A</td>
+<td><strong>MINOR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>No instructions is given at this intersection</td>
+<td>At this, non standard geometry intersection no instruction has been given at all. At least two instructions are expected.</td>
+<td><img alt="" src="images/157696499.jpeg" />  <img alt="" src="images/157696500.jpg" />      <img alt="" src="images/157697236.png" /></td>
+<td><a href="https://www.google.com/maps/@52.4918198,13.2858039,3a,75y,287.84h,101.55t/data=!3m6!1e1!3m4!1sYrfZteavhubhgzT-JDRUCA!2e0!7i13312!8i6656">52.491780, 13.286318</a></td>
+<td>NIE</td>
+<td><strong>Not Ready</strong></td>
+<td><strong>MAJOR</strong><br><br>This is a complex intersection and doesn't happen often, but he impact is still high because drivers are completely lost here.</td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-83002?src=confmacro">NAV-83002</a></td>
+</tr>
+<tr>
+<td>Confirmation phase trigger</td>
+<td>At one particular place, Confirmation instr. is given at 150m</td>
+<td>N/A</td>
+<td></td>
+<td>NIE</td>
+<td>N/A</td>
+<td><strong>MINOR</strong><br><br>even though the issue is minor it is worth to look why it is happening. Can point bigger problems</td>
+<td></td>
+</tr>
+<tr>
+<td>Absence of instruction after Merge to Highway</td>
+<td>After merging to highway instruction is not announced at 3.5km</td>
+<td>N/A</td>
+<td></td>
+<td>NIE</td>
+<td><strong>Not Ready</strong></td>
+<td><strong>MAJOR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>"Follow the road"instruction is not always used appropriate.</td>
+<td>Follow the road is not needed here</td>
+<td><img alt="" src="images/157696499.jpeg" /></td>
+<td></td>
+<td>NIE</td>
+<td><strong>Not Ready</strong></td>
+<td><strong>MAJOR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>“At the end of the road” landmark</td>
+<td>This landmark needs refactoring because it is used inappropriate most of the time.</td>
+<td>N/A</td>
+<td></td>
+<td>NIE</td>
+<td><strong>Not Ready</strong></td>
+<td><strong>MAJOR</strong></td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-69400?src=confmacro">NAV-69400</a></td>
+</tr>
+<tr>
+<td>Roundabout Issue</td>
+<td>At Barbarossaplatz after start navigation, we got turn left while still driving on the roundabout. Can't reproduce locally with a DevApp, could have been a mapmatching issue.      <a href="https://nds.tomtomgroup.com/webviewer/43617/?action=GetRoute%3FSRS%3DEPSG%3A3857%26lon0%3D1486059.228867%26lat0%3D6889623.2408034%26scale0%3D1893.424903431867%26lon1%3D1485814.2949317%26lat1%3D6889615.2884029%26scale1%3D1893.424903431867%26zoomTo%3Dtrue%26panTo%3Dtrue%26lang%3DNULL%26poiCategoryCollectionId%3D0%26iconCollectionId%3D0%26disputantId%3D0%26routingService%3D0%26theme%3DDEFAULT%26routeType%3DTIME_WITH_PENALTY%26vehicleType%3DPERSONAL_CAR%26labeling%3Dtrue%26icons%3Dtrue&amp;zoom=17.99999999984758&amp;lat=52.49224&amp;lon=13.3484&amp;layers=FFFBFFFFFFFFF000FFFTTF0000T&amp;&amp;poiCategoryCollectionId=0&amp;iconCollectionId=0&amp;disputantId=0&amp;lang=NULL&amp;theme=DEFAULT&amp;routingService=0&amp;routeType=TIME_WITH_PENALTY&amp;vehicleType=PERSONAL_CAR&amp;labeling=true&amp;icons=true">Location</a></td>
+<td><img alt="" src="images/157696511.png" /></td>
+<td><a href="https://nds.tomtomgroup.com/webviewer/43617/?action=GetRoute%3FSRS%3DEPSG%3A3857%26lon0%3D1486059.228867%26lat0%3D6889623.2408034%26scale0%3D1893.424903431867%26lon1%3D1485814.2949317%26lat1%3D6889615.2884029%26scale1%3D1893.424903431867%26zoomTo%3Dtrue%26panTo%3Dtrue%26lang%3DNULL%26poiCategoryCollectionId%3D0%26iconCollectionId%3D0%26disputantId%3D0%26routingService%3D0%26theme%3DDEFAULT%26routeType%3DTIME_WITH_PENALTY%26vehicleType%3DPERSONAL_CAR%26labeling%3Dtrue%26icons%3Dtrue&amp;zoom=17.99999999984758&amp;lat=52.49224&amp;lon=13.3484&amp;layers=FFFBFFFFFFFFF000FFFTTF0000T&amp;&amp;poiCategoryCollectionId=0&amp;iconCollectionId=0&amp;disputantId=0&amp;lang=NULL&amp;theme=DEFAULT&amp;routingService=0&amp;routeType=TIME_WITH_PENALTY&amp;vehicleType=PERSONAL_CAR&amp;labeling=true&amp;icons=true">Location</a></td>
+<td>NIE</td>
+<td><strong>??</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Obligatory turn missing</td>
+<td>Missing (?) an obligatory turn at a regulated intersection with 1 option:    <a href="https://nds.tomtomgroup.com/webviewer/43617/?action=GetRoute%3FSRS%3DEPSG%3A3857%26lon0%3D1485554.8731758%26lat0%3D6887356.4783206%26scale0%3D2132.729584174852%26lon1%3D1485502.3226138%26lat1%3D6887206.5897857%26scale1%3D2132.729584174852%26zoomTo%3Dtrue%26panTo%3Dtrue%26lang%3DNULL%26poiCategoryCollectionId%3D0%26iconCollectionId%3D0%26disputantId%3D0%26routingService%3D0%26theme%3DDEFAULT%26routeType%3DTIME_WITH_PENALTY%26vehicleType%3DPERSONAL_CAR%26labeling%3Dtrue%26icons%3Dtrue&amp;zoom=19&amp;lat=52.47935&amp;lon=13.34481&amp;layers=FFFBFFFFFFFFF000FFFTTF0000T&amp;&amp;poiCategoryCollectionId=0&amp;iconCollectionId=0&amp;disputantId=0&amp;lang=NULL&amp;theme=DEFAULT&amp;routingService=0&amp;routeType=TIME_WITH_PENALTY&amp;vehicleType=PERSONAL_CAR&amp;labeling=true&amp;icons=true">Location</a></td>
+<td><img alt="" src="images/157696512.png" /></td>
+<td><a href="https://nds.tomtomgroup.com/webviewer/43617/?action=GetRoute%3FSRS%3DEPSG%3A3857%26lon0%3D1485554.8731758%26lat0%3D6887356.4783206%26scale0%3D2132.729584174852%26lon1%3D1485502.3226138%26lat1%3D6887206.5897857%26scale1%3D2132.729584174852%26zoomTo%3Dtrue%26panTo%3Dtrue%26lang%3DNULL%26poiCategoryCollectionId%3D0%26iconCollectionId%3D0%26disputantId%3D0%26routingService%3D0%26theme%3DDEFAULT%26routeType%3DTIME_WITH_PENALTY%26vehicleType%3DPERSONAL_CAR%26labeling%3Dtrue%26icons%3Dtrue&amp;zoom=19&amp;lat=52.47935&amp;lon=13.34481&amp;layers=FFFBFFFFFFFFF000FFFTTF0000T&amp;&amp;poiCategoryCollectionId=0&amp;iconCollectionId=0&amp;disputantId=0&amp;lang=NULL&amp;theme=DEFAULT&amp;routingService=0&amp;routeType=TIME_WITH_PENALTY&amp;vehicleType=PERSONAL_CAR&amp;labeling=true&amp;icons=true">Location</a></td>
+<td>NIE</td>
+<td><strong>??</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Missing Arrows markers on the Map</td>
+<td>No arrow markers in Michi where we have instructions. Probably due to Michi only knowing about the online, not onboard instructions.</td>
+<td></td>
+<td></td>
+<td>Map</td>
+<td></td>
+<td><strong>MAJOR</strong></td>
+<td><a href="https://tomtom.atlassian.net/browse/NAV-26332?src=confmacro">NAV-26332</a></td>
+</tr>
+<tr>
+<td>Missing Instruction</td>
+<td>On this <a href="https://www.google.com/maps/dir/52.4693208,13.4917466/52.4935676,13.4603458/@52.4813667,13.458719,14z/am=t/data=!3m1!4b1!4m2!4m1!3e0,">route</a>  after the first left turn there was no voice announcement, although NIP displayed the Follow phase for a while.</td>
+<td><img alt="" src="images/157696514.png" /></td>
+<td></td>
+<td>NIE</td>
+<td><strong>??</strong></td>
+<td><strong>MAJOR</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+                </body>
+                </html>
+                
