@@ -56,7 +56,7 @@ jobs:
 
       - name: Set output for build_dir
         id: set_build_dir
-        run: echo "build_dir=${{ inputs.build_dir }}" >> $GITHUB_ENV
+        run: echo "build_dir=${{ inputs.build_dir }}" >> "${GITHUB_OUTPUT}"
 
     # - name: Setup GitHub Pages
       #  uses: actions/configure-pages@v5
