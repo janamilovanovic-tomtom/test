@@ -2,14 +2,9 @@
 
 ---
 
-name: Deploy Markdown to GitHub Pages
-# Publishes to: http://username.github.io/repository.
-# Docs: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site#publishing-with-a-custom-github-actions-workflow
-# To enable gh-pages: https://pages.github.com/
-#   goto:
-#    - repo settings
-#    - Pages
-#    - Build and deployment -> Source: select GitHub Actions
+name: Deploy Documentation to GitHub Pages and SharePoint
+# GitHub Pages will be available at: https://fluffy-train-v716q7o.pages.github.io/
+# Drive link: https://tomtominternational.sharepoint.com/sites/nav-dx-guidance/Shared%20Documents/nie-ux-spec/
 
 on:
   workflow_call:
@@ -30,7 +25,7 @@ permissions:
   id-token: write
 
 jobs:
-  deploy:
+  deploy-to-github-pages:
     name: Deploy Markdown to GitHub Pages
     runs-on: ubuntu-latest
     environment:
@@ -55,7 +50,28 @@ jobs:
         run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
 
       - name: Copy assets
-        run: rsync -akv --exclude='.*' --exclude='**/*.md' --exclude="${{ inputs.build_dir }}" "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
+        run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
+
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "${{ inputs.build_dir }}"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-to-sharepoint:
+    name: Deploy to SharePoint
+    runs-on: ubuntu-latest
+    needs: deploy-gh-pages
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Create ZIP archive
         run: zip -r my_archive.zip "${{ inputs.build_dir }}"/
@@ -79,7 +95,6 @@ jobs:
                 }' \
             "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/createUploadSession")
           
-          # Extract the upload URL and write to an environment file
           echo "UPLOAD_URL=$(echo $upload_session | jq -r .uploadUrl)" >> $GITHUB_ENV
 
       - name: Upload file in chunks
@@ -87,7 +102,6 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
           UPLOAD_URL: ${{ env.UPLOAD_URL }}
         run: |
-          # Define the chunk size
           chunk_size=20971520  # 20 MB
           total_size=$(stat -c%s "my_archive.zip")
           offset=0
@@ -98,10 +112,8 @@ jobs:
                   end=$((total_size - 1))
               fi
           
-              # Calculate the range
               content_range="bytes $offset-$end/$total_size"
           
-              # Create the chunk using dd
               dd if=my_archive.zip bs=1 skip=$offset count=$((end - offset + 1)) status=none | curl -X PUT \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Content-Range: $content_range" \

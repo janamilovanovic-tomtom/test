@@ -45,7 +45,6 @@ def main(src_dir, build_dir):
                 </body>
                 </html>
                 """
-                print(file)
 
                 if file == 'New_Instruction_Engine.md':
                     filename = 'index.html'

@@ -14,15 +14,14 @@ concurrency: ${{ github.ref }}
 
 jobs:
 
-  asciidoc:
-    name: Deploy architecture documentation to GitHub Pages
+  deploy-ux-spec:
+    name: Deploy UX spec to GitHub Pages and SharePoint
     secrets: inherit
     permissions:
       contents: read
       pages: write
       id-token: write
-    uses: ./.github/workflows/md-to-gh-pages.yaml
+    uses: ./.github/workflows/deploy-ux-spec.yaml
     with:
       src_dir: .
-      # Make sure this is outside of the src_dir
-      build_dir: doc_build
+      build_dir: ../doc_build
