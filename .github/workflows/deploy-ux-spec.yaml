@@ -67,7 +67,7 @@ jobs:
   deploy-to-sharepoint:
     name: Deploy to SharePoint
     runs-on: ubuntu-latest
-    needs: deploy-gh-pages
+    needs: deploy-to-github-pages
 
     steps:
       - name: Checkout
