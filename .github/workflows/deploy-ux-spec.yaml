@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Download build directory artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build-artifact
 
