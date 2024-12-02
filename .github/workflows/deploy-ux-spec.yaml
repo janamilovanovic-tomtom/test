@@ -2,7 +2,7 @@
 
 ---
 
-name: Deploy Documentation to GitHub Pages and SharePoint
+name: Deploy ux spec to GitHub Pages and SharePoint
 # GitHub Pages will be available at: https://fluffy-train-v716q7o.pages.github.io/
 # Drive link: https://tomtominternational.sharepoint.com/sites/nav-dx-guidance/Shared%20Documents/nie-ux-spec/
 
@@ -25,11 +25,9 @@ permissions:
   id-token: write
 
 jobs:
-  deploy-to-github-pages:
-    name: Deploy to GitHub Pages
+  deploy-ux-spec:
+    name: Deploy ux spec to GitHub Pages and SharePoint
     runs-on: ubuntu-latest
-    outputs:
-      build_dir: ${{ steps.set_build_dir.outputs.build_dir }}  # Set as an output variable
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -54,10 +52,6 @@ jobs:
       - name: Copy assets
         run: rsync -akv --exclude='.*' --exclude='**/*.md' --exclude=${{ inputs.build_dir }} "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
-      - name: Set output for build_dir
-        id: set_build_dir
-        run: echo "build_dir=${{ inputs.build_dir }}" >> "${GITHUB_OUTPUT}"
-
     # - name: Setup GitHub Pages
       #  uses: actions/configure-pages@v5
 
@@ -70,19 +64,8 @@ jobs:
      #   id: deployment
       #  uses: actions/deploy-pages@v4
 
-  deploy-to-sharepoint:
-    name: Deploy to SharePoint
-    runs-on: ubuntu-latest
-    needs: deploy-to-github-pages
-
-    steps:
-      - name: List current directory contents
-        run: ls -al "${{ needs.deploy-to-github-pages.outputs.build_dir }}"/
-
       - name: Create ZIP archive
-        run: zip -r nie-ux-spec.zip "${{ needs.deploy-to-github-pages.outputs.build_dir }}"/
-
-
+        run: zip -r nie-ux-spec.zip "${{ inputs.build_dir }}"
 
 
       - name: Create upload session
