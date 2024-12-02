@@ -28,6 +28,8 @@ jobs:
   deploy-to-github-pages:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
+    outputs:
+      build_dir: ${{ steps.set_build_dir.outputs.build_dir }}  # Set as an output variable
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
