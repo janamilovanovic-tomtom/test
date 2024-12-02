@@ -24,4 +24,4 @@ jobs:
     uses: ./.github/workflows/deploy-ux-spec.yaml
     with:
       src_dir: .
-      build_dir: ../doc_build
+      build_dir: doc_build

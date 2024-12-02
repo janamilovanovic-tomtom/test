@@ -26,7 +26,7 @@ permissions:
 
 jobs:
   deploy-to-github-pages:
-    name: Deploy Markdown to GitHub Pages
+    name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -50,7 +50,7 @@ jobs:
         run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
 
       - name: Copy assets
-        run: rsync -akv --exclude='.*' --exclude='**/*.md' "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
+        run: rsync -akv --exclude='.*' --exclude='**/*.md' --exclude=${{ inputs.build_dir }} "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
