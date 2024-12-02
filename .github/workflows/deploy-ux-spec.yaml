@@ -70,18 +70,16 @@ jobs:
     needs: deploy-to-github-pages
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Create ZIP archive
-        run: zip -r my_archive.zip "${{ inputs.build_dir }}"/
+        run: zip -r nie-ux-spec.zip "${{ inputs.build_dir }}"/
 
       - name: Create upload session
         id: create_upload_session
         env:
           ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
           DRIVE_ID: ${{ secrets.DRIVE_ID }}
-          FILE_NAME: 'my_archive.zip'
+          FILE_NAME: 'nie-ux-spec.zip'
           FOLDER_NAME: 'nie-ux-spec'
         run: |
           upload_session=$(curl -X POST \
@@ -103,7 +101,7 @@ jobs:
           UPLOAD_URL: ${{ env.UPLOAD_URL }}
         run: |
           chunk_size=20971520  # 20 MB
-          total_size=$(stat -c%s "my_archive.zip")
+          total_size=$(stat -c%s "nie-ux-spec.zip")
           offset=0
           
           while [ $offset -lt $total_size ]; do
@@ -114,7 +112,7 @@ jobs:
           
               content_range="bytes $offset-$end/$total_size"
           
-              dd if=my_archive.zip bs=1 skip=$offset count=$((end - offset + 1)) status=none | curl -X PUT \
+              dd if=nie-ux-spec.zip bs=1 skip=$offset count=$((end - offset + 1)) status=none | curl -X PUT \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
                 -H "Content-Range: $content_range" \
                 --data-binary @- \
