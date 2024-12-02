@@ -31,8 +31,6 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    outputs:
-      build_dir: ${{ steps.set_output.outputs.build_dir }}
 
     steps:
       - name: Checkout
@@ -54,12 +52,9 @@ jobs:
       - name: Copy assets
         run: rsync -akv --exclude='.*' --exclude='**/*.md' --exclude=${{ inputs.build_dir }} "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
-
-      - name: Upload build directory as artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: "${{ inputs.build_dir }}"
+      - name: Set output for build_dir
+        id: set_build_dir
+        run: echo "::set-output name=build_dir::${{ inputs.build_dir }}"
 
       # - name: Setup GitHub Pages
       #  uses: actions/configure-pages@v5
@@ -80,13 +75,6 @@ jobs:
 
     steps:
 
-      - name: Download build directory artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifact
-
-      - name: List contents of build directory
-        run: ls -la "${{ needs.deploy-to-github-pages.outputs.build_dir }}"
 
       - name: Create ZIP archive
         run: zip -r nie-ux-spec.zip "${{ needs.deploy-to-github-pages.outputs.build_dir }}"/
