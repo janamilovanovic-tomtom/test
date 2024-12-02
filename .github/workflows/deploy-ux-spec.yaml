@@ -54,6 +54,10 @@ jobs:
       - name: Copy assets
         run: rsync -akv --exclude='.*' --exclude='**/*.md' --exclude=${{ inputs.build_dir }} "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
 
+      - name: Set output
+        id: set_output
+        run: echo "build_dir=${{ inputs.build_dir }}" >> $GITHUB_ENV  # Postavite build_dir kao izlaz
+
      # - name: Setup GitHub Pages
       #  uses: actions/configure-pages@v5
 
