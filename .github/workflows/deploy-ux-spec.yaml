@@ -61,10 +61,10 @@ jobs:
      # - name: Setup GitHub Pages
       #  uses: actions/configure-pages@v5
 
-      #- name: Upload GitHub Pages artifact
-       # uses: actions/upload-pages-artifact@v3
-        #with:
-         # path: "${{ inputs.build_dir }}"
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "${{ inputs.build_dir }}"
 
     #  - name: Deploy to GitHub Pages
      #   id: deployment
@@ -76,11 +76,13 @@ jobs:
     needs: deploy-to-github-pages
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Download build directory artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: build-artifact
 
       - name: List contents of build directory
-        run: ls -la "${{ needs.deploy-to-github-pages.outputs.build_dir }}"
+        run: ls -la "doc_build"
 
       - name: Create ZIP archive
         run: zip -r nie-ux-spec.zip "${{ needs.deploy-to-github-pages.outputs.build_dir }}"/
