@@ -31,6 +31,8 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      build_dir: ${{ inputs.build_dir }}
 
     steps:
       - name: Checkout
@@ -71,7 +73,7 @@ jobs:
 
     #steps:
       - name: Create ZIP archive
-        run: zip -r nie-ux-spec.zip "${{ inputs.build_dir }}"/
+        run: zip -r nie-ux-spec.zip "${{ needs.deploy-to-github-pages.outputs.build_dir }}"/
 
       - name: Create upload session
         id: create_upload_session
