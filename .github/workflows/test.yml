@@ -1,4 +1,11 @@
-name: Download from SharePoint
+# Copyright (C) 2022 TomTom NV. All rights reserved.
+
+---
+
+name: Deploy UX spec to GitHub Pages and SharePoint
+# GitHub Pages will be available at: https://fluffy-train-v716q7o.pages.github.io/
+# Drive link: https://tomtominternational.sharepoint.com/sites/nav-dx-guidance/Shared%20Documents/nie-ux-spec/
+
 
 on:
   push:
@@ -6,25 +13,44 @@ on:
       - main
   workflow_dispatch:
 
+
 jobs:
-  download:
+  deploy-ux-spec:
+    name: Deploy UX spec to GitHub Pages and SharePoint
     runs-on: ubuntu-latest
 
-    steps:
 
-      - name: Checkout code
-        uses: actions/checkout@v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Create ZIP archive
+        run: zip -r nie-ux-spec.zip .
+
+      - name: Generate Access Token
+        id: get_token
         run: |
-          zip -r my_archive.zip .
+          tenant_id="${{ secrets.TENANT_ID }}"
+          client_id="${{ secrets.CLIENT_ID }}"
+          client_secret="${{ secrets.CLIENT_SECRET }}"
+          resource="https://graph.microsoft.com/.defaul"
+
+          response=$(curl -X POST "https://login.microsoftonline.com/$tenant_id/oauth2/v2.0/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "client_id=$client_id" \
+            -d "scope=$resource" \
+            -d "client_secret=$client_secret" \
+            -d "grant_type=client_credentials")
+
+          access_token=$(echo $response | jq -r .access_token)
+          echo "ACCESS_TOKEN=$access_token" >> $GITHUB_ENV
 
       - name: Create upload session
         id: create_upload_session
         env:
-          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
+          ACCESS_TOKEN: ${{ env.ACCESS_TOKEN }}
           DRIVE_ID: ${{ secrets.DRIVE_ID }}
-          FILE_NAME: 'my_archive.zip'
+          FILE_NAME: 'nie-ux-spec.zip'
           FOLDER_NAME: 'nie-ux-spec'
         run: |
           upload_session=$(curl -X POST \
@@ -32,21 +58,21 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
                   "item": {
-                    "@microsoft.graph.conflictBehavior": "rename",
+                    "@microsoft.graph.conflictBehavior": "replace",
                     "name": "'"$FILE_NAME"'"
                   }
                 }' \
             "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/createUploadSession")
-          echo "::set-output name=upload_url::$(echo $upload_session | jq -r .uploadUrl)"
+          
+          echo "UPLOAD_URL=$(echo $upload_session | jq -r .uploadUrl)" >> $GITHUB_ENV
 
       - name: Upload file in chunks
         env:
-          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
-          UPLOAD_URL: ${{ steps.create_upload_session.outputs.upload_url }}
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          UPLOAD_URL: ${{ env.UPLOAD_URL }}
         run: |
-          # Define the chunk size
-          chunk_size=10485760  # 10 MB
-          total_size=$(stat -c%s "my_archive.zip")
+          chunk_size=20971520  # 20 MB
+          total_size=$(stat -c%s "nie-ux-spec.zip")
           offset=0
           
           while [ $offset -lt $total_size ]; do
@@ -55,12 +81,12 @@ jobs:
                   end=$((total_size - 1))
               fi
           
-              # Upload the chunk
-              curl -X PUT \
+              content_range="bytes $offset-$end/$total_size"
+          
+              dd if=nie-ux-spec.zip bs=1 skip=$offset count=$((end - offset + 1)) status=none | curl -X PUT \
                 -H "Authorization: Bearer $ACCESS_TOKEN" \
-                -H "Content-Range: bytes $offset-$end/$total_size" \
-                --data-binary @"my_archive.zip" \
-                --data-binary "@<(dd if=my_archive.zip bs=$chunk_size count=1 skip=$((offset / chunk_size)))" \
+                -H "Content-Range: $content_range" \
+                --data-binary @- \
                 "$UPLOAD_URL"
           
               offset=$((offset + chunk_size))

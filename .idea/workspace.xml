@@ -10,8 +10,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b3277222-c0ae-43a7-8ab8-0ba481342f6a" name="Changes" comment="test commit">
-      <change beforePath="$PROJECT_DIR$/.github/workflows/deploy-ux-spec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploy-ux-spec.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/411569402.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/411601850.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/416063914.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/416096883.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/416842671.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/images/416874600.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/change_images_path.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/convert.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/convert_html_tables_to_md.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/delete.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/delete_images.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/New_Instruction_Engine.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
