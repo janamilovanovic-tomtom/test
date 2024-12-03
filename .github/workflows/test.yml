@@ -61,18 +61,20 @@ jobs:
           FOLDER_NAME: 'nie-ux-spec'
         run: |
           items=$(curl -X GET \
-            -H "Authorization: Bearer $ACCESS_TOKEN" \
-            "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/children")
-          if [ "$items" == "null" ]; then
-            echo "No items found or folder does not exist."
-            exit 1
+           -H "Authorization: Bearer $ACCESS_TOKEN" \
+           "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME:/children")
+
+          if [ -z "$items" ] || [ "$items" == "null" ]; then
+           echo "No items found or folder does not exist."
+           exit 0
           fi
-          echo "$items" | jq -c '.value[]' | while read -r item; do
-            item_id=$(echo "$item" | jq -r .id)
-            echo "Deleting item with ID: $item_id"
-            curl -X DELETE \
-              -H "Authorization: Bearer $ACCESS_TOKEN" \
-              "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/items/$item_id"
+
+          echo "$items" | jq -c '.value[]?' | while read -r item; do
+           item_id=$(echo "$item" | jq -r .id)
+           echo "Deleting item with ID: $item_id"
+           curl -X DELETE \
+             -H "Authorization: Bearer $ACCESS_TOKEN" \
+             "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/items/$item_id"
           done
 
       - name: Create upload session
