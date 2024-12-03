@@ -44,13 +44,13 @@ jobs:
 
           access_token=$(echo $response | jq -r .access_token)
           echo "ACCESS_TOKEN=$access_token" >> $GITHUB_ENV
-          
+
 
       - name: Get merge commit date and hash
         id: get_commit_info
         run: |
           commit_hash="${GITHUB_SHA}"
-          commit_date=$(git show -s --format=%cd --date=format:'%Y_%m_%d-%H:%M:%S' "$commit_hash")
+          commit_date=$(git show -s --format=%cd --date=format:'%Y-%m-%d_%H-%M-%S' "$commit_hash")
           echo "COMMIT_DATE=$commit_date" >> $GITHUB_ENV
           echo "COMMIT_HASH=$commit_hash" >> $GITHUB_ENV
 
@@ -59,8 +59,8 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ env.ACCESS_TOKEN }}
           DRIVE_ID: ${{ secrets.DRIVE_ID }}
-          FILE_NAME: 'nie-ux-spec-${{ env.COMMIT_DATE }}-${{ env.COMMIT_HASH }}.zip'
-          FOLDER_NAME: 'nie-ux-spec'
+          FILE_NAME: 'nie-ux-spec.zip'
+          FOLDER_NAME: 'nie-ux-spec-${{ env.COMMIT_DATE }}-${{ env.COMMIT_HASH }}'
         run: |
           upload_session=$(curl -X POST \
             -H "Authorization: Bearer $ACCESS_TOKEN" \
