@@ -63,7 +63,10 @@ jobs:
           items=$(curl -X GET \
             -H "Authorization: Bearer $ACCESS_TOKEN" \
             "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/children")
-
+          if [ "$items" == "null" ]; then
+            echo "No items found or folder does not exist."
+            exit 1
+          fi
           echo "$items" | jq -c '.value[]' | while read -r item; do
             item_id=$(echo "$item" | jq -r .id)
             echo "Deleting item with ID: $item_id"
