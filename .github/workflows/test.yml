@@ -50,7 +50,7 @@ jobs:
         id: get_commit_info
         run: |
           commit_hash="${GITHUB_SHA}"
-          commit_date=$(git show -s --format=%cd --date=format:'%Y-%m-%d_%H-%M-%S' "$commit_hash")
+          commit_date=$(git show -s --format=%cd --date=format:'%Y-%m-%d_%H-%M-%S' )
           echo "COMMIT_DATE=$commit_date" >> $GITHUB_ENV
           echo "COMMIT_HASH=$commit_hash" >> $GITHUB_ENV
 
