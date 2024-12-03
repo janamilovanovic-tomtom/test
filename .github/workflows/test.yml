@@ -50,7 +50,7 @@ jobs:
         id: get_commit_info
         run: |
           commit_hash="${GITHUB_SHA}"
-          commit_date=$(git show -s --format=%cd --date=format:'%Y-%m-%d-%H:%M:%S' "$commit_hash")
+          commit_date=$(git show -s --format=%cd --date=format:'%Y-%m-%d_%H-%M-%S' "$commit_hash")
           echo "COMMIT_DATE=$commit_date" >> $GITHUB_ENV
           echo "COMMIT_HASH=$commit_hash" >> $GITHUB_ENV
 
@@ -59,7 +59,7 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ env.ACCESS_TOKEN }}
           DRIVE_ID: ${{ secrets.DRIVE_ID }}
-          FILE_NAME: 'nie-ux-spec-${{ env.COMMIT_DATE }}-${{ env.COMMIT_HASH }}.zip'
+          FILE_NAME: 'nie-ux-spec_${{ env.COMMIT_DATE }}_${{ env.COMMIT_HASH }}.zip'
           FOLDER_NAME: 'nie-ux-spec'
         run: |
           upload_session=$(curl -X POST \
