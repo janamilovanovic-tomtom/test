@@ -59,8 +59,8 @@ jobs:
         env:
           ACCESS_TOKEN: ${{ env.ACCESS_TOKEN }}
           DRIVE_ID: ${{ secrets.DRIVE_ID }}
-          FILE_NAME: 'nie-ux-spec.zip'
-          FOLDER_NAME: 'nie-ux-spec-${{ env.COMMIT_DATE }}-${{ env.COMMIT_HASH }}'
+          FILE_NAME: 'nie-ux-spec-${{ env.COMMIT_DATE }}-${{ env.COMMIT_HASH }}.zip'
+          FOLDER_NAME: 'nie-ux-spec'
         run: |
           upload_session=$(curl -X POST \
             -H "Authorization: Bearer $ACCESS_TOKEN" \
