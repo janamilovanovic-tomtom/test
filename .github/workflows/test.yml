@@ -33,7 +33,7 @@ jobs:
           tenant_id="${{ secrets.TENANT_ID }}"
           client_id="${{ secrets.CLIENT_ID }}"
           client_secret="${{ secrets.CLIENT_SECRET }}"
-          resource="https://graph.microsoft.com/.defaul"
+          resource="https://graph.microsoft.com/.default"
 
           response=$(curl -X POST "https://login.microsoftonline.com/$tenant_id/oauth2/v2.0/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
@@ -48,7 +48,7 @@ jobs:
       - name: Create upload session
         id: create_upload_session
         env:
-          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
+          ACCESS_TOKEN: ${{ env.ACCESS_TOKEN }}
           DRIVE_ID: ${{ secrets.DRIVE_ID }}
           FILE_NAME: 'nie-ux-spec.zip'
           FOLDER_NAME: 'nie-ux-spec'
