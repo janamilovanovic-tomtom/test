@@ -1,0 +1,90 @@
+# Copyright (C) 2023 TomTom NV. All rights reserved.
+
+---
+name: Conan release workflow
+
+on:
+  workflow_call:
+    inputs:
+      coverity:
+        description: Whether to run coverity or not.
+        required: false
+        default: true
+        type: boolean
+      dry-run:
+        description: Perform a dry run (for testing purposes)
+        type: boolean
+        required: false
+        default: false
+      oss-compliance:
+        description: Whether to run oss-compliance or not.
+        required: false
+        default: true
+        type: boolean
+      secrets-as-envvars:
+        description: Space-separated list of secret names to expose as environment variables
+        required: false
+        type: string
+        default: ''
+      slack-notification-channel-id:
+        description: >
+          Slack channel to notify about failures.
+        required: false
+        type: string
+        default: ""
+      sonarqube:
+        description: Whether to run sonarqube or not.
+        required: false
+        default: true
+        type: boolean
+      update-released-jira-tickets:
+        description: >
+          Update Jira tickets which have been released with this package.
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      released-version:
+        description: Released version (empty string in case no release did happen).
+        value: ${{ jobs.conan-package-release.outputs.released-version }}
+
+permissions:
+  actions: read    # for technote-space/workflow-conclusion-action
+  checks: write    # to add xUnit reports to the GitHub UI
+  contents: write  # to push a tag (when applicable)
+
+jobs:
+  pre-commit:
+    uses: ./.github/workflows/pre-commit.yaml
+    secrets: inherit
+
+  conan-package-release:
+    uses: ./.github/workflows/conan-package-release.yaml
+    needs: pre-commit
+    secrets: inherit
+    with:
+      coverity: ${{ inputs.coverity }}
+      dry-run: ${{ inputs.dry-run }}
+      oss-compliance: ${{ inputs.oss-compliance }}
+      sonarqube: ${{ inputs.sonarqube }}
+
+  update-released-jira-tickets:
+    name: Update Jira tickets
+    needs: conan-package-release
+    if: inputs.update-released-jira-tickets && needs.conan-package-release.outputs.did-release-new-version == 'true'
+    uses: ./.github/workflows/update-released-jira-tickets.yaml
+    with:
+      version: ${{ needs.conan-package-release.outputs.released-version }}
+    secrets: inherit
+
+  conclusion:
+    if: always()
+    needs:
+      - pre-commit
+      - conan-package-release
+      - update-released-jira-tickets
+    uses: ./.github/workflows/conclusion.yaml
+    secrets: inherit
+    with:
+      slack-notification-channel-id: ${{ inputs.slack-notification-channel-id }}
+      dependent-jobs: ${{ toJson(needs) }}
