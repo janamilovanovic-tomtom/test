@@ -14,7 +14,7 @@ concurrency: ${{ github.ref }}
 
 jobs:
   release:
-    uses: ./.github/workflows/custom_release.yml.yaml
+    uses: ./.github/workflows/custom_release.yml
     secrets: inherit
 
   deploy-ux-spec:
