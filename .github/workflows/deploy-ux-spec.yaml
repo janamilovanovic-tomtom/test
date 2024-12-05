@@ -53,16 +53,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Zip source code
-        run: |
-          zip -r source_code.zip . 
-          mv source_code.zip ${{ github.workspace }}
-
-      - name: Upload Source Code Zip
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ github.run_number }}
-          files: source_code.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
