@@ -46,6 +46,7 @@ jobs:
         with:
           token: ${{ github.token }}
           create-release: true
+          create-tag: true
 
       # Add your build and other necessary steps here
 
