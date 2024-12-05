@@ -36,81 +36,32 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Zip Files
+        run: zip -r archive.zip .
+
+      # Add your build and other necessary steps here
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          python-version: "3.10"
+          tag_name: ${{ github.event.release.tag_name }}
+          release_name: Release ${{ github.event.release.tag_name }}
+          body: |
+            Description of the release
+          draft: false
+          prerelease: false
 
-      - name: Install dependencies
-        run: pip install markdown
-
-      - name: Generate HTML from Markdown
-        run: python3 .github/workflow_scripts/generate_html.py "${{ inputs.src_dir }}" "${{ inputs.build_dir }}"
-
-      - name: Fix ownership of HTML files
-        run: sudo chown -hR "$(id -un):$(id -gn)"  "${{ inputs.build_dir }}"
-
-      - name: Copy assets
-        run: rsync -akv --exclude='.*' --exclude='**/*.md' --exclude=${{ inputs.build_dir }} "${{ inputs.src_dir }}"/ "${{ inputs.build_dir }}"/
-
-    # - name: Setup GitHub Pages
-      #  uses: actions/configure-pages@v5
-
-   #   - name: Upload GitHub Pages artifact
-    #    uses: actions/upload-pages-artifact@v3
-     #   with:
-      #    path: "${{ inputs.build_dir }}"
-
-    #  - name: Deploy to GitHub Pages
-     #   id: deployment
-      #  uses: actions/deploy-pages@v4
-
-      - name: Create ZIP archive
-        run: zip -r nie-ux-spec.zip "${{ inputs.build_dir }}"
-
-
-      - name: Create upload session
-        id: create_upload_session
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
         env:
-          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
-          DRIVE_ID: ${{ secrets.DRIVE_ID }}
-          FILE_NAME: 'nie-ux-spec.zip'
-          FOLDER_NAME: 'nie-ux-spec'
-        run: |
-          upload_session=$(curl -X POST \
-            -H "Authorization: Bearer $ACCESS_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{
-                  "item": {
-                    "@microsoft.graph.conflictBehavior": "replace",
-                    "name": "'"$FILE_NAME"'"
-                  }
-                }' \
-            "https://graph.microsoft.com/v1.0/drives/$DRIVE_ID/root:/$FOLDER_NAME/$FILE_NAME:/createUploadSession")
-          
-          echo "UPLOAD_URL=$(echo $upload_session | jq -r .uploadUrl)" >> $GITHUB_ENV
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./archive.zip
+          asset_name: archive.zip
+          asset_content_type: application/zip
 
-      - name: Upload file in chunks
-        env:
-          ACCESS_TOKEN: ${{ secrets.SP_ACCESS_TOKEN }}
-          UPLOAD_URL: ${{ env.UPLOAD_URL }}
-        run: |
-          chunk_size=20971520  # 20 MB
-          total_size=$(stat -c%s "nie-ux-spec.zip")
-          offset=0
-          
-          while [ $offset -lt $total_size ]; do
-              end=$((offset + chunk_size - 1))
-              if [ $end -ge $total_size ]; then
-                  end=$((total_size - 1))
-              fi
-          
-              content_range="bytes $offset-$end/$total_size"
-          
-              dd if=nie-ux-spec.zip bs=1 skip=$offset count=$((end - offset + 1)) status=none | curl -X PUT \
-                -H "Authorization: Bearer $ACCESS_TOKEN" \
-                -H "Content-Range: $content_range" \
-                --data-binary @- \
-                "$UPLOAD_URL"
-          
-              offset=$((offset + chunk_size))
-          done

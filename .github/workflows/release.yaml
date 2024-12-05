@@ -13,14 +13,9 @@ on:
 concurrency: ${{ github.ref }}
 
 jobs:
-  release:
-    uses: ./.github/workflows/custom_release.yml
-    secrets: inherit
 
   deploy-ux-spec:
     name: Deploy UX spec to GitHub Pages and SharePoint
-    needs: release
-    if: needs.release.outputs.released-version != ''
     secrets: inherit
     permissions:
       contents: read
