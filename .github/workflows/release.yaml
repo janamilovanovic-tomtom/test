@@ -18,7 +18,7 @@ jobs:
     name: Deploy UX spec to GitHub Pages and SharePoint
     secrets: inherit
     permissions:
-      contents: read
+      contents: write
       pages: write
       id-token: write
     uses: ./.github/workflows/deploy-ux-spec.yaml
