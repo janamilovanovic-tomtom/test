@@ -25,3 +25,4 @@ jobs:
     with:
       src_dir: .
       build_dir: nie-ux-spec
+      bump-version: true

@@ -17,6 +17,10 @@ on:
         description: root of path to recursively publish static HTML from
         required: true
         type: string
+      bump-version:
+          description: "whether or not to bump version based on Conventional Commits"
+          type: boolean
+          required: true
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -36,21 +40,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Zip Files
-        run: zip -r archive.zip .
+      - name: bump version
+        uses: tomtom-international/commisery-action/bump@v3
+        if: inputs.bump-version
+        with:
+          token: ${{ github.token }}
+          create-release: true
 
       # Add your build and other necessary steps here
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
-          body: |
-            Changes in this release:
-            - Updated source code.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #  - name: Create Release
+     #   id: create_release
+      #  uses: softprops/action-gh-release@v1
+       # with:
+        #  tag_name: v${{ github.run_number }}
+         # release_name: Release ${{ github.run_number }}
+          #body: |
+           # Changes in this release:
+            #- Updated source code.
+     #   env:
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
