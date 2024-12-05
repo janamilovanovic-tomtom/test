@@ -43,25 +43,26 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.event.release.tag_name }}
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
           body: |
-            Description of the release
-          draft: false
-          prerelease: false
-
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
+            Changes in this release:
+            - Updated source code.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Zip source code
+        run: |
+          zip -r source_code.zip . 
+          mv source_code.zip ${{ github.workspace }}
+
+      - name: Upload Source Code Zip
+        uses: softprops/action-gh-release@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./archive.zip
-          asset_name: archive.zip
-          asset_content_type: application/zip
+          tag_name: v${{ github.run_number }}
+          files: source_code.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
